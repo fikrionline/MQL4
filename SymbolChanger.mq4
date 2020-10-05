@@ -3,7 +3,7 @@
 #property strict
 
 extern string UniqueID = "SymbolChanger"; // Indicator unique ID
-extern bool DisplayTimeFrame = 0;
+extern bool DisplayTimeFrame = 1;
 extern int ButtonsInARow = 20; // Buttons in a horizontal row
 extern int XShift = 2; // Horizontal shift
 extern int YShift = 2; // Vertical shift
@@ -51,20 +51,43 @@ int OnInit() {
    IndicatorSymbol[26] = "USDCAD";
    IndicatorSymbol[27] = "USDCHF";
    IndicatorSymbol[28] = "USDJPY";
+   
+   string ButtonSymbolUniqueID[29];
+   string ButtonSymbolString[29];
+   string ButtonSymbolSymbolName[29];
 
    for (int i = 0; i < SymbolsTotal(true); i++) {      
       for(int is = 0; is < ArraySize(IndicatorSymbol); is++){
          if(IndicatorSymbol[is] == SymbolName(i, true)){
+         
             if (i > 0 && MathMod(i, ButtonsInARow) == 0) {
-               xpos = 0;
-               ypos += YSize + 1;
+               //xpos = 0;
+               //ypos += YSize + 1;
             }
-            createButton(UniqueID + ":symbol:" + string(i), SymbolName(i, true), XShift + xpos, YShift + ypos);
-            xpos += XSize + 1;
+            //createButton(UniqueID + ":symbol:" + string(i), SymbolName(i, true), XShift + xpos, YShift + ypos);
+            //xpos += XSize + 1;
+            
+            for(int s=0; s<ArraySize(IndicatorSymbol); s++){
+               if(IndicatorSymbol[s] == SymbolName(i, true)){
+                  ButtonSymbolUniqueID[s] = UniqueID;
+                  ButtonSymbolString[s] = string(i);
+                  ButtonSymbolSymbolName[s] = SymbolName(i, true);
+               }
+            }
+            
          }
       }
    }
-
+   
+   for(int b=0; b<ArraySize(IndicatorSymbol); b++){
+      if (b > 0 && MathMod(b, ButtonsInARow) == 0) {
+         xpos = 0;
+         ypos += YSize + 1;
+      }
+      createButton(ButtonSymbolUniqueID[b] + ":symbol:" + ButtonSymbolString[b], ButtonSymbolSymbolName[b], XShift + xpos, YShift + ypos);
+      xpos += XSize + 1;
+   }
+   
    if(DisplayTimeFrame == 1){
       xpos = 0;
       ypos += YSize + 3;
