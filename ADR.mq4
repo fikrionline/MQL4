@@ -15,7 +15,7 @@ int ADROpenHour= 0;         // start time for range calculation (LEAVE AT 0. PRO
 int ADRCloseHour= 24;        // end time for range calculation  (LEAVE AT 24. PROGRAM DOESN'T WORK PROPERLY OTHERWISE.)
 
 int ATRTimeFrame= PERIOD_D1; // timeframe for ATR (LEAVE AT PERIOD_D1)
-extern int ATRPeriod= 5;           // period for ATR
+extern int ATRPeriod= 22;           // period for ATR
 
 bool UseManualADR= false;    // allows use of manual value for range
 int ManualADRValuePips= 0;   // manual value for range
