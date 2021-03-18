@@ -13,7 +13,7 @@ extern string Pair1 = "EURCHF";
 extern string Pair2 = "EURUSD";
 extern string Pair3 = "USDCHF";
 extern int BasicDay = 0;
-extern double BasicLot = 0.1;
+extern double BasicLot = 0.5;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -40,7 +40,8 @@ void OnTick()
   {
 //---
 
-   string ShowComment, Comments1, Comments2, Comments3;
+   string ShowComment = "BasicDay " + IntegerToString(BasicDay) + " :: BasicLot " + DoubleToStr(BasicLot, 2);
+   string Comments1, Comments2, Comments3;
    
    double YesterdayClose1 = iClose(Pair1, PERIOD_D1, BasicDay + 1);
    double YesterdayClose2 = iClose(Pair2, PERIOD_D1, BasicDay + 1);
@@ -104,7 +105,7 @@ void OnTick()
    Change3Prosentase = (Change3/YesterdayClose3) * 100;   
    Comments3 = Pair3 + " " + DoubleToStr(YesterdayClose3, 5) + " --> " + DoubleToStr(PriceBid3, 5) + " = " + PlusMinus3 + DoubleToStr(Change3Prosentase, 3) + "% Lot " + DoubleToStr(Lot3, 2);
    
-   ShowComment = Comments1 + "\n" + Comments2 + "\n" + Comments3;
+   ShowComment = ShowComment + "\n" + Comments1 + "\n" + Comments2 + "\n" + Comments3;
    Comment(ShowComment);
   
   }
