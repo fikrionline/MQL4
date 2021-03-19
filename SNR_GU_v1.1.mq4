@@ -6,12 +6,7 @@
 
 #property indicator_chart_window
 
-enum TheBaseHHLL {
-Today = 0, //Today
-Yesterday = 1, //Yesterday
-Two = 2 //2
-};
-input TheBaseHHLL BaseHHLL = 0;
+extern int BaseHHLL = 0;
 
 enum TheBaseSNR {
 TheBaseSNRA = 1, //1.00351748471
@@ -24,8 +19,6 @@ TheBaseDeviasiA = 1, //1.00175623
 TheBaseDeviasiB = 2 //1.00351748471
 };
 input TheBaseDeviasi BaseDeviasi = 2;
-
-extern bool ShowPivot = false;
 
 extern color Daily_Pivot = Aqua;
 extern color Daily_S_Levels = Orange;
@@ -115,19 +108,10 @@ int start() {
     R1 = YesterdayLow * ResultBaseSNR;
     S1 = YesterdayHigh / ResultBaseSNR;
 
-    R2 = R1 * ResultBaseSNR;
-    S2 = S1 / ResultBaseSNR;
+    RDeviasi = R1 * ResultBaseDeviasi;
+    SDeviasi = S1 / ResultBaseDeviasi;
 
-    R3 = R2 * ResultBaseSNR;
-    S3 = S2 / ResultBaseSNR;
-
-    RDeviasi = R3 * ResultBaseDeviasi;
-    SDeviasi = S3 / ResultBaseDeviasi;
-
-    if(ShowPivot == true)
-    {
-        Pivot = R1 + ((S1 - R1) / 2);
-    }
+    //Pivot = R1 + ((S1 - R1) / 2);
 
     //--------------------------------------------------------
 

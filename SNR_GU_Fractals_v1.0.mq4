@@ -6,13 +6,6 @@
 
 #property indicator_chart_window
 
-enum TheBaseHHLL {
-Today = 0, //Today
-Yesterday = 1, //Yesterday
-Two = 2 //2
-};
-input TheBaseHHLL BaseHHLL = 0;
-
 enum TheBaseSNR {
 TheBaseSNRA = 1, //1.00351748471
 TheBaseSNRB = 2, //1.00701748471
@@ -25,18 +18,11 @@ TheBaseDeviasiB = 2 //1.00351748471
 };
 input TheBaseDeviasi BaseDeviasi = 2;
 
-extern bool ShowPivot = false;
-
 extern color Daily_Pivot = Aqua;
 extern color Daily_S_Levels = Orange;
 extern color Daily_R_Levels = Green;
 
-double YesterdayOpen;
-double YesterdayHigh;
-double YesterdayLow;
-double YesterdayClose;
-double Day_Price[][6];
-double Pivot, S1, S2, S3, R1, R2, R3, RDeviasi, SDeviasi, ResultBaseSNR, ResultBaseDeviasi;
+double LastUpper, LastLower, Pivot, S1, S2, S3, R1, R2, R3, RDeviasi, SDeviasi, ResultBaseSNR, ResultBaseDeviasi;
 
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -87,12 +73,23 @@ int deinit() {
 //+------------------------------------------------------------------+
 int start() {
 
-    ArrayCopyRates(Day_Price, (Symbol()), 1440);
+    for (int i=1; i<=100; i++)
+    {
+        if (iFractals(Symbol(), PERIOD_CURRENT, MODE_UPPER, i) > 0)
+        {
+            LastUpper = iHigh(Symbol(), PERIOD_CURRENT, i);
+            break;
+        }        
+    } //Alert(i);
     
-    YesterdayOpen = Day_Price[BaseHHLL][1];
-    YesterdayHigh = Day_Price[BaseHHLL][3];
-    YesterdayLow = Day_Price[BaseHHLL][2];
-    YesterdayClose = Day_Price[BaseHHLL][4];
+    for (int j=1; j<=100; j++)
+    {
+        if (iFractals(Symbol(), PERIOD_CURRENT, MODE_LOWER, j) > 0)
+        {
+            LastLower = iLow(Symbol(), PERIOD_CURRENT, j);
+            break;
+        }        
+    } //Alert(j);
     
     if (BaseSNR == 1)
     {
@@ -112,22 +109,13 @@ int start() {
         ResultBaseDeviasi = 1.00351748471;
     }
 
-    R1 = YesterdayLow * ResultBaseSNR;
-    S1 = YesterdayHigh / ResultBaseSNR;
+    R1 = LastLower * ResultBaseSNR;
+    S1 = LastUpper / ResultBaseSNR;
 
-    R2 = R1 * ResultBaseSNR;
-    S2 = S1 / ResultBaseSNR;
+    RDeviasi = R1 * ResultBaseDeviasi;
+    SDeviasi = S1 / ResultBaseDeviasi;
 
-    R3 = R2 * ResultBaseSNR;
-    S3 = S2 / ResultBaseSNR;
-
-    RDeviasi = R3 * ResultBaseDeviasi;
-    SDeviasi = S3 / ResultBaseDeviasi;
-
-    if(ShowPivot == true)
-    {
-        Pivot = R1 + ((S1 - R1) / 2);
-    }
+    //Pivot = R1 + ((S1 - R1) / 2);
 
     //--------------------------------------------------------
 

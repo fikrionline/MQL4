@@ -25,8 +25,6 @@ TheBaseDeviasiB = 2 //1.00351748471
 };
 input TheBaseDeviasi BaseDeviasi = 2;
 
-extern bool ShowPivot = false;
-
 extern color Daily_Pivot = Aqua;
 extern color Daily_S_Levels = Orange;
 extern color Daily_R_Levels = Green;
@@ -115,19 +113,10 @@ int start() {
     R1 = YesterdayLow * ResultBaseSNR;
     S1 = YesterdayHigh / ResultBaseSNR;
 
-    R2 = R1 * ResultBaseSNR;
-    S2 = S1 / ResultBaseSNR;
+    RDeviasi = R1 * ResultBaseDeviasi;
+    SDeviasi = S1 / ResultBaseDeviasi;
 
-    R3 = R2 * ResultBaseSNR;
-    S3 = S2 / ResultBaseSNR;
-
-    RDeviasi = R3 * ResultBaseDeviasi;
-    SDeviasi = S3 / ResultBaseDeviasi;
-
-    if(ShowPivot == true)
-    {
-        Pivot = R1 + ((S1 - R1) / 2);
-    }
+    //Pivot = R1 + ((S1 - R1) / 2);
 
     //--------------------------------------------------------
 
