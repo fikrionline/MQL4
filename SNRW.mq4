@@ -39,7 +39,7 @@ W16 = 16 //16
 };
 input TheBaseHHLL BaseHHLL = 0;
 
-extern color Daily_Pivot = Aqua;
+extern color Daily_Pivot = Blue;
 extern color Daily_S_Levels = Orange;
 extern color Daily_R_Levels = Green;
 
@@ -186,7 +186,7 @@ int start() {
     RDeviasi = R10 * ResultBaseDeviasi;
     SDeviasi = S10 / ResultBaseDeviasi;
 
-    //Pivot = R1 + ((S1 - R1) / 2);
+    Pivot = R1 + ((S1 - R1) / 2);
 
     //--------------------------------------------------------
 

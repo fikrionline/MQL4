@@ -17,7 +17,7 @@ int JumlahBearish = 0;
 
 int init()
 {
-   for (int i=StartFrom; i<(StartFrom+CandleCount); i++)
+   for (int i=1; i<=CandleCount; i++)
    {
       CandleOpen = iOpen(Symbol(), PERIOD_CURRENT, i);
       CandleClose = iClose(Symbol(), PERIOD_CURRENT, i);
@@ -39,7 +39,7 @@ int init()
    ProsentaseBullish = NormalizeDouble((CountBullish / (CountBullish + CountBearish)) * 100, 2);
    ProsentaseBearish = NormalizeDouble((CountBearish / (CountBullish + CountBearish)) * 100, 2);
    
-   string comment = ("" + Symbol() + " | " + CandleCount + " candle | bullish " + JumlahBullish + " | bearish " + JumlahBearish + " | bullish " + ProsentaseBullish + "% | bearish " + ProsentaseBearish + "%");
+   string comment = ("" + Symbol() + " / " + CandleCount + " candle / bullish " + JumlahBullish + " bearish " + JumlahBearish + " / presentase rata-rata bullish " + ProsentaseBullish + "% & bearish " + ProsentaseBearish + "%");
    Comment(comment);
    
    return(0);
