@@ -15,7 +15,7 @@ int ADROpenHour= 0;         // start time for range calculation (LEAVE AT 0. PRO
 int ADRCloseHour= 24;        // end time for range calculation  (LEAVE AT 24. PROGRAM DOESN'T WORK PROPERLY OTHERWISE.)
 
 int ATRTimeFrame= PERIOD_D1; // timeframe for ATR (LEAVE AT PERIOD_D1)
-extern int ATRPeriod= 22;           // period for ATR
+extern int ATRPeriod= 14;           // period for ATR
 
 bool UseManualADR= false;    // allows use of manual value for range
 int ManualADRValuePips= 0;   // manual value for range
@@ -144,7 +144,7 @@ int start()
           today_low,
           today_open= 0,
           today_range,
-          lasthigh, lastlow,last,
+          lasthigh, lastlow,
           to_long_adr= 0,
           to_short_adr= 0,
           adr_high= 0,
@@ -416,8 +416,7 @@ void SetLevel(string text, double level, color col1, int linestyle, int thicknes
 {
    int digits= Digits;
    string labelname= "[ADR] " + text + " Label",
-          linename= "[ADR] " + text + " Line",
-          pricelabel; 
+          linename= "[ADR] " + text + " Line"; 
 
    // create or move the horizontal line   
    if (ObjectFind(linename) != 0) {
