@@ -41,29 +41,29 @@ extern bool Show_Doji_Alert = true;
 extern color Color_Doji = Red;
 int Text_Doji = 8;
 
-extern bool Display_Stars = true;
-extern bool Show_Stars_Alert = true;
+extern bool Display_Stars = false;
+extern bool Show_Stars_Alert = false;
 extern int Star_Body_Length = 5;
 extern color Color_Star = Blue;
 int Text_Star = 8;
 
-extern bool Display_Dark_Cloud_Cover = true;
-extern bool Show_DarkCC_Alert = true;
+extern bool Display_Dark_Cloud_Cover = false;
+extern bool Show_DarkCC_Alert = false;
 extern color Color_DarkCC = Red;
 int Text_DarkCC = 8;
 
-extern bool Display_Piercing_Line = true;
-extern bool Show_Piercing_Line_Alert = true;
+extern bool Display_Piercing_Line = false;
+extern bool Show_Piercing_Line_Alert = false;
 extern color Color_Piercing_Line = Blue;
 int Text_Piercing_Line = 8;
 
-extern bool Display_Bearish_Engulfing = true;
-extern bool Show_Bearish_Engulfing_Alert = true;
+extern bool Display_Bearish_Engulfing = false;
+extern bool Show_Bearish_Engulfing_Alert = false;
 extern color Color_Bearish_Engulfing = Red;
 int Text_Bearish_Engulfing = 8;
 
-extern bool Display_Bullish_Engulfing = true;
-extern bool Show_Bullish_Engulfing_Alert = true;
+extern bool Display_Bullish_Engulfing = false;
+extern bool Show_Bullish_Engulfing_Alert = false;
 extern color Color_Bullish_Engulfing = Blue;
 int Text_Bullish_Engulfing = 8;
 

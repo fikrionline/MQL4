@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 
-extern int     TimeZoneGMT = 4;
+extern int     TimeZoneGMT = 7;
 extern bool    SendAlert = 0;
 extern bool    SendNotif = 1;
 
@@ -30,7 +30,7 @@ int start() {
    if (next_candle <= Time[0]) {
       next_candle = Time[0] + Period();
       
-      string IndicatorSymbol[29];
+      string IndicatorSymbol[30];
       IndicatorSymbol[0] = "AUDCAD";
       IndicatorSymbol[1] = "AUDCHF";
       IndicatorSymbol[2] = "AUDJPY";
@@ -60,6 +60,7 @@ int start() {
       IndicatorSymbol[26] = "USDCHF";
       IndicatorSymbol[27] = "USDJPY";
       IndicatorSymbol[28] = "XAUUSD";
+      IndicatorSymbol[29] = "BTCUSD";
       
       double ArrowUp, ArrowDown;
       string alert_text = GetTimeFrame(Period());
