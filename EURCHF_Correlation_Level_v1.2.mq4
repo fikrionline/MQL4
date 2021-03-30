@@ -9,8 +9,8 @@
 #property strict
 #property indicator_chart_window
 
-extern int BasicWeek = 1;
-extern double LevelStep = 0.25;
+extern int BasicWeek = 0;
+extern double LevelStep = 0.2;
 extern int LevelSize = 10;
 
 int init() {
@@ -40,8 +40,8 @@ int start() {
 
    TimeToStr(CurTime());
    
-   double StartPrice = iClose(Symbol(), PERIOD_W1, BasicWeek);
-   datetime StartPriceTime = iTime(Symbol(), PERIOD_W1, BasicWeek - 1);
+   double StartPrice = iClose(Symbol(), PERIOD_W1, BasicWeek + 1);
+   datetime StartPriceTime = iTime(Symbol(), PERIOD_W1, BasicWeek);
    
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;
