@@ -1,3 +1,8 @@
+//+------------------------------------------------------------------+
+//|                                                SymbolChanger.mq4 |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
 #property indicator_separate_window
 #property indicator_buffers 0
 #property strict
@@ -22,7 +27,7 @@ int OnInit()
     IndicatorShortName(UniqueID);
     int xpos = 0, ypos = 0, maxx = 0, maxy = 0;
 
-    string IndicatorSymbol[29];
+    string IndicatorSymbol[30];
     IndicatorSymbol[0] = "AUDCAD";
     IndicatorSymbol[1] = "AUDCHF";
     IndicatorSymbol[2] = "AUDJPY";
@@ -52,10 +57,11 @@ int OnInit()
     IndicatorSymbol[26] = "USDCHF";
     IndicatorSymbol[27] = "USDJPY";
     IndicatorSymbol[28] = "XAUUSD";
+    IndicatorSymbol[29] = "BTCUSD";
 
-    string ButtonSymbolUniqueID[29];
-    string ButtonSymbolString[29];
-    string ButtonSymbolSymbolName[29];
+    string ButtonSymbolUniqueID[30];
+    string ButtonSymbolString[30];
+    string ButtonSymbolSymbolName[30];
 
     for (int i = 0; i < SymbolsTotal(true); i++)
     {
