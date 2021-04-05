@@ -10,10 +10,10 @@
 
 //Choose Pair
 extern string Pair1 = "EURCHF";
-extern string Pair2 = "EURUSD";
-extern string Pair3 = "USDCHF";
+extern string Pair2 = "EURGBP";
+extern string Pair3 = "GBPCHF";
 extern int BasicDay = 0;
-extern double BasicLot = 0.5;
+extern double BasicLot = 1;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |

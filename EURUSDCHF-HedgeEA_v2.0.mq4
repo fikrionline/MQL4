@@ -12,7 +12,7 @@
 extern string Pair1 = "EURCHF";
 extern string Pair2 = "EURUSD";
 extern string Pair3 = "USDCHF";
-extern int GetDay = 5;
+extern int NumDay = 5;
 extern double BasicLot = 0.5;
 extern bool SendNotif = false;
 extern double Level1 = 0.30;
@@ -55,7 +55,7 @@ void OnTick()
       SendNotifComment = "No";
    }
    
-   string ShowComment = "GetDay " + IntegerToString(GetDay) + " :: BasicLot " + DoubleToStr(BasicLot, 2) + " :: SendNotif " + SendNotifComment + " :: Level " + DoubleToStr(Level1, 2) + " " + DoubleToStr(Level2, 2) + " "+ DoubleToStr(Level3, 2) + " "+ DoubleToStr(Level4, 2) + " "+ DoubleToStr(Level5, 2);
+   string ShowComment = "NumDay " + IntegerToString(NumDay) + " :: BasicLot " + DoubleToStr(BasicLot, 2) + " :: SendNotif " + SendNotifComment + " :: Level " + DoubleToStr(Level1, 2) + " " + DoubleToStr(Level2, 2) + " "+ DoubleToStr(Level3, 2) + " "+ DoubleToStr(Level4, 2) + " "+ DoubleToStr(Level5, 2);
    
    double YesterdayClose1 = iClose(Pair1, PERIOD_D1, 1);
    double YesterdayClose2 = iClose(Pair2, PERIOD_D1, 1);
@@ -85,7 +85,7 @@ void OnTick()
    string DayComment2 = Pair2;
    string DayComment3 = Pair3;
    
-   for(int d=GetDay; d>0; d--)
+   for(int d=NumDay; d>0; d--)
    {
       
       //Pair1
