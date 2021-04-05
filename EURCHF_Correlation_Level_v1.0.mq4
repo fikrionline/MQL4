@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-extern double StartPrice = 1.10588;
+extern double StartPrice = 1.10523;
 extern double LevelStep = 0.25;
 extern int LevelSize = 10;
 

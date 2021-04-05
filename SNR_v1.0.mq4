@@ -11,8 +11,9 @@ extern int BaseHHLL = 0;
 enum TheBaseSNR {
    TheBaseSNRA = 1, //1.00351748471
       TheBaseSNRB = 2, //1.00551748471
+      TheBaseSNRC = 3, //1.00701748471
 };
-input TheBaseSNR BaseSNR = 2;
+input TheBaseSNR BaseSNR = 3;
 
 enum TheBaseDeviasi {
    TheBaseDeviasiA = 1, //1.00175623
@@ -95,6 +96,9 @@ int start() {
    } else
    if (BaseSNR == 2) {
       ResultBaseSNR = 1.00551748471;
+   } else
+   if (BaseSNR == 3) {
+      ResultBaseSNR = 1.00701748471;
    }
 
    if (BaseDeviasi == 1) {

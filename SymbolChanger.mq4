@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                                SymbolChanger.mq4 |
-//|                        Copyright 2021, MetaQuotes Software Corp. |
-//|                                             https://www.mql5.com |
-//+------------------------------------------------------------------+
 #property indicator_separate_window
 #property indicator_buffers 0
 #property strict

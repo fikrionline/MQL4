@@ -10,7 +10,7 @@
 #property indicator_chart_window
 
 extern int BasicWeek = 0;
-extern double LevelStep = 0.2;
+extern double LevelStep = 0.25;
 extern int LevelSize = 10;
 
 int init() {
