@@ -13,7 +13,7 @@ TheBaseSNRB = 2, //1.00351748471
 TheBaseSNRC = 3, //1.00551748471
 TheBaseSNRD = 4, //1.00701748471
 };
-input TheBaseSNR BaseSNR = 4;
+input TheBaseSNR BaseSNR = 3;
 
 enum TheBaseDeviasi {
 TheBaseDeviasiA = 1, //1.00175623
@@ -29,10 +29,10 @@ extern color Daily_S_LevelsDeviasi = DarkOrange;
 extern color Daily_R_Levels = Green;
 extern color Daily_R_LevelsDeviasi = DarkGreen;
 
-double YesterdayOpen;
-double YesterdayHigh;
-double YesterdayLow;
-double YesterdayClose;
+double BasicOpen;
+double BasicHigh;
+double BasicLow;
+double BasicClose;
 double Day_Price[][6];
 double Pivot, S1, S2, S3, R1, R2, R3, RDeviasi, SDeviasi, ResultBaseSNR, ResultBaseDeviasi;
 string comments = "";
@@ -50,6 +50,10 @@ int init() {
 int deinit() {
     
     ObjectDelete("PivotLine");
+    
+    ObjectDelete("iHighLine");
+    
+    ObjectDelete("iLowLine");
 
     ObjectDelete("R1_Line");
     ObjectDelete("R2_Line");
@@ -89,10 +93,10 @@ int start() {
 
     ArrayCopyRates(Day_Price, (Symbol()), 1440);
     
-    YesterdayOpen = Day_Price[BaseHHLL][1];
-    YesterdayHigh = Day_Price[BaseHHLL][3];
-    YesterdayLow = Day_Price[BaseHHLL][2];
-    YesterdayClose = Day_Price[BaseHHLL][4];
+    BasicOpen = Day_Price[BaseHHLL][1];
+    BasicHigh = Day_Price[BaseHHLL][3];
+    BasicLow = Day_Price[BaseHHLL][2];
+    BasicClose = Day_Price[BaseHHLL][4];
     
     if (BaseSNR == 1)
     {
@@ -128,15 +132,15 @@ int start() {
         ResultBaseDeviasi = 1.00701748471;
     }
 
-    R1 = YesterdayLow * ResultBaseSNR;
-    S1 = YesterdayHigh / ResultBaseSNR;
+    R1 = BasicLow * ResultBaseSNR;
+    S1 = BasicHigh / ResultBaseSNR;
 
-    RDeviasi = R1 * ResultBaseDeviasi;
-    SDeviasi = S1 / ResultBaseDeviasi;
+    //RDeviasi = R1 * ResultBaseDeviasi;
+    //SDeviasi = S1 / ResultBaseDeviasi;
 
     Pivot = R1 + ((S1 - R1) / 2);
     
-    comments = "Base Resitance " + YesterdayLow + " / " + "Base Support " + YesterdayHigh;
+    comments = "Base Resitance " + BasicLow + " / " + "Base Support " + BasicHigh;
     
     Comment(comments);
 
@@ -148,6 +152,7 @@ int start() {
         ObjectCreate("PivotLine", OBJ_HLINE, 0, CurTime(), Pivot);
         ObjectSet("PivotLine", OBJPROP_COLOR, Daily_Pivot);
         ObjectSet("PivotLine", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("PivotLine", OBJPROP_BACK, true);
     } else {
         ObjectMove("PivotLine", 0, Time[20], Pivot);
     }
@@ -159,12 +164,35 @@ int start() {
         ObjectMove("PivotLabel", 0, Time[20], Pivot);
     }
     ObjectsRedraw();
+    
+    if (ObjectFind("iHighLine") != 0) {
+        ObjectCreate("iHighLine", OBJ_HLINE, 0, CurTime(), BasicHigh);
+        ObjectSet("iHighLine", OBJPROP_COLOR, StringToColor("78,78,78"));
+        ObjectSet("iHighLine", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("iHighLine", OBJPROP_BACK, true);
+    } else {
+        ObjectMove("iHighLine", 0, Time[20], BasicHigh);
+    }
+
+    ObjectsRedraw();
+    
+    if (ObjectFind("iLowLine") != 0) {
+        ObjectCreate("iLowLine", OBJ_HLINE, 0, CurTime(), BasicLow);
+        ObjectSet("iLowLine", OBJPROP_COLOR, StringToColor("78,78,78"));
+        ObjectSet("iLowLine", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("iLowLine", OBJPROP_BACK, true);
+    } else {
+        ObjectMove("iLowLine", 0, Time[20], BasicLow);
+    }
+
+    ObjectsRedraw();
 
     //--------------------------------------------------------
     if (ObjectFind("R1_Line") != 0) {
         ObjectCreate("R1_Line", OBJ_HLINE, 0, CurTime(), R1);
         ObjectSet("R1_Line", OBJPROP_COLOR, Daily_R_Levels);
         ObjectSet("R1_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("R1_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("R1_Line", 0, Time[20], R1);
     }
@@ -182,6 +210,7 @@ int start() {
         ObjectCreate("R2_Line", OBJ_HLINE, 0, CurTime(), R2);
         ObjectSet("R2_Line", OBJPROP_COLOR, Daily_R_Levels);
         ObjectSet("R2_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("R2_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("R2_Line", 0, Time[20], R2);
     }
@@ -199,6 +228,7 @@ int start() {
         ObjectCreate("R3_Line", OBJ_HLINE, 0, CurTime(), R3);
         ObjectSet("R3_Line", OBJPROP_COLOR, Daily_R_Levels);
         ObjectSet("R3_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("R3_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("R3_Line", 0, Time[20], R3);
     }
@@ -216,6 +246,7 @@ int start() {
         ObjectCreate("S1_Line", OBJ_HLINE, 0, CurTime(), S1);
         ObjectSet("S1_Line", OBJPROP_COLOR, Daily_S_Levels);
         ObjectSet("S1_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("S1_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("S1_Line", 0, Time[20], S1);
     }
@@ -233,6 +264,7 @@ int start() {
         ObjectCreate("S2_Line", OBJ_HLINE, 0, CurTime(), S2);
         ObjectSet("S2_Line", OBJPROP_COLOR, Daily_S_Levels);
         ObjectSet("S2_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("S2_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("S2_Line", 0, Time[20], S2);
     }
@@ -250,6 +282,7 @@ int start() {
         ObjectCreate("S3_Line", OBJ_HLINE, 0, CurTime(), S3);
         ObjectSet("S3_Line", OBJPROP_COLOR, Daily_S_Levels);
         ObjectSet("S3_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("S3_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("S3_Line", 0, Time[20], S3);
     }
@@ -267,6 +300,7 @@ int start() {
         ObjectCreate("RDeviasi_Line", OBJ_HLINE, 0, CurTime(), RDeviasi);
         ObjectSet("RDeviasi_Line", OBJPROP_COLOR, Daily_R_LevelsDeviasi);
         ObjectSet("RDeviasi_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("RDeviasi_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("RDeviasi_Line", 0, Time[20], RDeviasi);
     }
@@ -284,6 +318,7 @@ int start() {
         ObjectCreate("SDeviasi_Line", OBJ_HLINE, 0, CurTime(), SDeviasi);
         ObjectSet("SDeviasi_Line", OBJPROP_COLOR, Daily_S_LevelsDeviasi);
         ObjectSet("SDeviasi_Line", OBJPROP_STYLE, STYLE_DASHDOT);
+        ObjectSet("SDeviasi_Line", OBJPROP_BACK, true);
     } else {
         ObjectMove("SDeviasi_Line", 0, Time[20], SDeviasi);
     }
