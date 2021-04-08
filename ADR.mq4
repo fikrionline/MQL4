@@ -294,10 +294,7 @@ int start()
       
       
 
-   string comment=
-          
-            
-            "" + DoubleToStr(MathRound((adr/Point)),0) + " / " + DoubleToStr(MathRound(((today_high-today_low)/Point)),0) ;
+   string comment = DoubleToStr(MathRound((adr/Point)),0) + " / " + DoubleToStr(MathRound(((today_high-today_low)/Point)), 0) ;
 
 
    /*if (GlobalVariableCheck(Symbol()+"[PIVOT]YesterdayHigh")) {
@@ -310,7 +307,25 @@ int start()
                               ", Low= "+DoubleToStr(yesterday_low,Digits) +
                               ", Close= "+DoubleToStr(yesterday_close,Digits) + 
                               "\n";
-   }*/                           
+   }*/ 
+   
+   double Change, ChangeProsentase;
+   double BasicOpen = iOpen(Symbol(), PERIOD_D1, 0);
+   double PriceNow = MarketInfo(Symbol(), MODE_BID);
+   string PlusMinus;
+   
+   if (BasicOpen < PriceNow) {
+      Change = PriceNow - BasicOpen;
+      PlusMinus = "+";
+   }
+   if (BasicOpen > PriceNow) {
+      Change = BasicOpen - PriceNow;
+      PlusMinus = "-";
+   }
+   
+   ChangeProsentase = (Change / BasicOpen) * 100;
+   
+   comment = comment + " / " + DoubleToString(BasicOpen, MarketInfo(Symbol(), MODE_DIGITS)) + " --> " +  DoubleToString(PriceNow, MarketInfo(Symbol(), MODE_DIGITS)) + " --> " + PlusMinus + DoubleToString(ChangeProsentase, 3) + "%";
    
    Comment(comment);
 
@@ -430,19 +445,6 @@ void SetLevel(string text, double level, color col1, int linestyle, int thicknes
    ObjectMove(linename, 1, Time[0],level);
    ObjectMove(linename, 0, startofday, level);
 
-   
-
-   // put a label on the line   
- //  if (ObjectFind(labelname) != 0) 
- //     ObjectCreate(labelname, OBJ_TEXT, 0, Time[0]/* MathMin(Time[BarForLabels], startofday + 2*Period()*60)*/, level);
-
-//   ObjectMove(labelname, 0, Time[0] - BarForLabels*Period()*60, level);
-
-//   pricelabel= " " + text;
-//   if (ShowLevelPrices && StrToInteger(text)==0) 
-//      pricelabel= pricelabel + ": "+DoubleToStr(level, Digits);
-   
-//   ObjectSetText(labelname, pricelabel, 8, "Arial", col1);
 }
       
 
@@ -469,84 +471,4 @@ void SetTimeLine(string objname, string text, int idx, color col1, double vlevel
    //ObjectMove(name + " Label", 0, x, vleveltext);
    //ObjectSetText(name + " Label", text, 8, "Arial", col1);
 }
-
-
-// Andrew inserted here
-
-//+------------------------------------------------------------------+
-//|                                                 EMailSignals.mq4 |
-//+------------------------------------------------------------------+
-//#property copyright "Sample"
-//#property link      "Sample"
-
-//extern int RSIPeriod=14;
-//extern int RSIPrice=PRICE_CLOSE;
-
-//extern int MAFastPeriod=5;
-//extern int MAFastShift=0;
-//extern int MAFastMethod=MODE_SMA;
-//extern int MAFastPrice=PRICE_CLOSE;
-//extern int MASlowPeriod=10;
-//extern int MASlowShift=0;
-//extern int MASlowMethod=MODE_SMA;
-//extern int MASlowPrice=PRICE_CLOSE;
-
-//bool runnable=true;
-//bool initialize=true;
-
-//datetime timeprev=0;
-
-//int init()
-//{
-// return(0);
-//}
-
-//int deinit()
-//{
-// return(0);
-//}
-
-//int start()
-//{
-//Runnable
-// if(runnable!=true)
-//  return(-1);
-  
- 
-//
-//New Bar
-//
-// if(timeprev==Time[0])
-//  return(0);
-// timeprev=Time[0];
- 
-//
-//Calculation
-//
-// double fast01=iMA(NULL,0,MAFastPeriod,MAFastShift,MAFastMethod,MAFastPrice,1);
-// double fast02=iMA(NULL,0,MAFastPeriod,MAFastShift,MAFastMethod,MAFastPrice,2);
-// double slow01=iMA(NULL,0,MASlowPeriod,MASlowShift,MASlowMethod,MASlowPrice,1);
-// double slow02=iMA(NULL,0,MASlowPeriod,MASlowShift,MASlowMethod,MASlowPrice,2);
-
-// double rsi01=iRSI(NULL,0,RSIPeriod,RSIPrice,1);
-// double rsi02=iRSI(NULL,0,RSIPeriod,RSIPrice,2);
-
-//Long
-// if(fast01>slow01&&fast02<slow02)
-//  SendMail("MA Cross Long","MA crossed UP");
-// if(rsi01>50&&rsi02<50)
-//  SendMail("RSI Cross Long","RSI crossed long 50");
- 
-//Shrt
-// if(fast01<slow01&&fast02>slow02)
-//  SendMail("MA Cross Shrt","MA crossed DN");
-// if(rsi01<50&&rsi02>50)
-//  SendMail("RSI Cross Shrt","RSI crossed shrt 50");
-
-
-// return(0);
-//}
-
-// Andrew end
-
 
