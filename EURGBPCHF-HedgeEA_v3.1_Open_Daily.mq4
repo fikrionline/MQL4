@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
-//|                                                 SpreadsHedge.mq4 |
+//|                            EURGBPCHF-HedgeEA_v3.1_Open_Daily.mq4 |
 //|                        Copyright 2021, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2021, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.3"
+#property version "3.1"
 #property strict
 
 //Choose Pair
@@ -14,9 +14,9 @@ extern string Pair2 = "EURGBP";
 extern string Pair3 = "GBPCHF";
 extern int BasicDay = 0;
 extern double BasicLot = 0.5;
-extern double LevelOrder = 0.25;
+extern double LevelOrder = 0.2;
 extern int SlipPage = 5;
-extern double MaxLayer = 5;
+extern double MaxLayer = 1;
 extern bool AutoOrder = TRUE;
 
 //+------------------------------------------------------------------+
