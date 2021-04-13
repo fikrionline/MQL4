@@ -14,19 +14,19 @@
 
 #include <JAson.mqh>
 
-extern int SlipPage = 5;
-extern double BasicLot = 0.1;
+extern int SlipPage = 3;
+extern double BasicLot = 0.2;
 extern bool AutoOrder = TRUE;
-extern int StartOrderHour = 1;
-extern int StopOrderHour = 22;
-extern int RunEverySecond = 10;
+extern int StartOrderHour = 0;
+extern int StopOrderHour = 23;
+extern int RunEveryXXSecond = 10;
 extern string SignalSource = "http://forexfor.fun/signal03/";
 
 int start() {
 
    static datetime LastTime = 0;
 
-   if (TimeCurrent() > LastTime + RunEverySecond) {
+   if (TimeCurrent() > LastTime + RunEveryXXSecond) {
       LastTime = TimeCurrent();
       //Your function running every second here
 
@@ -44,6 +44,10 @@ int start() {
 
       CJAVal json;
       if (json.Deserialize(resultString)) {
+      
+         string PairSignal[28];
+         int PairSignalCount = 0;
+         bool DuplicateSignalChecker;
          for (int i = 0; i < json.Size(); i++) {
             
             j_TypeOrder = json[i]["signal"].ToStr();
@@ -52,27 +56,43 @@ int start() {
             j_OpenPrice = StringToDouble(json[i]["OpenPrice"].ToStr());
             j_TakeProfit = StringToDouble(json[i]["TakeProfit"].ToStr());
             j_StopLoss = StringToDouble(json[i]["StopLoss"].ToStr());
-
-            MagicA = "2" + IntegerToString(DayOfYear());
-            MagicB = json[i]["OpenPrice"].ToStr();
-            StringReplace(MagicB, ".", "");
-            MagicNumber = StrToInteger(MagicA + MagicB);
-
-            ShowComment = ShowComment + j_pair + " " + json[i]["signal"].ToStr() + " OP " + json[i]["OpenPrice"].ToStr() + " SL " + json[i]["StopLoss"].ToStr() + " TP " + " " + json[i]["TakeProfit"].ToStr() + " " + IntegerToString(MagicNumber) + "\n";
-
-            if (AutoOrder == TRUE) {
-               if(Hour() >= StartOrderHour && Hour() <= StopOrderHour) {
-                  if (PosSelect(MagicNumber, j_pair) == 0) {
-                     if (j_TypeOrder == "buy") {
-                        PriceBidAsk = MarketInfo(j_pair, MODE_ASK);
-                        SendOrder = OrderSend(j_pair, OP_BUY, NormalizeDouble(BasicLot, 2), PriceBidAsk, SlipPage, j_StopLoss, j_TakeProfit, IntegerToString(MagicNumber), MagicNumber, 0, clrNONE);
-                     } else if (j_TypeOrder == "sell") {
-                        PriceBidAsk = MarketInfo(j_pair, MODE_BID);
-                        SendOrder = OrderSend(j_pair, OP_SELL, NormalizeDouble(BasicLot, 2), PriceBidAsk, SlipPage, j_StopLoss, j_TakeProfit, IntegerToString(MagicNumber), MagicNumber, 0, clrNONE);
-                     }
-   
-                  }
+            
+            DuplicateSignalChecker = FALSE;
+            for(int c = 0; c < ArraySize(PairSignal); c++) {
+               if(PairSignal[c] == j_pair) {
+                  DuplicateSignalChecker = TRUE;
                }
+            }
+            
+            if(DuplicateSignalChecker == FALSE) {
+
+               MagicA = "3";
+               MagicB = json[i]["StopLoss"].ToStr();
+               StringReplace(MagicB, ".", "");
+               MagicNumber = StrToInteger(MagicA + MagicB);
+   
+               ShowComment = ShowComment + j_pair + " :: " + json[i]["signal"].ToStr() + " :: OP " + json[i]["OpenPrice"].ToStr() + " :: SL " + json[i]["StopLoss"].ToStr() + " :: TP " + json[i]["TakeProfit"].ToStr() + " :: MagicNumber " + IntegerToString(MagicNumber) + "\n";
+               
+               PairSignal[PairSignalCount] = j_pair; //Alert(PairSignal[1]);
+               PairSignalCount = PairSignalCount + 1;
+   
+               if (AutoOrder == TRUE) { 
+                  if(Hour() >= StartOrderHour && Hour() <= StopOrderHour) {
+                     if (PosSelect(MagicNumber, j_pair) == 0) {
+                        if (j_TypeOrder == "buy") {
+                           PriceBidAsk = MarketInfo(j_pair, MODE_ASK);
+                           SendOrder = OrderSend(j_pair, OP_BUY, NormalizeDouble(BasicLot, 2), PriceBidAsk, SlipPage, j_StopLoss, j_TakeProfit, IntegerToString(MagicNumber), MagicNumber, 0, clrNONE);
+                        } else if (j_TypeOrder == "sell") {
+                           PriceBidAsk = MarketInfo(j_pair, MODE_BID);
+                           SendOrder = OrderSend(j_pair, OP_SELL, NormalizeDouble(BasicLot, 2), PriceBidAsk, SlipPage, j_StopLoss, j_TakeProfit, IntegerToString(MagicNumber), MagicNumber, 0, clrNONE);
+                        }
+      
+                     }
+                     
+                  }
+                  
+               }
+               
             }
 
          }
