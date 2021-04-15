@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                           EURGBPUSDCHF_v0.09.mq4 |
+//|                                           EURAUDCADCHF_v0.09.mq4 |
 //|                        Copyright 2021, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -15,18 +15,14 @@ enum LotRatio {
 };
 
 //Choose Pair
-extern string Pair1 = "EURCHF";
-extern bool Pair1Order = true;
-extern string Pair2 = "EURGBP";
-extern bool Pair2Order = true;
-extern string Pair3 = "GBPCHF";
-extern bool Pair3Order = true;
-extern string Pair4 = "EURUSD";
-extern bool Pair4Order = false;
-extern string Pair5 = "USDCHF";
-extern bool Pair5Order = false;
-extern int BasicDay = 0;
-extern double BasicLot = 1;
+extern string Pair1 = "XAUJPY";
+extern bool   Pair1Order = false;
+extern string Pair2 = "XAUUSD";
+extern bool   Pair2Order = true;
+extern string Pair3 = "USDJPY";
+extern bool   Pair3Order = true;
+extern int GMTPlusXHours = 0;
+extern double BasicLot = 0.1;
 input LotRatio BasicLotRatio = Futures;
 extern double LevelOrder = 0.09;
 extern int SlipPage = 5;
@@ -58,6 +54,10 @@ int deinit() {
 //+------------------------------------------------------------------+
 void OnTick() {
 
+   string ShowComment;
+   datetime HourGMT = TimeHour(TimeGMT());
+   int StartHour = (int) (HourGMT + GMTPlusXHours);
+   
    string CommentAutoOrder;
    if (AutoOrder == true) {
       CommentAutoOrder = "Yes";
@@ -65,57 +65,47 @@ void OnTick() {
       CommentAutoOrder = "No";
    }
 
-   double BasicOpen1 = iOpen(Pair1, PERIOD_D1, BasicDay);
-   double BasicOpen2 = iOpen(Pair2, PERIOD_D1, BasicDay);
-   double BasicOpen3 = iOpen(Pair3, PERIOD_D1, BasicDay);
-   double BasicOpen4 = iOpen(Pair4, PERIOD_D1, BasicDay);
-   double BasicOpen5 = iOpen(Pair5, PERIOD_D1, BasicDay);
-
-   string ShowComment = "DayOfYear " + IntegerToString(DayOfYear()) + " :: DayOfWeek " + IntegerToString(DayOfWeek()) + " :: BasicDay " + IntegerToString(BasicDay) + " :: BasicLot " + DoubleToString(BasicLot, 2) + " :: LevelOrder " + DoubleToString(LevelOrder, 3) + "% :: AutoOrder " + CommentAutoOrder;
-   string Comments1, Comments2, Comments3, Comments4, Comments5;
+   ShowComment = ShowComment + "TimeLocal = " + IntegerToString(TimeHour(TimeLocal())) + " :: " + "TimeServer = " + IntegerToString(TimeHour(TimeCurrent())) + " :: " + "GMT = " + IntegerToString(TimeHour(TimeGMT()));
+   ShowComment = ShowComment + "\n" + "DayOfYear " + IntegerToString(DayOfYear()) + " :: BasicLot " + DoubleToString(BasicLot, 2) + " :: LevelOrder " + DoubleToString(LevelOrder, 3) + "% :: AutoOrder " + CommentAutoOrder;
+   
+   string Comments1, Comments2, Comments3;
+   
+   double BasicOpen1 = iOpen(Pair1, PERIOD_H1, StartHour);
+   double BasicOpen2 = iOpen(Pair2, PERIOD_H1, StartHour);
+   double BasicOpen3 = iOpen(Pair3, PERIOD_H1, StartHour);
 
    double PriceBid1 = MarketInfo(Pair1, MODE_BID);
    double PriceBid2 = MarketInfo(Pair2, MODE_BID);
    double PriceBid3 = MarketInfo(Pair3, MODE_BID);
-   double PriceBid4 = MarketInfo(Pair4, MODE_BID);
-   double PriceBid5 = MarketInfo(Pair5, MODE_BID);
 
-   double Lot1, Lot2, Lot3, Lot4, Lot5, FuturesPair1, FuturesPair2, FuturesPair3, FuturesPair4, FuturesPair5, BasicOfBasicLot;
+   double Lot1, Lot2, Lot3, FuturesPair1, FuturesPair2, FuturesPair3, BasicOfBasicLot;
 
    if (BasicLotRatio == PriceFromOther) {
 
       Lot1 = BasicLot * (PriceBid2 * PriceBid3);
       Lot2 = BasicLot * (PriceBid1 / PriceBid3);
       Lot3 = BasicLot * (PriceBid1 / PriceBid2);
-      Lot4 = BasicLot * (PriceBid1 / PriceBid5);
-      Lot5 = BasicLot * (PriceBid1 / PriceBid4);
 
    } else if (BasicLotRatio == Futures) {
 
-      FuturesPair1 = PriceBid1 / (PriceBid1 * PriceBid1);
-      FuturesPair2 = PriceBid2 / (PriceBid2 * PriceBid2);
+      FuturesPair1 = (PriceBid1/1000) / ((PriceBid1/1000) * (PriceBid1/1000));
+      FuturesPair2 = (PriceBid2/10) / ((PriceBid2/10) * (PriceBid2/10));
       FuturesPair3 = PriceBid3 / (PriceBid3 * PriceBid3);
-      FuturesPair4 = PriceBid4 / (PriceBid4 * PriceBid4);
-      FuturesPair5 = PriceBid5 / (PriceBid5 * PriceBid5);
 
-      BasicOfBasicLot = BasicLot / FuturesPair1;
+      BasicOfBasicLot = BasicLot / FuturesPair1; //Alert(BasicOfBasicLot);
 
       Lot1 = BasicOfBasicLot * FuturesPair1;
       Lot2 = BasicOfBasicLot * FuturesPair2;
-      Lot3 = BasicOfBasicLot * FuturesPair3;
-      Lot4 = BasicOfBasicLot * FuturesPair4;
-      Lot5 = BasicOfBasicLot * FuturesPair5;
+      Lot3 = (BasicOfBasicLot * FuturesPair3) + Lot1;
 
    }
 
    double PriceAsk1 = MarketInfo(Pair1, MODE_ASK);
    double PriceAsk2 = MarketInfo(Pair2, MODE_ASK);
    double PriceAsk3 = MarketInfo(Pair3, MODE_ASK);
-   double PriceAsk4 = MarketInfo(Pair4, MODE_ASK);
-   double PriceAsk5 = MarketInfo(Pair5, MODE_ASK);
 
    double Change1, Change1Prosentase;
-   string PlusMinus1;
+   string PlusMinus1, CommentPair1Order;
    if (BasicOpen1 < PriceBid1) {
       Change1 = PriceBid1 - BasicOpen1;
       PlusMinus1 = "+";
@@ -125,10 +115,15 @@ void OnTick() {
       PlusMinus1 = "-";
    }
    Change1Prosentase = (Change1 / BasicOpen1) * 100;
-   Comments1 = Pair1 + " " + DoubleToString(BasicOpen1, 5) + " --> " + DoubleToString(PriceBid1, 5) + " = " + PlusMinus1 + DoubleToString(Change1Prosentase, 3) + "% Lot " + DoubleToString(Lot1, 2);
+   if (Pair1Order == true) {
+      CommentPair1Order = "Yes";
+   } else {
+      CommentPair1Order = "No";
+   }
+   Comments1 = Pair1 + " " + DoubleToString(BasicOpen1, (int) MarketInfo(Pair1, MODE_DIGITS)) + " --> " + DoubleToString(PriceBid1, (int) MarketInfo(Pair1, MODE_DIGITS)) + " = " + PlusMinus1 + DoubleToString(Change1Prosentase, 3) + "% Lot " + DoubleToString(Lot1, 2) + " :: Order " + CommentPair1Order;
 
    double Change2, Change2Prosentase;
-   string PlusMinus2;
+   string PlusMinus2, CommentPair2Order;
    if (BasicOpen2 < PriceBid2) {
       Change2 = PriceBid2 - BasicOpen2;
       PlusMinus2 = "+";
@@ -138,10 +133,15 @@ void OnTick() {
       PlusMinus2 = "-";
    }
    Change2Prosentase = (Change2 / BasicOpen2) * 100;
-   Comments2 = Pair2 + " " + DoubleToString(BasicOpen2, 5) + " --> " + DoubleToString(PriceBid2, 5) + " = " + PlusMinus2 + DoubleToString(Change2Prosentase, 3) + "% Lot " + DoubleToString(Lot2, 2);
+   if (Pair2Order == true) {
+      CommentPair2Order = "Yes";
+   } else {
+      CommentPair2Order = "No";
+   }
+   Comments2 = Pair2 + " " + DoubleToString(BasicOpen2, (int) MarketInfo(Pair2, MODE_DIGITS)) + " --> " + DoubleToString(PriceBid2, (int) MarketInfo(Pair2, MODE_DIGITS)) + " = " + PlusMinus2 + DoubleToString(Change2Prosentase, 3) + "% Lot " + DoubleToString(Lot2, 2) + " :: Order " + CommentPair2Order;
 
    double Change3, Change3Prosentase;
-   string PlusMinus3;
+   string PlusMinus3, CommentPair3Order;
    if (BasicOpen3 < PriceBid3) {
       Change3 = PriceBid3 - BasicOpen3;
       PlusMinus3 = "+";
@@ -151,53 +151,14 @@ void OnTick() {
       PlusMinus3 = "-";
    }
    Change3Prosentase = (Change3 / BasicOpen3) * 100;
-   Comments3 = Pair3 + " " + DoubleToString(BasicOpen3, 5) + " --> " + DoubleToString(PriceBid3, 5) + " = " + PlusMinus3 + DoubleToString(Change3Prosentase, 3) + "% Lot " + DoubleToString(Lot3, 2);
-
-   double Change4, Change4Prosentase;
-   string PlusMinus4;
-   if (BasicOpen4 < PriceBid4) {
-      Change4 = PriceBid4 - BasicOpen4;
-      PlusMinus4 = "+";
-   }
-   if (BasicOpen4 > PriceBid4) {
-      Change4 = BasicOpen4 - PriceBid4;
-      PlusMinus4 = "-";
-   }
-   Change4Prosentase = (Change4 / BasicOpen4) * 100;
-   Comments4 = Pair4 + " " + DoubleToString(BasicOpen4, 5) + " --> " + DoubleToString(PriceBid4, 5) + " = " + PlusMinus4 + DoubleToString(Change4Prosentase, 3) + "% Lot " + DoubleToString(Lot4, 2);
-
-   double Change5, Change5Prosentase;
-   string PlusMinus5;
-   if (BasicOpen5 < PriceBid5) {
-      Change5 = PriceBid5 - BasicOpen5;
-      PlusMinus5 = "+";
-   }
-   if (BasicOpen5 > PriceBid5) {
-      Change5 = BasicOpen5 - PriceBid5;
-      PlusMinus5 = "-";
-   }
-   Change5Prosentase = (Change5 / BasicOpen5) * 100;
-   Comments5 = Pair5 + " " + DoubleToString(BasicOpen5, 5) + " --> " + DoubleToString(PriceBid5, 5) + " = " + PlusMinus5 + DoubleToString(Change5Prosentase, 3) + "% Lot " + DoubleToString(Lot5, 2);
-
-   if (Pair1Order == true) {
-      ShowComment = ShowComment + "\n" + Comments1;
-   }
-
-   if (Pair2Order == true) {
-      ShowComment = ShowComment + "\n" + Comments2;
-   }
-
    if (Pair3Order == true) {
-      ShowComment = ShowComment + "\n" + Comments3;
+      CommentPair3Order = "Yes";
+   } else {
+      CommentPair3Order = "No";
    }
+   Comments3 = Pair3 + " " + DoubleToString(BasicOpen3, (int) MarketInfo(Pair3, MODE_DIGITS)) + " --> " + DoubleToString(PriceBid3, (int) MarketInfo(Pair3, MODE_DIGITS)) + " = " + PlusMinus3 + DoubleToString(Change3Prosentase, 3) + "% Lot " + DoubleToString(Lot3, 2) + " :: Order " + CommentPair3Order;
 
-   if (Pair4Order == true) {
-      ShowComment = ShowComment + "\n" + Comments4;
-   }
-
-   if (Pair5Order == true) {
-      ShowComment = ShowComment + "\n" + Comments5;
-   }
+   ShowComment = ShowComment + "\n" + Comments1 + "\n" + Comments2 + "\n" + Comments3;
 
    Comment(ShowComment);
 
@@ -208,8 +169,8 @@ void OnTick() {
       if (AutoOrder == true) {
 
          double LevelNow, LevelNext;
-         string Magic1A, Magic1B, Magic1CDE, Magic1F, Magic2A, Magic2B, Magic2CDE, Magic2F, Magic3A, Magic3B, Magic3CDE, Magic3F, Magic4A, Magic4B, Magic4CDE, Magic4F, Magic5A, Magic5B, Magic5CDE, Magic5F;
-         int MagicNumber1, MagicNumber2, MagicNumber3, MagicNumber4, MagicNumber5, TypeOrder, SendOrder;
+         string Magic1A, Magic1B, Magic1CDE, Magic1F, Magic2A, Magic2B, Magic2CDE, Magic2F, Magic3A, Magic3B, Magic3CDE, Magic3F;
+         int MagicNumber1, MagicNumber2, MagicNumber3, TypeOrder, SendOrder;
 
          if (PlusMinus1 == "+") {
 
@@ -262,37 +223,6 @@ void OnTick() {
                      if (PosSelect(MagicNumber3, Pair3) == 0) {
                         TypeOrder = OP_BUY;
                         SendOrder = OrderSend(Pair3, TypeOrder, NormalizeDouble(Lot3, 2), PriceBid3, SlipPage, 0, 0, IntegerToString(MagicNumber3), MagicNumber3, 0, clrNONE);
-                     }
-
-                  }
-
-                  if (Pair4Order == true) {
-
-                     //Pair4
-                     Magic4A = "1"; //PlusMinus
-                     Magic4B = "4"; //Pair
-                     Magic4CDE = DoubleToString(LevelNow * 1000, 0); //Level
-                     Magic4F = IntegerToString(DayOfYear()); //DayOfYear
-                     MagicNumber4 = StrToInteger(Magic4A + Magic4B + Magic4CDE + Magic4F); //Alert(MagicNumber4);
-
-                     if (PosSelect(MagicNumber4, Pair4) == 0) {
-                        TypeOrder = OP_BUY;
-                        SendOrder = OrderSend(Pair4, TypeOrder, NormalizeDouble(Lot4, 2), PriceBid4, SlipPage, 0, 0, IntegerToString(MagicNumber4), MagicNumber4, 0, clrNONE);
-                     }
-                  }
-
-                  if (Pair5Order == true) {
-
-                     //Pair5
-                     Magic5A = "1"; //PlusMinus
-                     Magic5B = "5"; //Pair
-                     Magic5CDE = DoubleToString(LevelNow * 1000, 0); //Level
-                     Magic5F = IntegerToString(DayOfYear()); //DayOfYear
-                     MagicNumber5 = StrToInteger(Magic5A + Magic5B + Magic5CDE + Magic5F); //Alert(MagicNumber5);
-
-                     if (PosSelect(MagicNumber5, Pair5) == 0) {
-                        TypeOrder = OP_BUY;
-                        SendOrder = OrderSend(Pair5, TypeOrder, NormalizeDouble(Lot5, 2), PriceBid5, SlipPage, 0, 0, IntegerToString(MagicNumber5), MagicNumber5, 0, clrNONE);
                      }
 
                   }
@@ -355,38 +285,6 @@ void OnTick() {
 
                   }
 
-                  if (Pair4Order == true) {
-
-                     //Pair4
-                     Magic4A = "2"; //PlusMinus
-                     Magic4B = "4"; //Pair
-                     Magic4CDE = DoubleToString(LevelNow * 1000, 0); //Level
-                     Magic4F = IntegerToString(DayOfYear()); //DayOfYear
-                     MagicNumber4 = StrToInteger(Magic4A + Magic4B + Magic4CDE + Magic4F); //Alert(MagicNumber4);
-
-                     if (PosSelect(MagicNumber4, Pair4) == 0) {
-                        TypeOrder = OP_SELL;
-                        SendOrder = OrderSend(Pair4, TypeOrder, NormalizeDouble(Lot4, 2), PriceBid4, SlipPage, 0, 0, IntegerToString(MagicNumber4), MagicNumber4, 0, clrNONE);
-                     }
-
-                  }
-
-                  if (Pair5Order == true) {
-
-                     //Pair5
-                     Magic5A = "2"; //PlusMinus
-                     Magic5B = "5"; //Pair
-                     Magic5CDE = DoubleToString(LevelNow * 1000, 0); //Level
-                     Magic5F = IntegerToString(DayOfYear()); //DayOfYear
-                     MagicNumber5 = StrToInteger(Magic5A + Magic5B + Magic5CDE + Magic5F); //Alert(MagicNumber5);
-
-                     if (PosSelect(MagicNumber5, Pair5) == 0) {
-                        TypeOrder = OP_SELL;
-                        SendOrder = OrderSend(Pair5, TypeOrder, NormalizeDouble(Lot5, 2), PriceBid5, SlipPage, 0, 0, IntegerToString(MagicNumber5), MagicNumber5, 0, clrNONE);
-                     }
-
-                  }
-
                }
             }
 
@@ -399,8 +297,8 @@ void OnTick() {
    //Start to create LINE_OBJECT
    TimeToStr(CurTime());
 
-   double StartPrice = iOpen(Symbol(), PERIOD_D1, BasicDay);
-   datetime StartPriceTime = iTime(Symbol(), PERIOD_D1, BasicDay);
+   double StartPrice = iOpen(Symbol(), PERIOD_H1, StartHour);
+   datetime StartPriceTime = iTime(Symbol(), PERIOD_H1, StartHour);
 
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;

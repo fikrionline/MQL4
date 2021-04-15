@@ -16,16 +16,16 @@ enum LotRatio {
 
 //Choose Pair
 extern string Pair1 = "EURCHF";
-extern bool Pair1Order = true;
+extern bool   Pair1Order = true;
 extern string Pair2 = "EURGBP";
-extern bool Pair2Order = true;
+extern bool   Pair2Order = false;
 extern string Pair3 = "GBPCHF";
-extern bool Pair3Order = true;
+extern bool   Pair3Order = false;
 extern string Pair4 = "EURUSD";
-extern bool Pair4Order = false;
+extern bool   Pair4Order = true;
 extern string Pair5 = "USDCHF";
-extern bool Pair5Order = false;
-extern int BasicDay = 0;
+extern bool   Pair5Order = true;
+extern int GMTPlusXHours = 0;
 extern double BasicLot = 1;
 input LotRatio BasicLotRatio = Futures;
 extern double LevelOrder = 0.09;
@@ -58,21 +58,27 @@ int deinit() {
 //+------------------------------------------------------------------+
 void OnTick() {
 
+   string ShowComment;
+   datetime HourGMT = TimeHour(TimeGMT());
+   int StartHour = (int) (HourGMT + GMTPlusXHours);
+   
    string CommentAutoOrder;
    if (AutoOrder == true) {
       CommentAutoOrder = "Yes";
    } else {
       CommentAutoOrder = "No";
    }
-
-   double BasicOpen1 = iOpen(Pair1, PERIOD_D1, BasicDay);
-   double BasicOpen2 = iOpen(Pair2, PERIOD_D1, BasicDay);
-   double BasicOpen3 = iOpen(Pair3, PERIOD_D1, BasicDay);
-   double BasicOpen4 = iOpen(Pair4, PERIOD_D1, BasicDay);
-   double BasicOpen5 = iOpen(Pair5, PERIOD_D1, BasicDay);
-
-   string ShowComment = "DayOfYear " + IntegerToString(DayOfYear()) + " :: DayOfWeek " + IntegerToString(DayOfWeek()) + " :: BasicDay " + IntegerToString(BasicDay) + " :: BasicLot " + DoubleToString(BasicLot, 2) + " :: LevelOrder " + DoubleToString(LevelOrder, 3) + "% :: AutoOrder " + CommentAutoOrder;
+   
+   ShowComment = ShowComment + "TimeLocal = " + IntegerToString(TimeHour(TimeLocal())) + " :: " + "TimeServer = " + IntegerToString(TimeHour(TimeCurrent())) + " :: " + "GMT = " + IntegerToString(TimeHour(TimeGMT()));
+   ShowComment = ShowComment + "\n" + "DayOfYear " + IntegerToString(DayOfYear()) + " :: BasicLot " + DoubleToString(BasicLot, 2) + " :: LevelOrder " + DoubleToString(LevelOrder, 3) + "% :: AutoOrder " + CommentAutoOrder;
+   
    string Comments1, Comments2, Comments3, Comments4, Comments5;
+
+   double BasicOpen1 = iOpen(Pair1, PERIOD_H1, StartHour);
+   double BasicOpen2 = iOpen(Pair2, PERIOD_H1, StartHour);
+   double BasicOpen3 = iOpen(Pair3, PERIOD_H1, StartHour);
+   double BasicOpen4 = iOpen(Pair4, PERIOD_H1, StartHour);
+   double BasicOpen5 = iOpen(Pair5, PERIOD_H1, StartHour);
 
    double PriceBid1 = MarketInfo(Pair1, MODE_BID);
    double PriceBid2 = MarketInfo(Pair2, MODE_BID);
@@ -397,10 +403,8 @@ void OnTick() {
    }
 
    //Start to create LINE_OBJECT
-   TimeToStr(CurTime());
-
-   double StartPrice = iOpen(Symbol(), PERIOD_D1, BasicDay);
-   datetime StartPriceTime = iTime(Symbol(), PERIOD_D1, BasicDay);
+   double StartPrice = iOpen(Symbol(), PERIOD_H1, (int) (HourGMT + GMTPlusXHours));
+   datetime StartPriceTime = iTime(Symbol(), PERIOD_H1, (int) (HourGMT + GMTPlusXHours)); //Alert(StartPriceTime);
 
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;
