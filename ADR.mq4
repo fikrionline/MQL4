@@ -325,7 +325,7 @@ int start()
    
    ChangeProsentase = (Change / BasicOpen) * 100;
    
-   comment = comment + " / " + DoubleToString(BasicOpen, MarketInfo(Symbol(), MODE_DIGITS)) + " --> " +  DoubleToString(PriceNow, MarketInfo(Symbol(), MODE_DIGITS)) + " --> " + PlusMinus + DoubleToString(ChangeProsentase, 3) + "%";
+   comment = comment + " / " + DoubleToString(BasicOpen, MarketInfo(Symbol(), MODE_DIGITS)) + " --> " +  DoubleToString(PriceNow, MarketInfo(Symbol(), MODE_DIGITS)) + " " + PlusMinus + DoubleToString(ChangeProsentase, 3) + "%";
    
    Comment(comment);
 

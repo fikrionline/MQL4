@@ -7,18 +7,18 @@
 #property link ""
 #property indicator_chart_window
 
-extern bool ShowHour1 = TRUE;
-extern int Hour_Num1 = 0;
-extern int Minute_Num1 = 0;
-extern string Line_Color1 = "77,77,77";
-extern bool ShowHour2 = FALSE;
-extern int Hour_Num2 = 6;
-extern int Minute_Num2 = 0;
+extern bool ShowHour1 = true;
+extern int Hour_Num1 = 06;
+extern int Minute_Num1 = 55;
+extern string Line_Color1 = "66,66,66";
+extern bool ShowHour2 = true;
+extern int Hour_Num2 = 07;
+extern int Minute_Num2 = 55;
 extern string Line_Color2 = "44,44,44";
-extern bool ShowHour3 = FALSE;
+extern bool ShowHour3 = false;
 extern int Hour_Num3 = 15;
 extern int Minute_Num3 = 0;
-extern string Line_Color3 = "33,33,33";
+extern string Line_Color3 = "77,77,77";
 extern int Line_Style = 2; // 1=SOLID, 2=DASH, 3=DOT, 4=DASHDOT, 5=DASHDOTDOT
 
 //+------------------------------------------------------------------+
@@ -52,7 +52,7 @@ int start() {
 
    while (i >= 0) // Loop for uncounted bars
    {
-      if (ShowHour1 == TRUE) {
+      if (ShowHour1 == true) {
          if (TimeHour(Time[i]) == Hour_Num1 && TimeMinute(Time[i]) == Minute_Num1) {
             if (ObjectFind("Time_vLine-" + Time[i]) != 0) {
                ObjectCreate("Time_vLine-" + Time[i], OBJ_VLINE, 0, Time[i], 0);
@@ -63,7 +63,7 @@ int start() {
          }
       }
 
-      if (ShowHour2 == TRUE) {
+      if (ShowHour2 == true) {
          if (TimeHour(Time[i]) == Hour_Num2 && TimeMinute(Time[i]) == Minute_Num2) {
             if (ObjectFind("Time_vLine-" + Time[i]) != 0) {
                ObjectCreate("Time_vLine-" + Time[i], OBJ_VLINE, 0, Time[i], 0);
@@ -74,7 +74,7 @@ int start() {
          }
       }
 
-      if (ShowHour3 == TRUE) {
+      if (ShowHour3 == true) {
          if (TimeHour(Time[i]) == Hour_Num3 && TimeMinute(Time[i]) == Minute_Num3) {
             if (ObjectFind("Time_vLine-" + Time[i]) != 0) {
                ObjectCreate("Time_vLine-" + Time[i], OBJ_VLINE, 0, Time[i], 0);
