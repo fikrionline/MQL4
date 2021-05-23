@@ -9,7 +9,7 @@
 #property strict
 
 extern int MagicNumber = 5758;
-extern double Lots = 0.1;
+extern double Lots = 1;
 extern double TakeProfit = 0;
 extern double StopLoss = 0;
 extern int SlipPage = 5;
@@ -41,23 +41,23 @@ int start() {
    if (NextCandle <= Time[0]) {
       NextCandle = Time[0] + Period();
       // New candle, your trading functions here
-      
+
       int CheckPosSelect = PosSelect(MagicNumber);
-      
+
       if (CheckPosSelect == 1) {
-      
+
          if (Signal() == -1) {
             TicketClose = CloseLastBuy(MagicNumber);
          }
-      
-      } else if(CheckPosSelect == -1) {
-         
+
+      } else if (CheckPosSelect == -1) {
+
          if (Signal() == 1) {
             TicketClose = CloseLastBuy(MagicNumber);
          }
-         
+
       }
-      
+
       //Order when there are no order
       if (PosSelect(MagicNumber) == 0) {
 
@@ -93,16 +93,14 @@ int Signal() {
    int signal = 0;
    double ArrowUp, ArrowDown;
 
-   ArrowUp   = iCustom(Symbol(), PERIOD_CURRENT, "ForexIndicatorPro", 0, 1);
+   ArrowUp = iCustom(Symbol(), PERIOD_CURRENT, "ForexIndicatorPro", 0, 1);
    ArrowDown = iCustom(Symbol(), PERIOD_CURRENT, "ForexIndicatorPro", 1, 1);
-   
-   if(ArrowUp > 0 && ArrowDown < 0)
-   {
+
+   if (ArrowUp > 0 && ArrowDown < 0) {
       signal = 1;
    }
-   
-   if(ArrowDown > 0 && ArrowUp < 0)
-   {
+
+   if (ArrowDown > 0 && ArrowUp < 0) {
       signal = -1;
    }
 
@@ -138,29 +136,29 @@ int PosSelect(int CheckMagicNumber) {
 }
 
 //CloseLastBuy -------------------------------------------------------------------------------
-int CloseLastBuy(int CheckMagicNumber){
-   int i_ticket = OrdersTotal()-1;
-   
-   if (i_ticket > -1 && OrderSelect (i_ticket, SELECT_BY_POS)){
-      
-      if(OrderSymbol() == Symbol() && OrderMagicNumber() == CheckMagicNumber){ 
-         
-         if(OrderType() == OP_BUY){
-            if (OrderClose(OrderTicket(), OrderLots(), NormalizeDouble(MarketInfo(Symbol(), MODE_BID), (int)MarketInfo(Symbol(), MODE_DIGITS)), SlipPage, Yellow)) {
-               return(1);//close ok
+int CloseLastBuy(int CheckMagicNumber) {
+   int i_ticket = OrdersTotal() - 1;
+
+   if (i_ticket > -1 && OrderSelect(i_ticket, SELECT_BY_POS)) {
+
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == CheckMagicNumber) {
+
+         if (OrderType() == OP_BUY) {
+            if (OrderClose(OrderTicket(), OrderLots(), NormalizeDouble(MarketInfo(Symbol(), MODE_BID), (int) MarketInfo(Symbol(), MODE_DIGITS)), SlipPage, Yellow)) {
+               return (1); //close ok
             }
          }
-         
-         if(OrderType() == OP_SELL){
-            if (OrderClose(OrderTicket(), OrderLots(), NormalizeDouble(MarketInfo(Symbol(), MODE_ASK), (int)MarketInfo(Symbol(), MODE_DIGITS)), SlipPage, Yellow)) {
-               return(1); //close ok
+
+         if (OrderType() == OP_SELL) {
+            if (OrderClose(OrderTicket(), OrderLots(), NormalizeDouble(MarketInfo(Symbol(), MODE_ASK), (int) MarketInfo(Symbol(), MODE_DIGITS)), SlipPage, Yellow)) {
+               return (1); //close ok
             }
          }
-         
+
       }
-      
+
    }
-   
-   return(-1); //error while closing
-   
+
+   return (-1); //error while closing
+
 }
