@@ -9,9 +9,9 @@
 #property strict
 
 extern int MagicNumber = 5758;
-extern double Lots = 0.1;
-extern double TakeProfit = 307;
-extern double StopLoss = 293;
+extern double Lots = 1;
+extern double TakeProfit = 37;
+extern double StopLoss = 23;
 extern int SlipPage = 5;
 
 datetime NextCandle;
