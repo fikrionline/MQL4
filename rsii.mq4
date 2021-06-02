@@ -18,7 +18,7 @@
 extern int Osc = 29;
 extern bool TH = TRUE;
 extern bool TL = TRUE;
-extern bool trend = TRUE;
+extern bool trend = FALSE;
 extern bool convergen = TRUE;
 extern int Complect = 1;
 int gi_100 = 10;

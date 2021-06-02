@@ -9,16 +9,11 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 102.759;
-
+input double StartPrice = 111.585;
 input bool ShowDeviasi = false;
-enum Deviasi {
-DeviasiSNRA = 1, //1.00175623
-DeviasiSNRB = 2 //1.00351748471
-};
-input Deviasi DeviasiBase = 1;
+input double RumusDeviasi = 1.00175623;
 
-input int LevelSize = 10;
+input int LevelSize = 33;
 
 double ResultDeviasiBase;
 
@@ -45,19 +40,12 @@ int deinit() {
 
 
 int start() {
-   
-   if (DeviasiBase == 1)
-   {
-     ResultDeviasiBase = 1.00175623;
-   } else
-   if (DeviasiBase == 2)
-   {
-     ResultDeviasiBase = 1.00351748471;
-   }
-   
+
+   ResultDeviasiBase = RumusDeviasi;
+     
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;
-   double FuturePlus, FutureMinus, LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower;
+   double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower;
    
    ObjectCreate("StartPrice", OBJ_HLINE, 0, CurTime(), StartPrice);
    ObjectSet("StartPrice", OBJPROP_COLOR, Blue);
@@ -74,9 +62,7 @@ int start() {
    
    for (int i=1; i<=LevelSize; i++) {
    
-      FuturePlus = 1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)); //Alert(FuturePlus);
-   
-      LastLevelPlus = LastLevelPlus * FuturePlus;
+      LastLevelPlus = LastLevelPlus * (1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)));
       
       ObjectCreate("+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
       ObjectSet("+" + IntegerToString(i), OBJPROP_COLOR, Aqua);
@@ -107,9 +93,7 @@ int start() {
       
       //-----------------------------------------------------------------------------------------------------------------
       
-      FutureMinus = 1 + (LastLevelMinus / (LastLevelMinus * LastLevelMinus)); //Alert(FutureMinus);
-      
-      LastLevelMinus = LastLevelMinus / FutureMinus;
+      LastLevelMinus = LastLevelMinus / (1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)));
       
       ObjectCreate("-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), LastLevelMinus);
       ObjectSet("-" + IntegerToString(i), OBJPROP_COLOR, Aqua);

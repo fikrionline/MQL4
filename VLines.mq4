@@ -1,17 +1,17 @@
 //+------------------------------------------------------------------+
 //|                                                       VLines.mq4 |
-//|                                                         Zen_Leow |
-//|                                                                  |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Zen_Leow"
 #property link ""
 #property indicator_chart_window
 
 extern bool ShowHour1 = true;
-extern int Hour_Num1 = 06;
-extern int Minute_Num1 = 55;
+extern int Hour_Num1 = 10;
+extern int Minute_Num1 = 00;
 extern string Line_Color1 = "66,66,66";
-extern bool ShowHour2 = true;
+extern bool ShowHour2 = false;
 extern int Hour_Num2 = 07;
 extern int Minute_Num2 = 55;
 extern string Line_Color2 = "44,44,44";
@@ -41,6 +41,7 @@ int deinit() {
    }
 
    return (0);
+   
 }
 
 //+------------------------------------------------------------------+

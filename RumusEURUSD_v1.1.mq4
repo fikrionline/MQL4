@@ -9,12 +9,12 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 1.14097;
+input double StartPrice = 1.17161;
 
 enum Rumus {
 TheBaseSNRA = 1, //1.00175623
-TheBaseSNRD = 2, //1.00701748471
-TheBaseSNRE = 3, //1.01141748471
+TheBaseSNRB = 2, //1.00351748471
+TheBaseSNRD = 3, //1.01231748471
 };
 input Rumus RumusBase = 3;
 
@@ -25,7 +25,7 @@ DeviasiSNRB = 2 //1.00351748471
 };
 input Deviasi DeviasiBase = 1;
 
-input int LevelSize = 33;
+input int LevelSize = 99;
 
 double ResultRumusBase, ResultDeviasiBase;
 
@@ -59,11 +59,11 @@ int start() {
    } else
    if (RumusBase == 2)
    {
-     ResultRumusBase = 1.00701748471;
+     ResultRumusBase = 1.00351748471;
    } else
    if (RumusBase == 3)
    {
-     ResultRumusBase = 1.01141748471;
+     ResultRumusBase = 1.01231748471;
    }
    
    if (DeviasiBase == 1)
