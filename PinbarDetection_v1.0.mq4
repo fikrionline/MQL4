@@ -26,7 +26,7 @@ int start() {
    if (next_candle <= Time[0]) {
       next_candle = Time[0] + Period();
       
-      string IndicatorSymbol[35];
+      string IndicatorSymbol[29];
       IndicatorSymbol[0] = "AUDCAD";
       IndicatorSymbol[1] = "AUDCHF";
       IndicatorSymbol[2] = "AUDJPY";
@@ -56,12 +56,6 @@ int start() {
       IndicatorSymbol[26] = "USDCHF";
       IndicatorSymbol[27] = "USDJPY";
       IndicatorSymbol[28] = "XAUUSD";
-      IndicatorSymbol[29] = "BCHUSD";
-      IndicatorSymbol[30] = "BTCJPY";
-      IndicatorSymbol[31] = "BTCKRW";
-      IndicatorSymbol[32] = "BTCUSD";
-      IndicatorSymbol[33] = "ETHUSD";
-      IndicatorSymbol[34] = "LTCUSD";
       
       string alert_all = GetTimeFrame(Period());
       string alert_up = "PinbarUp";
@@ -88,13 +82,13 @@ int start() {
             d = MathAbs(LastClose - LastLow);
          }
          
-         if(d>c && d>b && (d/2)>c && (d/2)>b) {
-         //if(d>c && d>b && (d/2)>c
+         //if(d>c && d>b && (d/2)>c && (d/2)>b) {
+         if(d>c && d>b && (d/2)>c) {
             pinbarUp = 1;
          }
          
-         if(b>c && b>d && (b/2)>c && (b/2)>d) {
-         //if(b>c && b>d && (b/c)>2) {
+         //if(b>c && b>d && (b/2)>c && (b/2)>d) {
+         if(b>c && b>d && (b/c)>2) {
             pinbarDown = 1;
          }
 
