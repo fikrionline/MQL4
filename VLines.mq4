@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                       VLines.mq4 |
-//|                        Copyright 2021, MetaQuotes Software Corp. |
-//|                                             https://www.mql5.com |
+//|                                                         Zen_Leow |
+//|                                                                  |
 //+------------------------------------------------------------------+
 #property copyright "Zen_Leow"
 #property link ""
@@ -10,10 +10,10 @@
 extern bool ShowHour1 = true;
 extern int Hour_Num1 = 10;
 extern int Minute_Num1 = 00;
-extern string Line_Color1 = "66,66,66";
-extern bool ShowHour2 = false;
-extern int Hour_Num2 = 07;
-extern int Minute_Num2 = 55;
+extern string Line_Color1 = "00,128,0";
+extern bool ShowHour2 = true;
+extern int Hour_Num2 = 1;
+extern int Minute_Num2 = 00;
 extern string Line_Color2 = "44,44,44";
 extern bool ShowHour3 = false;
 extern int Hour_Num3 = 15;
@@ -41,7 +41,6 @@ int deinit() {
    }
 
    return (0);
-   
 }
 
 //+------------------------------------------------------------------+
