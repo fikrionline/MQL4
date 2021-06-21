@@ -8,10 +8,24 @@
 
 #property indicator_chart_window
 
-extern int CandlePeriod = 1440;
+extern string FiboID = "A";
+
+enum EnumTimeFrame {
+   M1,
+   M5,
+   M15,
+   M30,
+   H1,
+   H4,
+   D1,
+   W1,
+   MN
+};
+extern EnumTimeFrame TimeFrame = D1;
+
 extern int CandleBase = 1;
 extern bool ShowPrice = true;
-extern color FiboColor = Yellow;
+extern color FiboColor = Orange;
 
 int gi_FibLevels;
 double gd_FLvl[31];
@@ -21,7 +35,7 @@ datetime gdt_LastBar;
 datetime gdt_Times[];
 
 int gi_BarOffset = CandleBase;
-int xi_Period = CandlePeriod;
+int xi_Period;
 bool xb_ShowPrice = ShowPrice;
 color xc_Color_Fib = FiboColor;
 
@@ -32,6 +46,36 @@ string gs_Fibo;
 //+------------------------------------------------------------------+
 int init() {
    //---- 
+   
+   switch(TimeFrame)
+   {
+   case M1:
+      xi_Period = 1;
+   case M5:
+      xi_Period = 5;
+      break;
+   case M15:
+      xi_Period = 15;
+      break;
+   case M30:
+      xi_Period = 30;
+      break;
+   case H1:
+      xi_Period = 60;
+      break;
+   case H4:
+      xi_Period = 240;
+      break;
+   case D1:
+      xi_Period = 1440;
+      break;
+   case W1:
+      xi_Period = 10080;
+      break;
+   case MN:
+      xi_Period = 43200;
+      break;
+   }
 
    gd_FLvl[0] = 0;
    gd_FLvl[1] = 0.085;
@@ -67,11 +111,12 @@ int init() {
 
    gi_FibLevels = 31;
 
-   gs_Fibo = xi_Period + " Fibo";
+   gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 
    //----
    return (0);
 }
+
 //+------------------------------------------------------------------+
 //| Custom indicator deinitialization function                       |
 //+------------------------------------------------------------------+
@@ -81,6 +126,7 @@ int deinit() {
    //----
    return (0);
 }
+
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
 //+------------------------------------------------------------------+
@@ -102,6 +148,7 @@ int start() {
    //----
    return (0);
 }
+
 //+------------------------------------------------------------------+
 //| calculate the fibonacci                                          |
 //+------------------------------------------------------------------+
