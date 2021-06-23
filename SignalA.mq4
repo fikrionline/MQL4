@@ -8,11 +8,11 @@
 #property version   "1.00"
 #property strict
 
-extern int     Step = 33;
+extern int     Step = 99;
 extern double  FirstLot = 0.01;
 extern double  IncLot = 0.01;
-extern double  MinProfit = 100000;
-extern double  MaxLoss = 100000;
+extern double  MinProfit = 1000;
+extern double  MaxLoss = 1000;
 extern int     MaxSlipPage = 9;
 extern int     MagicBuy = 101;
 extern int     MagicSell = 201;
