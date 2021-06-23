@@ -10,7 +10,7 @@
 
 extern int MagicNumber = 5758;
 extern int SlipPage = 5;
-extern double Lots = 0.01;
+extern double Lots = 0.1;
 
 datetime next_candle;
 int SelectOrder, typeOrder, GetSignal, GetCandleStatus;
@@ -59,32 +59,38 @@ int start() {
             //Close opened long positions
             case OP_BUY:
                if(GetSignal == -1 || GetCandleStatus == -1) {
-                  TicketClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), SlipPage, CLR_NONE);
+                  //TicketClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), SlipPage, CLR_NONE);
                }
             break;
 
             //Close opened short positions
             case OP_SELL:
                if(GetSignal == 1 || GetCandleStatus == 1) {
-                  TicketClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), SlipPage, CLR_NONE);
+                  //TicketClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), SlipPage, CLR_NONE);
                }
             break;
             
          }
 
       }
+      
+      double sl_tp = iHigh(Symbol(), PERIOD_CURRENT, 1) - iLow(Symbol(), PERIOD_CURRENT, 1);
 
       if (GetSignal == 1) {
 
          typeOrder = OP_BUY;
          price = Ask;
-         TicketOpen = OrderSend(Symbol(), typeOrder, Lots, price, SlipPage, sl, 0, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+         sl = price - sl_tp;
+         tp = price + (sl_tp * 2);
+         TicketOpen = OrderSend(Symbol(), typeOrder, Lots, price, SlipPage, sl, tp, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
 
       } else if (GetSignal == -1) {
          
          typeOrder = OP_SELL;
          price = Bid;
-         TicketOpen = OrderSend(_Symbol, typeOrder, Lots, price, SlipPage, sl, 0, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+         sl = price + sl_tp;
+         tp = price - (sl_tp * 2);
+         TicketOpen = OrderSend(_Symbol, typeOrder, Lots, price, SlipPage, sl, tp, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
          
       }
 

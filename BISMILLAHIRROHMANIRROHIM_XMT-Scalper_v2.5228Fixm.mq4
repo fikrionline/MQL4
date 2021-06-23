@@ -258,7 +258,7 @@
 // Note: If the below files are stored in the installation directory of MT4 then the files should be
 // written with " " around their names. If you however prefer to have the include files in the same 
 // directory as this EA, then the files below should be surropunded by < > instead.
-#include <stdlib.mqh>       // "stdlib.mqh" or "<sdlib.mqh> 
+#include <stdlib.mqh>        // "stdlib.mqh" or "<sdlib.mqh> 
 #include <stderror.mqh>      // "stderror.mqh" or <stderror.mqh>
 
 //----------------------- External Globals ----------------------------------------------------------------
@@ -266,21 +266,21 @@
 
 extern string	Configuration 					= "==== Configuration ====";
 extern bool 	ReverseTrade 					= FALSE; // ReverseTrade: If TRUE, then trade in opposite direction
-extern int 		Magic 							= -1;	// Magic: If set to a number less than 0 it will calculate MagicNumber automatically
-extern string 	OrderCmt 						= "XMT-Scalper 2.522"; // OrderCmt. Trade comments that appears in the Trade and Account History tab
+extern int 		Magic 							= 575899;	// Magic: If set to a number less than 0 it will calculate MagicNumber automatically
+extern string 	OrderCmt 						= "BISMILLAHIRROHMANIRROHIM"; // OrderCmt. Trade comments that appears in the Trade and Account History tab
 extern bool 	ECN_Mode 						= FALSE;	// ECN_Mode: True for brokers that don't accept SL and TP to be sent at the same time as the order
 extern bool 	Debug 							= FALSE;	// Debug: Print huge log files with info, only for debugging purposes
 extern bool 	Verbose 							= FALSE;	// Verbose: Additional log information printed in the Expert tab
 extern string 	TradingSettings 				= "==== Trade settings ====";
 extern ENUM_TIMEFRAMES TimeFrame          = PERIOD_M1; // TimeFrame: Trading timeframe must matrch the timeframe of the chart
-extern double 	MaxSpread 						= 30.0; // MaxSprea: Max allowed spread in points (1 / 10 pip)
+extern double 	MaxSpread 						= 99.0; // MaxSprea: Max allowed spread in points (1 / 10 pip)
 extern int 		MaxExecution 					= 0; // MaxExecution: Max allowed average execution time in ms (0 means no restrictions)
 extern int 		MaxExecutionMinutes 			= 5; // MaxExecutionMinutes: How often in minutes should fake orders be sent to measure execution speed
-extern double 	StopLoss 						= 60;	// StopLoss: SL from as many points. Default 60 (= 6 pips)
-extern double 	TakeProfit 						= 100; // TakeProfit: TP from as many points. Default 100 (= 10 pip)
+extern double 	StopLoss 						= 600;	// StopLoss: SL from as many points. Default 60 (= 6 pips)
+extern double 	TakeProfit 						= 600; // TakeProfit: TP from as many points. Default 100 (= 10 pip)
 extern double 	AddPriceGap 					= 0; // AddPriceGap: Additional price gap in points added to SL and TP in order to avoid Error 130
 extern double 	TrailingStart 					= 20;	// TrailingStart: Start trailing profit from as so many points. 
-extern double 	Commission 						= 0; // Commission: Some broker accounts charge commission in USD per 1.0 lot. Commission in dollar per lot
+extern double 	Commission 						= 1.99; // Commission: Some broker accounts charge commission in USD per 1.0 lot. Commission in dollar per lot
 extern int 		Slippage 						= 3; // Slippage: Maximum allowed Slippage of price in points
 extern double 	MinimumUseStopLevel 			= 0; // MinimumUseStopLevel: Stoplevel to use will be max value of either this value or broker stoplevel 
 extern string 	VolatilitySettings 			= "==== Volatility Settings ====";
@@ -299,19 +299,19 @@ extern string 	Money_Management 				= "==== Money Management ====";
 extern bool 	MoneyManagement 				= TRUE; // MoneyManagement: If TRUE then calculate lotsize automaticallay based on Risk, if False then use ManualLotsize below
 extern double 	MinLots 							= 0.01; // MinLots: Minimum lot-size to trade with
 extern double 	MaxLots 							= 100.0;	// MaxLots : Maximum allowed lot-size to trade with
-extern double 	Risk 								= 2.0; // Risk: Risk setting in percentage, For 10.000 in Equity 10% Risk and 60 StopLoss lotsize = 16.66
-extern double 	ManualLotsize 					= 0.1; // ManualLotsize: Fix lot size to trade with if MoneyManagement above is set to FALSE
+extern double 	Risk 								= 1; // Risk: Risk setting in percentage, For 10.000 in Equity 10% Risk and 60 StopLoss lotsize = 16.66
+extern double 	ManualLotsize 					= 1.0; // ManualLotsize: Fix lot size to trade with if MoneyManagement above is set to FALSE
 extern double 	MinMarginLevel 				= 100; // MinMarginLevel: Lowest allowed Margin level for new positions to be opened 
 extern string 	Screen_Shooter 				= "==== Screen Shooter ====";
-extern bool 	TakeShots 						= FALSE; // TakeShots: Save screen shots for each opened order
+extern bool 	TakeShots 						= TRUE; // TakeShots: Save screen shots for each opened order
 extern int 		DelayTicks 						= 1; // DelayTicks: Delay so many ticks after new bar
 extern int 		ShotsPerBar 					= 1; // ShotsPerBar: How many screen shots per bar
 extern string 	DisplayGraphics				= "=== Display Graphics ==="; // Colors for sub_Display at upper left
 extern int 		Heading_Size 					= 13;  // Heading_Size: Font size for headline
 extern int 		Text_Size 						= 12;  // Text_Size: Font size for texts
-extern color 	Color_Heading 					= Lime;	 // Color for text lines
+extern color 	Color_Heading 					= Aqua;	 // Color for text lines
 extern color 	Color_Section1 				= Yellow; // Color for text lines
-extern color 	Color_Section2 				= Aqua;	 // Color for text lines
+extern color 	Color_Section2 				= Lime;	 // Color for text lines
 extern color 	Color_Section3 				= Orange; // Color for text lines
 extern color 	Color_Section4 				= Magenta;// Color for text lines
 
@@ -319,7 +319,7 @@ extern color 	Color_Section4 				= Magenta;// Color for text lines
 // All globals should here have their name starting with a CAPITAL character
 // All variables are arranged according to their data type 
 
-string EA_version = "XMT-Scalper v. 2.522";
+string EA_version = "BISMILLAHIRROHMANIRROHIM";
 
 datetime StartTime;			// Initial time
 datetime LastTime;   		// For measuring tics
