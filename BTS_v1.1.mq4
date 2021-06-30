@@ -11,6 +11,7 @@
 
 extern int     CandleBase = 2;
 extern bool    AutoSignal = false;
+extern ENUM_TIMEFRAMES ChooseTimeFrame = PERIOD_H4;
 
 int GetAutoSignal = 0;
 string comments;
@@ -38,6 +39,8 @@ int deinit() {
    ObjectDelete("CandleHighLabel");
    ObjectDelete("CandleLowLabel");
    
+   ObjectDelete("VerticalLineBTS");
+   
    return (0);
    
 }
@@ -55,15 +58,15 @@ int start() {
    if(AutoSignal == false) {
       GetAutoSignal = 1;
    } else {
-      if(iClose(Symbol(), PERIOD_CURRENT, CandleBase - 1) > iOpen(Symbol(), PERIOD_CURRENT, CandleBase - 1)) {
-         if(iClose(Symbol(), PERIOD_CURRENT, CandleBase) < iOpen(Symbol(), PERIOD_CURRENT, CandleBase)){
-            if(iClose(Symbol(), PERIOD_CURRENT, CandleBase - 1) > iHigh(Symbol(), PERIOD_CURRENT, CandleBase)) {
+      if(iClose(Symbol(), ChooseTimeFrame, CandleBase - 1) > iOpen(Symbol(), ChooseTimeFrame, CandleBase - 1)) {
+         if(iClose(Symbol(), ChooseTimeFrame, CandleBase) < iOpen(Symbol(), ChooseTimeFrame, CandleBase)){
+            if(iClose(Symbol(), ChooseTimeFrame, CandleBase - 1) > iHigh(Symbol(), ChooseTimeFrame, CandleBase)) {
                GetAutoSignal = 1;
             }
          }
-      } else if(iClose(Symbol(), PERIOD_CURRENT, CandleBase - 1) < iOpen(Symbol(), PERIOD_CURRENT, CandleBase - 1)) {
-         if(iClose(Symbol(), PERIOD_CURRENT, CandleBase) > iOpen(Symbol(), PERIOD_CURRENT, CandleBase)) {
-            if(iClose(Symbol(), PERIOD_CURRENT, CandleBase - 1) < iLow(Symbol(), PERIOD_CURRENT, CandleBase)) {
+      } else if(iClose(Symbol(), ChooseTimeFrame, CandleBase - 1) < iOpen(Symbol(), ChooseTimeFrame, CandleBase - 1)) {
+         if(iClose(Symbol(), ChooseTimeFrame, CandleBase) > iOpen(Symbol(), ChooseTimeFrame, CandleBase)) {
+            if(iClose(Symbol(), ChooseTimeFrame, CandleBase - 1) < iLow(Symbol(), ChooseTimeFrame, CandleBase)) {
                GetAutoSignal = 1;
             }
          }
@@ -72,7 +75,7 @@ int start() {
    
    if(GetAutoSignal == 1) {
    
-      double PriceCandleOpen = iOpen(Symbol(), PERIOD_CURRENT, CandleBase);
+      double PriceCandleOpen = iOpen(Symbol(), ChooseTimeFrame, CandleBase);
       
       if (ObjectFind("CandleOpen") != 0) {
          ObjectCreate("CandleOpen", OBJ_HLINE, 0, CurTime(), PriceCandleOpen);
@@ -82,11 +85,11 @@ int start() {
       }
       
       if (ObjectFind("CandleOpenLabel") != 0) {
-         ObjectCreate("CandleOpenLabel", OBJ_TEXT, 0, Time[20], PriceCandleOpen);
+         ObjectCreate("CandleOpenLabel", OBJ_TEXT, 0, Time[19], PriceCandleOpen);
          ObjectSetText("CandleOpenLabel", DoubleToString(PriceCandleOpen, Digits), 8, "Arial", Green);
       }
       
-      double PriceCandleClose = iClose(Symbol(), PERIOD_CURRENT, CandleBase);
+      double PriceCandleClose = iClose(Symbol(), ChooseTimeFrame, CandleBase);
       
       if (ObjectFind("CandleClose") != 0) {
          ObjectCreate("CandleClose", OBJ_HLINE, 0, CurTime(), PriceCandleClose);
@@ -96,11 +99,11 @@ int start() {
       }
       
       if (ObjectFind("CandleCloseLabel") != 0) {
-         ObjectCreate("CandleCloseLabel", OBJ_TEXT, 0, Time[20], PriceCandleClose);
+         ObjectCreate("CandleCloseLabel", OBJ_TEXT, 0, Time[19], PriceCandleClose);
          ObjectSetText("CandleCloseLabel", DoubleToString(PriceCandleClose, Digits), 8, "Arial", Green);
       }
       
-      double PriceCandleHigh = iHigh(Symbol(), PERIOD_CURRENT, CandleBase);
+      double PriceCandleHigh = iHigh(Symbol(), ChooseTimeFrame, CandleBase);
       
       if (ObjectFind("CandleHigh") != 0) {
          ObjectCreate("CandleHigh", OBJ_HLINE, 0, CurTime(), PriceCandleHigh);
@@ -110,11 +113,11 @@ int start() {
       }
       
       if (ObjectFind("CandleHighLabel") != 0) {
-         ObjectCreate("CandleHighLabel", OBJ_TEXT, 0, Time[20], PriceCandleHigh);
+         ObjectCreate("CandleHighLabel", OBJ_TEXT, 0, Time[19], PriceCandleHigh);
          ObjectSetText("CandleHighLabel", DoubleToString(PriceCandleHigh, Digits), 8, "Arial", Orange);
       }
       
-      double PriceCandleLow = iLow(Symbol(), PERIOD_CURRENT, CandleBase);
+      double PriceCandleLow = iLow(Symbol(), ChooseTimeFrame, CandleBase);
       
       if (ObjectFind("CandleLow") != 0) {
          ObjectCreate("CandleLow", OBJ_HLINE, 0, CurTime(), PriceCandleLow);
@@ -124,8 +127,15 @@ int start() {
       }
       
       if (ObjectFind("CandleLowLabel") != 0) {
-         ObjectCreate("CandleLowLabel", OBJ_TEXT, 0, Time[20], PriceCandleLow);
+         ObjectCreate("CandleLowLabel", OBJ_TEXT, 0, Time[19], PriceCandleLow);
          ObjectSetText("CandleLowLabel", DoubleToString(PriceCandleLow, Digits), 8, "Arial", Orange);
+      }
+      
+      if (ObjectFind("VerticalLineBTS") != 0) {
+         ObjectCreate("VerticalLineBTS", OBJ_VLINE, 0, iTime(Symbol(), ChooseTimeFrame, CandleBase), PriceCandleLow);
+         ObjectSet("VerticalLineBTS", OBJPROP_COLOR, DarkGoldenrod);
+         ObjectSet("VerticalLineBTS", OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("VerticalLineBTS", OBJPROP_BACK, true);
       }
       
       comments = comments + "Low: " + DoubleToString(PriceCandleLow, Digits) + "\n";

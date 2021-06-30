@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                                          SND.mq4 |
-//|                        Copyright 2021, MetaQuotes Software Corp. |
-//|                                             https://www.mql5.com |
-//+------------------------------------------------------------------+
 #property copyright "Shved"
 #property link "http://ruforum_mt5_com/members/11434-shved"
 #property description "edited by eevviill"
