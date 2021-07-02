@@ -106,6 +106,10 @@ void CloseAllOrders() {
       } else if (OrderType() == OP_SELL) {
          res = OrderClose(OrderTicket(), OrderLots(), AskPrice, Slippage);
       }
+      
+      if (OrderType() == OP_BUYSTOP || OP_BUYLIMIT || OP_SELLSTOP || OP_SELLLIMIT) {
+         res = OrderDelete(OrderTicket());
+      }
 
       // If there was an error, log it.
       if (res == false) Print("ERROR - Unable to close the order - ", OrderTicket(), " - ", GetLastError());
