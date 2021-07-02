@@ -105,9 +105,7 @@ void CloseAllOrders() {
          res = OrderClose(OrderTicket(), OrderLots(), BidPrice, Slippage);
       } else if (OrderType() == OP_SELL) {
          res = OrderClose(OrderTicket(), OrderLots(), AskPrice, Slippage);
-      }
-      
-      if (OrderType() == OP_BUYSTOP || OP_BUYLIMIT || OP_SELLSTOP || OP_SELLLIMIT) {
+      } else if (OrderType() == OP_BUYSTOP || OP_BUYLIMIT || OP_SELLSTOP || OP_SELLLIMIT) {
          res = OrderDelete(OrderTicket());
       }
 
