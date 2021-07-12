@@ -41,6 +41,8 @@ int deinit() {
    
    ObjectDelete("VerticalLineBTS");
    
+   Comment("");
+   
    return (0);
    
 }
@@ -79,28 +81,28 @@ int start() {
       
       if (ObjectFind("CandleOpen") != 0) {
          ObjectCreate("CandleOpen", OBJ_HLINE, 0, CurTime(), PriceCandleOpen);
-         ObjectSet("CandleOpen", OBJPROP_COLOR, Green);
+         ObjectSet("CandleOpen", OBJPROP_COLOR, Lime);
          ObjectSet("CandleOpen", OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("CandleOpen", OBJPROP_BACK, true);
       }
       
       if (ObjectFind("CandleOpenLabel") != 0) {
          ObjectCreate("CandleOpenLabel", OBJ_TEXT, 0, Time[19], PriceCandleOpen);
-         ObjectSetText("CandleOpenLabel", DoubleToString(PriceCandleOpen, Digits), 8, "Arial", Green);
+         ObjectSetText("CandleOpenLabel", DoubleToString(PriceCandleOpen, Digits), 8, "Arial", Lime);
       }
       
       double PriceCandleClose = iClose(Symbol(), ChooseTimeFrame, CandleBase);
       
       if (ObjectFind("CandleClose") != 0) {
          ObjectCreate("CandleClose", OBJ_HLINE, 0, CurTime(), PriceCandleClose);
-         ObjectSet("CandleClose", OBJPROP_COLOR, Green);
+         ObjectSet("CandleClose", OBJPROP_COLOR, Lime);
          ObjectSet("CandleClose", OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("CandleClose", OBJPROP_BACK, true);
       }
       
       if (ObjectFind("CandleCloseLabel") != 0) {
          ObjectCreate("CandleCloseLabel", OBJ_TEXT, 0, Time[19], PriceCandleClose);
-         ObjectSetText("CandleCloseLabel", DoubleToString(PriceCandleClose, Digits), 8, "Arial", Green);
+         ObjectSetText("CandleCloseLabel", DoubleToString(PriceCandleClose, Digits), 8, "Arial", Lime);
       }
       
       double PriceCandleHigh = iHigh(Symbol(), ChooseTimeFrame, CandleBase);
