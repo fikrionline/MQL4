@@ -1,5 +1,5 @@
 ﻿//+------------------------------------------------------------------+
-//|                                                   AutoFiboH4.mq4 |
+//|                                                   AutoFiboD1.mq4 |
 //|                        Copyright 2021, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -8,34 +8,34 @@
 
 #property indicator_chart_window
 
-extern string FiboID = "H1";
+extern string FiboID = "FiboBuyBSS_T";
 
-enum EnumTimeFrame {
-   M1,
-   M5,
-   M15,
-   M30,
-   H1,
-   H4,
-   D1,
-   W1,
-   MN
+extern ENUM_TIMEFRAMES ChooseTimeFrame = PERIOD_M5;
+
+enum TheDay {
+   Today,
+   Yesterday,
+   TwoDaysAgo,
+   ThreeDayAgo
 };
-extern EnumTimeFrame TimeFrame = H1;
 
-extern int CandleBase = 1;
+extern TheDay ChooseDay = Today;
+
+string ChooseDayCandleTime;
+extern string CandleTime = "00:00";
 extern bool ShowPrice = true;
-extern color FiboColor = White;
+extern color FiboColor = Aqua;
 
 int gi_FibLevels;
-double gd_FLvl[19];
+double gd_FLvl[17];
+string gd_FLvl_Str[17];
 double gd_High, gd_Low;
 
 datetime gdt_LastBar;
 datetime gdt_Times[];
 
-int gi_BarOffset = CandleBase;
-int xi_Period;
+int gi_BarOffset;
+int xi_Period = ChooseTimeFrame;
 bool xb_ShowPrice = ShowPrice;
 color xc_Color_Fib = FiboColor;
 
@@ -45,37 +45,7 @@ string gs_Fibo;
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int init() {
-   //---- 
-   
-   switch(TimeFrame)
-   {
-   case M1:
-      xi_Period = 1;
-   case M5:
-      xi_Period = 5;
-      break;
-   case M15:
-      xi_Period = 15;
-      break;
-   case M30:
-      xi_Period = 30;
-      break;
-   case H1:
-      xi_Period = 60;
-      break;
-   case H4:
-      xi_Period = 240;
-      break;
-   case D1:
-      xi_Period = 1440;
-      break;
-   case W1:
-      xi_Period = 10080;
-      break;
-   case MN:
-      xi_Period = 43200;
-      break;
-   }
+   //----
 
    gd_FLvl[0] = 0;
    gd_FLvl[1] = 0.17;
@@ -84,20 +54,36 @@ int init() {
    gd_FLvl[4] = 0.66;
    gd_FLvl[5] = 0.83;
    gd_FLvl[6] = 1;
-   gd_FLvl[7] = 1.17;
-   gd_FLvl[8] = 1.34;
-   gd_FLvl[9] = 1.50;
-   gd_FLvl[10] = 1.66;
-   gd_FLvl[11] = 1.83;
-   gd_FLvl[12] = 2;
-   gd_FLvl[13] = -0.17;
-   gd_FLvl[14] = -0.34;
-   gd_FLvl[15] = -0.50;
-   gd_FLvl[16] = -0.66;
-   gd_FLvl[17] = -0.83;
-   gd_FLvl[18] = -1;
+   gd_FLvl[7] = 1.34;
+   gd_FLvl[8] = 1.50;
+   gd_FLvl[9] = 1.66;
+   gd_FLvl[10] = 2.17;
+   gd_FLvl[11] = 3.34;
+   gd_FLvl[12] = 4.51;
+   gd_FLvl[13] = 5.68;
+   gd_FLvl[14] = -0.085;
+   gd_FLvl[15] = -0.17;
+   gd_FLvl[16] = -0.34;
+   
+   gd_FLvl_Str[0] = "";
+   gd_FLvl_Str[1] = "";
+   gd_FLvl_Str[2] = "";
+   gd_FLvl_Str[3] = "PV / ";
+   gd_FLvl_Str[4] = "";
+   gd_FLvl_Str[5] = "";
+   gd_FLvl_Str[6] = "Buy Entry / ";
+   gd_FLvl_Str[7] = "";
+   gd_FLvl_Str[8] = "";
+   gd_FLvl_Str[9] = "";
+   gd_FLvl_Str[10] = "TP1 / ";
+   gd_FLvl_Str[11] = "TP2 / ";
+   gd_FLvl_Str[12] = "TP3 / ";
+   gd_FLvl_Str[13] = "TP4 / ";
+   gd_FLvl_Str[14] = "SL / ";
+   gd_FLvl_Str[15] = "SL / ";
+   gd_FLvl_Str[16] = "SL / ";
 
-   gi_FibLevels = 19;
+   gi_FibLevels = 17;
 
    gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 
@@ -121,6 +107,18 @@ int deinit() {
 int start() {
    //----
    bool lb_Changed = false;
+   
+   if(ChooseDay == Today) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent(), TIME_DATE) + " ";
+   } else if(ChooseDay == Yesterday) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - 60 * 60 * 24, TIME_DATE) + " ";
+   } else if(ChooseDay == TwoDaysAgo) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - (60 * 60 * 24) * 2, TIME_DATE) + " ";
+   } else if(ChooseDay == ThreeDayAgo) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - (60 * 60 * 24) * 3, TIME_DATE) + " ";
+   }
+   
+   gi_BarOffset = iBarShift(Symbol(), ChooseTimeFrame, StringToTime(ChooseDayCandleTime + CandleTime)); //Alert(ChooseDayCandleTime + CandleTime);
 
    // Check if the bar has moved
    if (iTime(NULL, xi_Period, gi_BarOffset) != gdt_LastBar) {
@@ -145,6 +143,18 @@ int Calculate_Fibo() {
    int li_Id1;
 
    ObjectDelete(gs_Fibo);
+   
+   if(ChooseDay == Today) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent(), TIME_DATE) + " ";
+   } else if(ChooseDay == Yesterday) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - 60 * 60 * 24, TIME_DATE) + " ";
+   } else if(ChooseDay == TwoDaysAgo) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - (60 * 60 * 24) * 2, TIME_DATE) + " ";
+   } else if(ChooseDay == ThreeDayAgo) {
+      ChooseDayCandleTime = TimeToString(TimeCurrent() - (60 * 60 * 24) * 3, TIME_DATE) + " ";
+   }
+   
+   gi_BarOffset = iBarShift(Symbol(), ChooseTimeFrame, StringToTime(ChooseDayCandleTime + CandleTime)); //Alert(ChooseDayCandleTime + CandleTime);
 
    gd_High = iHigh(NULL, xi_Period, gi_BarOffset);
    gd_Low = iLow(NULL, xi_Period, gi_BarOffset);
@@ -157,7 +167,7 @@ int Calculate_Fibo() {
    for (li_Id1 = 0; li_Id1 < gi_FibLevels; li_Id1++) {
       ObjectSet(gs_Fibo, OBJPROP_FIRSTLEVEL + li_Id1, gd_FLvl[li_Id1]);
       if (xb_ShowPrice)
-         ObjectSetFiboDescription(gs_Fibo, li_Id1, DoubleToStr(gd_FLvl[li_Id1], 3) + " / %$");
+         ObjectSetFiboDescription(gs_Fibo, li_Id1, gd_FLvl_Str[li_Id1] + DoubleToStr(gd_FLvl[li_Id1], 3) + " / %$");
       else
          ObjectSetFiboDescription(gs_Fibo, li_Id1, DoubleToStr(gd_FLvl[li_Id1], 3));
    }

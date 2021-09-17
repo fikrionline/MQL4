@@ -28,7 +28,7 @@ extern bool ShowPrice = true;
 extern color FiboColor = Magenta;
 
 int gi_FibLevels;
-double gd_FLvl[31];
+double gd_FLvl[19];
 double gd_High, gd_Low;
 
 datetime gdt_LastBar;
@@ -78,38 +78,26 @@ int init() {
    }
 
    gd_FLvl[0] = 0;
-   gd_FLvl[1] = 0.085;
-   gd_FLvl[2] = 0.17;
-   gd_FLvl[3] = 0.34;
-   gd_FLvl[4] = 0.45;
-   gd_FLvl[5] = 0.50;
-   gd_FLvl[6] = 0.55;
-   gd_FLvl[7] = 0.66;
-   gd_FLvl[8] = 0.83;
-   gd_FLvl[9] = 0.915;
-   gd_FLvl[10] = 1;
-   gd_FLvl[11] = 1.085;
-   gd_FLvl[12] = 1.17;
-   gd_FLvl[13] = 1.34;
-   gd_FLvl[14] = 1.45;
-   gd_FLvl[15] = 1.50;
-   gd_FLvl[16] = 1.55;
-   gd_FLvl[17] = 1.66;
-   gd_FLvl[18] = 1.83;
-   gd_FLvl[19] = 1.915;
-   gd_FLvl[20] = 2;
-   gd_FLvl[21] = -0.085;
-   gd_FLvl[22] = -0.17;
-   gd_FLvl[23] = -0.34;
-   gd_FLvl[24] = -0.45;
-   gd_FLvl[25] = -0.50;
-   gd_FLvl[26] = -0.55;
-   gd_FLvl[27] = -0.66;
-   gd_FLvl[28] = -0.83;
-   gd_FLvl[29] = -0.915;
-   gd_FLvl[30] = -1;
+   gd_FLvl[1] = 0.17;
+   gd_FLvl[2] = 0.34;
+   gd_FLvl[3] = 0.50;
+   gd_FLvl[4] = 0.66;
+   gd_FLvl[5] = 0.83;
+   gd_FLvl[6] = 1;
+   gd_FLvl[7] = 1.17;
+   gd_FLvl[8] = 1.34;
+   gd_FLvl[9] = 1.50;
+   gd_FLvl[10] = 1.66;
+   gd_FLvl[11] = 1.83;
+   gd_FLvl[12] = 2;
+   gd_FLvl[13] = -0.17;
+   gd_FLvl[14] = -0.34;
+   gd_FLvl[15] = -0.50;
+   gd_FLvl[16] = -0.66;
+   gd_FLvl[17] = -0.83;
+   gd_FLvl[18] = -1;
 
-   gi_FibLevels = 31;
+   gi_FibLevels = 19;
 
    gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 

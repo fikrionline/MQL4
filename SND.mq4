@@ -16,7 +16,7 @@ extern string pus1 = "/////////////////////////////////////////////////";
 extern bool zone_show_weak = true;
 extern bool zone_show_untested = true;
 extern bool zone_show_turncoat = true;
-extern double zone_fuzzfactor = 0.3;
+extern double zone_fuzzfactor = 0.39;
 
 extern string pus2 = "/////////////////////////////////////////////////";
 extern bool fractals_show = false;

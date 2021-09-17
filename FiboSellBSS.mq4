@@ -1,14 +1,14 @@
 ﻿//+------------------------------------------------------------------+
-//|                                                  FibSemiAuto.mq4 |
-//|                                  Copyright © 2010, John Wustrack |
-//|                                        john_wustrack@hotmail.com |
+//|                                                   AutoFiboD1.mq4 |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright © 2010, John Wustrack"
 #property link "john_wustrack@hotmail.com"
 
 #property indicator_chart_window
 
-extern string FiboID = "W1Up";
+extern string FiboID = "FiboSellBSS";
 
 enum EnumTimeFrame {
    M1,
@@ -21,20 +21,15 @@ enum EnumTimeFrame {
    W1,
    MN
 };
-extern EnumTimeFrame TimeFrame = W1;
+extern EnumTimeFrame TimeFrame = M5;
 
-extern int CandleBase = 1;
+extern int CandleBase = 2;
 extern bool ShowPrice = true;
-extern color FiboColor = Magenta;
-
-enum FiboUpDown {
-   Up,
-   Down
-};
-extern FiboUpDown ChooseFiboUpDown = Up;
+extern color FiboColor = Aqua;
 
 int gi_FibLevels;
-double gd_FLvl[19];
+double gd_FLvl[17];
+string gd_FLvl_Str[17];
 double gd_High, gd_Low;
 
 datetime gdt_LastBar;
@@ -83,49 +78,48 @@ int init() {
       break;
    }
 
-   gd_FLvl[0] = 0;
+   gd_FLvl[0] = 0.00;
    gd_FLvl[1] = 0.17;
    gd_FLvl[2] = 0.34;
    gd_FLvl[3] = 0.50;
    gd_FLvl[4] = 0.66;
    gd_FLvl[5] = 0.83;
    gd_FLvl[6] = 1;
+   gd_FLvl[7] = -0.34;
+   gd_FLvl[8] = -0.50;
+   gd_FLvl[9] = -0.66;
+   gd_FLvl[10] = -1.17;
+   gd_FLvl[11] = -2.34;
+   gd_FLvl[12] = -3.51;
+   gd_FLvl[13] = -4.68;
+   gd_FLvl[14] = 1.085;
+   gd_FLvl[15] = 1.17;
+   gd_FLvl[16] = 1.34;
    
-   if(ChooseFiboUpDown == Up) {
-      gd_FLvl[7] = 1.17;
-      gd_FLvl[8] = 1.34;
-      gd_FLvl[9] = 1.50;
-      gd_FLvl[10] = 1.66;
-      gd_FLvl[11] = 1.83;
-      gd_FLvl[12] = 2;
-      gd_FLvl[13] = 2.17;
-      gd_FLvl[14] = 2.34;
-      gd_FLvl[15] = 2.50;
-      gd_FLvl[16] = 2.66;
-      gd_FLvl[17] = 2.83;
-      gd_FLvl[18] = 3;
-   } else if(ChooseFiboUpDown == Down) {
-      gd_FLvl[7] = -0.17;
-      gd_FLvl[8] = -0.34;
-      gd_FLvl[9] = -0.50;
-      gd_FLvl[10] = -0.66;
-      gd_FLvl[11] = -0.83;
-      gd_FLvl[12] = -1;
-      gd_FLvl[13] = -1.17;
-      gd_FLvl[14] = -1.34;
-      gd_FLvl[15] = -1.50;
-      gd_FLvl[16] = -1.66;
-      gd_FLvl[17] = -1.83;
-      gd_FLvl[18] = -2;
-   }
+   gd_FLvl_Str[0] = "Sell Entry / ";
+   gd_FLvl_Str[1] = "";
+   gd_FLvl_Str[2] = "";
+   gd_FLvl_Str[3] = "PV / ";
+   gd_FLvl_Str[4] = "";
+   gd_FLvl_Str[5] = "";
+   gd_FLvl_Str[6] = "";
+   gd_FLvl_Str[7] = "";
+   gd_FLvl_Str[8] = "";
+   gd_FLvl_Str[9] = "";
+   gd_FLvl_Str[10] = "TP1 / ";
+   gd_FLvl_Str[11] = "TP2 / ";
+   gd_FLvl_Str[12] = "TP3 / ";
+   gd_FLvl_Str[13] = "TP4 / ";
+   gd_FLvl_Str[14] = "SL / ";
+   gd_FLvl_Str[15] = "SL / ";
+   gd_FLvl_Str[16] = "SL / ";
 
-   gi_FibLevels = 19;
+   gi_FibLevels = 17;
 
    gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 
    //----
    return (0);
-   
 }
 
 //+------------------------------------------------------------------+
@@ -180,7 +174,7 @@ int Calculate_Fibo() {
    for (li_Id1 = 0; li_Id1 < gi_FibLevels; li_Id1++) {
       ObjectSet(gs_Fibo, OBJPROP_FIRSTLEVEL + li_Id1, gd_FLvl[li_Id1]);
       if (xb_ShowPrice)
-         ObjectSetFiboDescription(gs_Fibo, li_Id1, DoubleToStr(gd_FLvl[li_Id1], 3) + " / %$");
+         ObjectSetFiboDescription(gs_Fibo, li_Id1, gd_FLvl_Str[li_Id1] + DoubleToStr(gd_FLvl[li_Id1], 3) + " / %$");
       else
          ObjectSetFiboDescription(gs_Fibo, li_Id1, DoubleToStr(gd_FLvl[li_Id1], 3));
    }
