@@ -8,27 +8,33 @@
 #property version "1.00"
 #property strict
 
+enum BuySell {
+   BuyOnly = 1,
+   SellOnly = -1,
+   BuySell = 0
+};
+
+extern BuySell TradeType = 0;
+
 extern int MagicNumber = 5758;
 extern int SlipPage = 3;
-extern double Lots = 0.1;
+extern double Lots = 1;
 
 extern double FiboBuyTP1 = 2.170;
 extern double FiboBuyTP2 = 3.340;
 extern double FiboBuyTP3 = 4.510;
 extern double FiboBuyTP4 = 5.680;
-extern double FiboBuySL1 = 0.000;
-extern double FiboBuySL2 = 0.085;
-extern double FiboBuySL3 = 0.170;
-extern double FiboBuySL4 = 0.340;
+extern double FiboBuySL1 = -0.085;
+extern double FiboBuySL2 = -0.170;
+extern double FiboBuySL3 = -0.340;
 
 extern double FiboSellTP1 = -1.170;
 extern double FiboSellTP2 = -2.340;
 extern double FiboSellTP3 = -3.510;
 extern double FiboSellTP4 = -4.680;
-extern double FiboSellSL1 = 1.000;
-extern double FiboSellSL2 = 1.085;
-extern double FiboSellSL3 = 1.170;
-extern double FiboSellSL4 = 1.340;
+extern double FiboSellSL1 = 1.085;
+extern double FiboSellSL2 = 1.170;
+extern double FiboSellSL3 = 1.340;
 
 int TicketOpen = 0;
 int TicketClose = 0;
@@ -94,26 +100,39 @@ int start() {
 
       if (GetSignal == 1) {
       
-         DeletePendingOrderBuy(MagicNumber);
-         
-         SL = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * FiboBuySL1);
-         TP = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * FiboBuyTP1);
-         
-         TicketOpen = OrderSend(Symbol(), OP_BUY, Lots, Ask, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
-         
-         BuyLimitPrice = iHigh(Symbol(), PERIOD_CURRENT, 2);
-         TicketOpen = OrderSend(Symbol(), OP_BUYLIMIT, Lots, BuyLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+         if(TradeType == 0 || TradeType == 1) {
+      
+            DeletePendingOrderBuy(MagicNumber);
+            
+            SL = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboBuySL1));
+            TP = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboBuyTP1));
+            
+            if(Ask < TP) {
+               TicketOpen = OrderSend(Symbol(), OP_BUY, Lots, Ask, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+            }
+            
+            BuyLimitPrice = iHigh(Symbol(), PERIOD_CURRENT, 2);
+            TicketOpen = OrderSend(Symbol(), OP_BUYLIMIT, Lots, BuyLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+            
+         }
          
       } else if (GetSignal == -1) {
          
-         DeletePendingOrderSell(MagicNumber);
+         if(TradeType == 0 || TradeType == -1) {
          
-         //SL = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * (FiboSL1 + 1));
-         //TP = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * (FiboTP1 - 1));
-         //SellLimitPrice = iLow(Symbol(), PERIOD_CURRENT, 2);
-         //TicketOpen = OrderSend(Symbol(), OP_SELLLIMIT, Lots, SellLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
-         
-         //TicketOpen = OrderSend(Symbol(), OP_SELL, Lots, Bid, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+            DeletePendingOrderSell(MagicNumber);
+            
+            SL = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboSellSL1));
+            TP = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboSellTP1));
+            
+            if(Bid > TP) {
+               TicketOpen = OrderSend(Symbol(), OP_SELL, Lots, Bid, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+            }
+            
+            SellLimitPrice = iLow(Symbol(), PERIOD_CURRENT, 2);         
+            TicketOpen = OrderSend(Symbol(), OP_SELLLIMIT, Lots, SellLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+            
+        }
          
       }
 
