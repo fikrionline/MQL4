@@ -48,7 +48,7 @@ int start() {
             ObjectCreate("Time_vLine-" + Time[i], OBJ_VLINE, 0, Time[i], 0);
             ObjectSet("Time_vLine-" + Time[i], OBJPROP_COLOR, Line_Color);
             ObjectSet("Time_vLine-" + Time[i], OBJPROP_STYLE, Line_Style);
-
+            ObjectSet("Time_vLine-" + Time[i], OBJPROP_BACK, True);
          }
       }
 
