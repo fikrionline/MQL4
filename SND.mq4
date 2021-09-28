@@ -19,7 +19,7 @@ extern bool zone_show_turncoat = true;
 extern double zone_fuzzfactor = 0.39;
 
 extern string pus2 = "/////////////////////////////////////////////////";
-extern bool fractals_show = false;
+extern bool fractals_show = true;
 extern double fractal_fast_factor = 3.0;
 extern double fractal_slow_factor = 6.0;
 extern bool SetGlobals = true;
