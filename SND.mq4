@@ -10,7 +10,7 @@
 #property indicator_color3 DodgerBlue
 #property indicator_color4 DodgerBlue
 
-extern int BackLimit = 1000;
+extern int BackLimit = 999;
 
 extern string pus1 = "/////////////////////////////////////////////////";
 extern bool zone_show_weak = true;
