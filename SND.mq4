@@ -34,8 +34,9 @@ extern bool zone_merge = true;
 extern bool zone_extend = true;
 
 extern string pus4 = "/////////////////////////////////////////////////";
-extern bool zone_show_alerts = false;
+extern bool zone_show_alerts = true;
 extern bool zone_alert_popups = true;
+extern bool zone_alert_notification = true;
 extern bool zone_alert_sounds = true;
 extern int zone_alert_waitseconds = 300;
 
@@ -240,15 +241,26 @@ bool CheckEntryAlerts() {
    for (int i = 0; i < zone_count; i++) {
       if (Close[0] >= zone_lo[i] && Close[0] < zone_hi[i]) {
          if (zone_show_alerts == true) {
+            
             if (zone_alert_popups == true) {
                if (zone_type[i] == ZONE_SUPPORT)
-                  Alert(Symbol() + TimeFrameToString(Period()) + ": Support Zone Entered");
+                  Alert(Symbol() + " " + TimeFrameToString(Period()) + ": Support Zone Entered");
                else
-                  Alert(Symbol() + TimeFrameToString(Period()) + ": Resistance Zone Entered");
+                  Alert(Symbol() + " " + TimeFrameToString(Period()) + ": Resistance Zone Entered");
+            }
+            
+            if (zone_alert_notification == true) {
+               if (zone_type[i] == ZONE_SUPPORT)
+                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + ": Support Zone Entered");
+               else
+                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + ": Resistance Zone Entered");
             }
 
-            if (zone_alert_sounds == true)
+            if (zone_alert_sounds == true) {
                PlaySound("alert_wav");
+            }
+            
+            
          }
 
          return (true);
