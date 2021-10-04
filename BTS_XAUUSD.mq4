@@ -43,7 +43,7 @@ int TicketOpen = 0;
 int TicketClose = 0;
 int TicketOrder = 0;
 int SelectOrder, TypeOrder, GetSignal, GetCandleStatus;
-double PriceOrder, SL, TP, BuyLimitPrice, SellLimitPrice, LotsOrder;
+double PriceOrder, SL, TP, BuyLimitPrice, SellLimitPrice, LotOrder, GetPointSL, GetPointTP, SLL, TPP;
 datetime NextCandle;
 
 //+------------------------------------------------------------------+
@@ -100,9 +100,9 @@ int start() {
          }
          
          if(CheckProfitLastTrade(Symbol(), MagicNumber) == -1) {
-            LotsOrder = Lots * 1;
+            LotOrder = Lots * 1;
          } else {
-            LotsOrder = Lots;
+            LotOrder = Lots;
          }
    
          if (GetSignal == 1) {
@@ -114,13 +114,29 @@ int start() {
                
                SL = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboBuySL1));
                TP = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboBuyTP1));
-               TP = Ask + (Ask - SL);
                
-               TicketOpen = OrderSend(Symbol(), OP_BUY, LotsOrder, Ask, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+               GetPointSL = NormalizeDouble((Ask - SL) / Point(), 0);
+               GetPointTP = NormalizeDouble((TP - Ask) / Point(), 0);
+               
+               if(GetPointSL > GetPointTP) {
+                  GetPointTP = GetPointSL;
+               } 
+               
+               if(GetPointTP > GetPointSL) {
+                  GetPointSL = GetPointTP;
+               }
+               
+               if(GetPointSL > 100 && GetPointSL < 1000) {
+               
+                  SLL = NormalizeDouble(Ask - (double) GetPointSL * Point(), Digits());
+                  TPP = NormalizeDouble(Ask + (double) GetPointTP * Point(), Digits());
                   
-               //BuyLimitPrice = iHigh(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) / 2);
-               BuyLimitPrice = iHigh(Symbol(), PERIOD_CURRENT, 2);
-               TicketOpen = OrderSend(Symbol(), OP_BUYLIMIT, LotsOrder, BuyLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+                  TicketOpen = OrderSend(Symbol(), OP_BUY, LotOrder, Ask, SlipPage, SLL, TPP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+               
+               }
+                  
+               //BuyLimitPrice = iHigh(Symbol(), PERIOD_CURRENT, 2);
+               //TicketOpen = OrderSend(Symbol(), OP_BUYLIMIT, LotOrder, BuyLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
                
             }
             
@@ -133,13 +149,29 @@ int start() {
                
                SL = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboSellSL1));
                TP = iLow(Symbol(), PERIOD_CURRENT, 2) - ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) * MathAbs(FiboSellTP1));
-               TP = Bid - (SL - Bid);
                
-               TicketOpen = OrderSend(Symbol(), OP_SELL, LotsOrder, Bid, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+               GetPointSL = NormalizeDouble((SL - Bid) / Point(), 0);
+               GetPointTP = NormalizeDouble((Bid - TP) / Point(), 0);
+               
+               if(GetPointSL > GetPointTP) {
+                  GetPointTP = GetPointSL;
+               } 
+               
+               if(GetPointTP > GetPointSL) {
+                  GetPointSL = GetPointTP;
+               }
+               
+               if(GetPointSL > 100 && GetPointSL < 1000) {
+               
+                  SLL = NormalizeDouble(Bid + (double) GetPointSL * Point(), Digits());
+                  TPP = NormalizeDouble(Bid - (double) GetPointTP * Point(), Digits());
                   
-               //SellLimitPrice = iLow(Symbol(), PERIOD_CURRENT, 2) + ((iHigh(Symbol(), PERIOD_CURRENT, 2) - iLow(Symbol(), PERIOD_CURRENT, 2)) / 2);
-               SellLimitPrice = iLow(Symbol(), PERIOD_CURRENT, 2);
-               TicketOpen = OrderSend(Symbol(), OP_SELLLIMIT, LotsOrder, SellLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+                  TicketOpen = OrderSend(Symbol(), OP_SELL, LotOrder, Bid, SlipPage, SLL, TPP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
+                  
+               }
+               
+               //SellLimitPrice = iLow(Symbol(), PERIOD_CURRENT, 2);
+               //TicketOpen = OrderSend(Symbol(), OP_SELLLIMIT, LotOrder, SellLimitPrice, SlipPage, SL, TP, IntegerToString(MagicNumber), MagicNumber, 0, CLR_NONE);
                
             }
             
@@ -168,15 +200,21 @@ int Signal() {
    double Candle2High = iHigh(Symbol(), PERIOD_CURRENT, 2);
    double Candle2Low = iLow(Symbol(), PERIOD_CURRENT, 2);
    
+   //double iRSICandle = iRSI(Symbol(), PERIOD_CURRENT, 3, PRICE_CLOSE, 2);
+   
    if((Candle1Open < Candle1Close) && (Candle2Open > Candle2Close)) {
       if(Candle1Close > Candle2High) {
-         signal = 1;
+         //if(iRSICandle < 30) {
+            signal = 1;
+         //}
       }
    }
    
    if((Candle1Open > Candle1Close) && (Candle2Open < Candle2Close)) {
       if(Candle1Close < Candle2Low) {
-         signal = -1;
+         //if(iRSICandle > 70) {
+            signal = -1;
+         //}
       }
    }
 
