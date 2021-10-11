@@ -13,7 +13,7 @@ int ADROpenHour = 0; // start time for range calculation (LEAVE AT 0. PROGRAM DO
 int ADRCloseHour = 24; // end time for range calculation  (LEAVE AT 24. PROGRAM DOESN'T WORK PROPERLY OTHERWISE.)
 
 int ATRTimeFrame = PERIOD_D1; // timeframe for ATR (LEAVE AT PERIOD_D1)
-extern int ATRPeriod = 14; // period for ATR
+extern int ATRPeriod = 10; // period for ATR
 
 extern bool TodayChange = false;
 
@@ -258,7 +258,7 @@ int start() {
    if (!adr_reached)
       reached_str = "No";
 
-   string comment = DoubleToStr(MathRound((adr / Point)), 0) + " (" + DoubleToStr(adr / Point / 100, 1) + ") / " + DoubleToStr(MathRound(((today_high - today_low) / Point)), 0);
+   string comment = DoubleToStr(MathRound((adr / Point)), 0) + " (" + DoubleToStr(adr / Point / 10, 0) + ") / " + DoubleToStr(MathRound(((today_high - today_low) / Point)), 0);
    
    if(TodayChange == true) {
 

@@ -16,7 +16,7 @@ extern string pus1 = "/////////////////////////////////////////////////";
 extern bool zone_show_weak = true;
 extern bool zone_show_untested = true;
 extern bool zone_show_turncoat = true;
-extern double zone_fuzzfactor = 0.39;
+extern double zone_fuzzfactor = 0.19;
 
 extern string pus2 = "/////////////////////////////////////////////////";
 extern bool fractals_show = true;
@@ -34,7 +34,7 @@ extern bool zone_merge = true;
 extern bool zone_extend = true;
 
 extern string pus4 = "/////////////////////////////////////////////////";
-extern bool zone_show_alerts = true;
+extern bool zone_show_alerts = false;
 extern bool zone_alert_popups = true;
 extern bool zone_alert_notification = true;
 extern bool zone_alert_sounds = true;
@@ -220,6 +220,7 @@ int start() {
 
    return (0);
 }
+
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -233,6 +234,7 @@ void CheckAlerts() {
       if (CheckEntryAlerts() == true)
          lastalert = Time[0];
 }
+
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -244,20 +246,20 @@ bool CheckEntryAlerts() {
             
             if (zone_alert_popups == true) {
                if (zone_type[i] == ZONE_SUPPORT)
-                  Alert(Symbol() + " " + TimeFrameToString(Period()) + ": Support Zone Entered");
+                  Alert(Symbol() + " " + TimeFrameToString(Period()) + " Support Zone Entered");
                else
-                  Alert(Symbol() + " " + TimeFrameToString(Period()) + ": Resistance Zone Entered");
+                  Alert(Symbol() + " " + TimeFrameToString(Period()) + " Resistance Zone Entered");
             }
             
             if (zone_alert_notification == true) {
                if (zone_type[i] == ZONE_SUPPORT)
-                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + ": Support Zone Entered");
+                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " Support Zone Entered");
                else
-                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + ": Resistance Zone Entered");
+                  SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " Resistance Zone Entered");
             }
 
             if (zone_alert_sounds == true) {
-               PlaySound("alert_wav");
+               PlaySound("alert.wav");
             }
             
             

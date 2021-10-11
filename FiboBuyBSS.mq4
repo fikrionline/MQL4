@@ -28,8 +28,8 @@ extern bool ShowPrice = true;
 extern color FiboColor = Aqua;
 
 int gi_FibLevels;
-double gd_FLvl[17];
-string gd_FLvl_Str[17];
+double gd_FLvl[14];
+string gd_FLvl_Str[14];
 double gd_High, gd_Low;
 
 datetime gdt_LastBar;
@@ -79,42 +79,36 @@ int init() {
    }
 
    gd_FLvl[0] = 0;
-   gd_FLvl[1] = 0.17;
-   gd_FLvl[2] = 0.34;
-   gd_FLvl[3] = 0.50;
-   gd_FLvl[4] = 0.66;
-   gd_FLvl[5] = 0.83;
-   gd_FLvl[6] = 1;
-   gd_FLvl[7] = 1.34;
-   gd_FLvl[8] = 1.50;
-   gd_FLvl[9] = 1.66;
-   gd_FLvl[10] = 2.17;
-   gd_FLvl[11] = 3.34;
-   gd_FLvl[12] = 4.51;
-   gd_FLvl[13] = 5.68;
-   gd_FLvl[14] = -0.085;
-   gd_FLvl[15] = -0.17;
-   gd_FLvl[16] = -0.34;
+   gd_FLvl[1] = 0.34;
+   gd_FLvl[2] = 0.50;
+   gd_FLvl[3] = 0.66;
+   gd_FLvl[4] = 1;
+   gd_FLvl[5] = 1.34;
+   gd_FLvl[6] = 1.66;
+   gd_FLvl[7] = 2.34;
+   gd_FLvl[8] = 3.68;
+   gd_FLvl[9] = 5.02;
+   gd_FLvl[10] = 6.36;
+   gd_FLvl[11] = 7.70;
+   gd_FLvl[12] = 9.04;
+   gd_FLvl[13] = -0.34;
    
    gd_FLvl_Str[0] = "";
    gd_FLvl_Str[1] = "";
-   gd_FLvl_Str[2] = "";
-   gd_FLvl_Str[3] = "PV / ";
-   gd_FLvl_Str[4] = "";
+   gd_FLvl_Str[2] = "PV / ";
+   gd_FLvl_Str[3] = "";
+   gd_FLvl_Str[4] = "Buy Entry / ";
    gd_FLvl_Str[5] = "";
-   gd_FLvl_Str[6] = "Buy Entry / ";
-   gd_FLvl_Str[7] = "";
-   gd_FLvl_Str[8] = "";
-   gd_FLvl_Str[9] = "";
-   gd_FLvl_Str[10] = "TP1 / ";
-   gd_FLvl_Str[11] = "TP2 / ";
-   gd_FLvl_Str[12] = "TP3 / ";
-   gd_FLvl_Str[13] = "TP4 / ";
-   gd_FLvl_Str[14] = "SL / ";
-   gd_FLvl_Str[15] = "SL / ";
-   gd_FLvl_Str[16] = "SL / ";
+   gd_FLvl_Str[6] = "";
+   gd_FLvl_Str[7] = "TP1 / ";
+   gd_FLvl_Str[8] = "TP2 / ";
+   gd_FLvl_Str[9] = "TP3 / ";
+   gd_FLvl_Str[10] = "TP4 / ";
+   gd_FLvl_Str[11] = "TP5 / ";
+   gd_FLvl_Str[12] = "TP6 / ";
+   gd_FLvl_Str[13] = "SL / ";
 
-   gi_FibLevels = 17;
+   gi_FibLevels = 14;
 
    gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 
