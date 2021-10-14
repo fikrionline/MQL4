@@ -1,17 +1,31 @@
+//+------------------------------------------------------------------+
+//|                                                  TPSL-Insert.mq4 |
+//|                                                                  |
+//|                                                                  |
+//+------------------------------------------------------------------+
 #property copyright ""
 #property link ""
 
 //---- input parameters
-extern double TakeProfitPips = 208;
-extern double StopLossPips = 192;
-int Faktor, Digt, cnt;
+extern double TakeProfitPips = 200;
+extern double StopLossPips = 100;
+int Faktor, Digt, cnt, TicketOrder;
 double TPp, SLp;
 
-//Start
+//+------------------------------------------------------------------+
+//| expert initialization function                                   |
+//+------------------------------------------------------------------+
+int init() { return(0); }
+
+//+------------------------------------------------------------------+
+//| expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+int deinit() { return(0); }
+
+//+------------------------------------------------------------------+
+//| expert start function                                            |
+//+------------------------------------------------------------------+
 int start() {
-
-   int SelectOrder, ModifyOrder;
-
    if (Close[0] > 10) {
       Faktor = 1000;
       Digt = 3;
@@ -23,7 +37,7 @@ int start() {
 
    if (OrdersTotal() != 0) {
       for (cnt = 0; cnt < OrdersTotal(); cnt++) {
-         SelectOrder = OrderSelect(cnt, SELECT_BY_POS);
+         TicketOrder = OrderSelect(cnt, SELECT_BY_POS);
 
          //--------------Take Profit--------------------------------
 
@@ -49,11 +63,11 @@ int start() {
 
          //---------------Modify Order--------------------------
          if (OrderType() == OP_BUY || OrderType() == OP_SELL)
-            ModifyOrder = OrderModify(OrderTicket(), OrderOpenPrice(), SLp, TPp, 0);
+            TicketOrder = OrderModify(OrderTicket(), OrderOpenPrice(), SLp, TPp, 0);
          //-----------------------------------------------------
 
       } // for cnt
    } //if OrdersTotal
-   
    return (0);
-}
+} // Start()
+//+------------------------------------------------------------------+
