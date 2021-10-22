@@ -11,7 +11,7 @@
 
 extern bool ShowAlert = true;
 extern bool ShowSound = true;
-extern bool ShowNotification = false;
+extern bool ShowNotification = true;
 
 string Comments;
 datetime NextCandle;
