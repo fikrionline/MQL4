@@ -9,7 +9,7 @@
 #property strict
 
 extern int     TimeZoneGMT = 4;
-extern bool    SendAlert = false;
+extern bool    SendAlert = true;
 extern bool    SendNotif = true;
 
 datetime next_candle;
