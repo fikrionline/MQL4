@@ -33,7 +33,7 @@ int start() {
       if(GetSignal == 1) {
       
          if(ShowAlert == true) {
-            Alert(Symbol() + " " + TimeFrameToString(Period()) + " BTS Buy Zone");
+            Alert(Symbol() + " " + TimeFrameToString(Period()) + " BTS Buy");
          }
          
          if(ShowSound == true) {
@@ -41,13 +41,13 @@ int start() {
          }
          
          if(ShowNotification == true) {
-            SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " BTS Buy Zone");
+            SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " BTS Buy");
          }
          
       } else if(GetSignal == -1) {
          
          if(ShowAlert == true) {
-            Alert(Symbol() + " " + TimeFrameToString(Period()) + " BTS Sell Zone");
+            Alert(Symbol() + " " + TimeFrameToString(Period()) + " BTS Sell");
          }
          
          if(ShowSound == true) {
@@ -55,7 +55,7 @@ int start() {
          }
          
          if(ShowNotification == true) {
-            SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " BTS Buy Zone");
+            SendNotification(Symbol() + " " + TimeFrameToString(Period()) + " BTS Sell");
          }
          
       }      
