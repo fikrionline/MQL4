@@ -13,7 +13,7 @@ extern string Pair1 = "EURCHF";
 extern string Pair2 = "EURUSD";
 extern string Pair3 = "USDCHF";
 extern int BasicDay = 0;
-extern double BasicLot = 0.5;
+extern double BasicLot = 0.29;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |

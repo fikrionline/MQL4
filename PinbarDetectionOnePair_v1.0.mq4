@@ -13,7 +13,8 @@ extern bool    SendAlert = true;
 extern bool    SendNotif = true;
 
 datetime next_candle;
-double LastOpen, LastClose, LastHigh, LastLow;
+double LastOpen, LastClose, LastHigh, LastLow, a, b, c, d;
+string alert_all;
 
 //init Function
 int init() {
@@ -26,8 +27,7 @@ int start() {
    if (next_candle <= Time[0]) {
       next_candle = Time[0] + Period();
       
-      string alert_all = Symbol() + " " + GetTimeFrame(Period());
-      double a, b, c, d;
+      alert_all = Symbol() + " " + GetTimeFrame(Period());
       
       LastOpen = iOpen(Symbol(), Period(), 1);
       LastClose = iClose(Symbol(), Period(), 1);
@@ -47,15 +47,15 @@ int start() {
       
       if(d>c && d>b && (d/2)>c && (d/2)>b) {
       //if(d>c && d>b && (d/2)>c) {
-         alert_all = alert_all + " Up";
+         alert_all = alert_all + " Pinbar Up";
       }
       
       if(b>c && b>d && (b/2)>c && (b/2)>d) {
       //if(b>c && b>d && (b/c)>2) {
-         alert_all = alert_all + " Down";
+         alert_all = alert_all + " Pinbar Down";
       }
       
-      alert_all = alert_all + "\n\n" + TimeToStr(TimeCurrent(), TIME_SECONDS) + " / " + TimeToStr((TimeCurrent() + TimeZoneGMT * 3600), TIME_SECONDS) + " WIB";
+      alert_all = alert_all + " " + TimeToStr(TimeCurrent(), TIME_SECONDS) + " / " + TimeToStr((TimeCurrent() + TimeZoneGMT * 3600), TIME_SECONDS) + " WIB";
       
       if(SendAlert == true) {
          Alert(alert_all);
