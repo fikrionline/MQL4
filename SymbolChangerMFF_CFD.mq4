@@ -27,41 +27,23 @@ int OnInit()
     IndicatorShortName(UniqueID);
     int xpos = 0, ypos = 0, maxx = 0, maxy = 0;
 
-    string IndicatorSymbol[28];
-    IndicatorSymbol[0] = "AUDCAD....";
-    IndicatorSymbol[1] = "AUDCHF....";
-    IndicatorSymbol[2] = "AUDJPY....";
-    IndicatorSymbol[3] = "AUDNZD....";
-    IndicatorSymbol[4] = "AUDUSD....";
-    IndicatorSymbol[5] = "CADCHF....";
-    IndicatorSymbol[6] = "CADJPY....";
-    IndicatorSymbol[7] = "CHFJPY....";
-    IndicatorSymbol[8] = "EURAUD....";
-    IndicatorSymbol[9] = "EURCAD....";
-    IndicatorSymbol[10] = "EURCHF....";
-    IndicatorSymbol[11] = "EURGBP....";
-    IndicatorSymbol[12] = "EURJPY....";
-    IndicatorSymbol[13] = "EURNZD....";
-    IndicatorSymbol[14] = "EURUSD....";
-    IndicatorSymbol[15] = "GBPAUD....";
-    IndicatorSymbol[16] = "GBPCAD....";
-    IndicatorSymbol[17] = "GBPCHF....";
-    IndicatorSymbol[18] = "GBPJPY....";
-    IndicatorSymbol[19] = "GBPNZD....";
-    IndicatorSymbol[20] = "GBPUSD....";
-    IndicatorSymbol[21] = "NZDCAD....";
-    IndicatorSymbol[22] = "NZDCHF....";
-    IndicatorSymbol[23] = "NZDJPY....";
-    IndicatorSymbol[24] = "NZDUSD....";
-    IndicatorSymbol[25] = "USDCAD....";
-    IndicatorSymbol[26] = "USDCHF....";
-    IndicatorSymbol[27] = "USDJPY....";
-    //IndicatorSymbol[28] = "US30";
-    //IndicatorSymbol[29] = "BTCUSD";
+    string IndicatorSymbol[12];
+    IndicatorSymbol[0] = "AUS200";
+    IndicatorSymbol[1] = "ESP35";
+    IndicatorSymbol[2] = "FRA40";
+    IndicatorSymbol[3] = "GER30";
+    IndicatorSymbol[4] = "HK50";
+    IndicatorSymbol[5] = "JPY225";
+    IndicatorSymbol[6] = "NAS100";
+    IndicatorSymbol[7] = "SPX500";
+    IndicatorSymbol[8] = "UK100";
+    IndicatorSymbol[9] = "UKOIL";
+    IndicatorSymbol[10] = "US30";
+    IndicatorSymbol[11] = "USOIL";
 
-    string ButtonSymbolUniqueID[28];
-    string ButtonSymbolString[28];
-    string ButtonSymbolSymbolName[28];
+    string ButtonSymbolUniqueID[12];
+    string ButtonSymbolString[12];
+    string ButtonSymbolSymbolName[12];
 
     for (int i = 0; i < SymbolsTotal(true); i++)
     {
