@@ -15,7 +15,7 @@ extern ENUM_TIMEFRAMES ChooseTimeFrame = PERIOD_D1;
 
 double SumPointBullish, SumPointBearish, CandleOpen, CandleClose, SumCandleBullish, SumCandleBearish, AverageCandleBullish, AverageCandleBearish, CandleSumUpPrice, CandleSumDownPrice;
 datetime NextCandle;
-string ShowComment;
+string ShowComment, ForecastStart;
 
 int init() {
 
@@ -83,6 +83,12 @@ int start() {
    SumPointBullish = SumPointBullish / Point();
    SumPointBearish = SumPointBearish / Point();
    
+   if((SumPointBullish - SumPointBearish) > 0) {
+      ForecastStart = " Bearish";
+   } else if((SumPointBullish - SumPointBearish) < 0) {
+      ForecastStart = " Bullish";
+   }
+   
    ShowComment = ShowComment + "Bullish: " + DoubleToString(SumCandleBullish, 0) + " Candle\n";
    ShowComment = ShowComment + "Bearish: " + DoubleToString(SumCandleBearish, 0) + " Candle\n\n"; 
    
@@ -103,7 +109,7 @@ int start() {
    ObjectSet("CandleSumPivot", OBJPROP_BACK, true);
    
    ObjectCreate("CandleSumPivotLabel", OBJ_TEXT, 0, CurTime(), iClose(Symbol(), ChooseTimeFrame, CandleBaseShift));
-   ObjectSetText("CandleSumPivotLabel", "Start", 8, "Arial", StringToColor("77,77,77"));
+   ObjectSetText("CandleSumPivotLabel", ForecastStart, 8, "Arial", StringToColor("77,77,77"));
    ObjectSet("CandleSumPivotLabel", OBJPROP_BACK, true);
    
    CandleSumUpPrice = NormalizeDouble((iClose(Symbol(), ChooseTimeFrame, CandleBaseShift)) + ((double) MathAbs(SumPointBullish - SumPointBearish) * Point()), Digits());

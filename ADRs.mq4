@@ -13,7 +13,7 @@ int ADROpenHour = 0; // start time for range calculation (LEAVE AT 0. PROGRAM DO
 int ADRCloseHour = 24; // end time for range calculation  (LEAVE AT 24. PROGRAM DOESN'T WORK PROPERLY OTHERWISE.)
 
 int ATRTimeFrame = PERIOD_D1; // timeframe for ATR (LEAVE AT PERIOD_D1)
-extern int ATRPeriod = 10; // period for ATR
+extern int ATRPeriod = 20; // period for ATR
 
 extern bool TodayChange = false;
 
