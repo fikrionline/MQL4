@@ -1,8 +1,10 @@
 //+------------------------------------------------------------------+
-//|                                          ZIG ZAG NON REPAINT.mq4 |
+//|                                             ZigZagNonRepaint.mq4 |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
-#property copyright "Copyright©2010"
-#property link ""
+#property copyright "Copyright 2021, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
 
 #property indicator_chart_window
 #property indicator_buffers 1
@@ -12,11 +14,12 @@ extern int Length = 4;
 double ExtMapBuffer1[];
 
 int init() {
+
    SetIndexEmptyValue(0, 0.0);
    SetIndexStyle(0, DRAW_SECTION);
    SetIndexBuffer(0, ExtMapBuffer1);
-
    return (0);
+   
 }
 int deinit() {
    return (0);
@@ -28,9 +31,9 @@ int start() {
    double Uzel[10000][3];
 
    if (High[1] > High[0]) {
-      Comment("SELL!!");
+      //Comment("SELL!!");
    } else if (High[1] < High[0]) {
-      Comment("BUY!!");
+      //Comment("BUY!!");
    }
    Swing_n = 0;
    Swing = 0;
@@ -107,4 +110,5 @@ int start() {
    }
 
    return (0);
+   
 }
