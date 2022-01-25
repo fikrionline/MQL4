@@ -1,14 +1,16 @@
 //+------------------------------------------------------------------+
-//|                                                  TPSL-Insert.mq4 |
-//|                                                                  |
-//|                                                                  |
+//|                                                         TPSL.mq4 |
+//|                        Copyright 2022, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
-#property copyright ""
-#property link ""
+#property copyright "Copyright 2022, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
+#property version   "1.00"
+#property strict
 
 //---- input parameters
-extern double TakeProfitPips = 157;
-extern double StopLossPips = 143;
+extern double TakeProfitPips = 507;
+extern double StopLossPips = 493;
 int Faktor, Digt, cnt, SelectOrder, ModifyOrder;
 double TPp, SLp;
 
