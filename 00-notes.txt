@@ -1,0 +1,1 @@
+Comment("Equity: ", DoubleToString(AccountEquity(), 2));
