@@ -1,1 +1,35 @@
-Hello Wolrd!!
+RemoveExpertNow(EquityStopEA);
+
+int RemoveExpertNow(double MinimumEquity = 0) {
+   
+   if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
+      RemoveAllOrders();
+      RemoveAllOrders();
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+void RemoveAllOrders() {
+   for(int i = OrdersTotal() - 1; i >= 0 ; i--)    {
+      TicketOrder = OrderSelect(i, SELECT_BY_POS);
+      if(OrderType() == OP_BUY) {
+         TicketOrder = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);
+      } else if(OrderType() == OP_SELL) {
+         TicketOrder = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+      } else {
+         TicketOrder = OrderDelete(OrderTicket());
+      }
+      
+      int MessageError = GetLastError();
+      if(MessageError > 0) {
+         Print("Unanticipated error " + IntegerToString(MessageError));
+      }
+      
+      Sleep(100);      
+      RefreshRates();
+      
+   }
+}
