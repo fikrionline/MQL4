@@ -53,11 +53,11 @@ enum TakeProfitDevideADR {
 };
 
 extern double EquityStopEA = 9600.00;
-extern int StartHour = 2;
+extern int StartHour = 3;
 extern int EndHour = 22;
 extern double StartingLots = 0.01;
-extern TheMultiplier LayerMultiplier = k;
-extern PipStepDevideADR PipStepDevide = ph;
+extern TheMultiplier LayerMultiplier = j;
+extern PipStepDevideADR PipStepDevide = pg;
 extern TakeProfitDevideADR TakeProfitDevide = tk;
 extern double TakeProfitPlus = 10;
 extern double SlipPage = 5.0;
