@@ -53,11 +53,11 @@ enum TakeProfitDevideADR {
 };
 
 extern double EquityStopEA = 9600.00;
-extern int StartHour = 2;
+extern int StartHour = 3;
 extern int EndHour = 22;
 extern double StartingLots = 0.01;
-extern TheMultiplier LayerMultiplier = h;
-extern PipStepDevideADR PipStepDevide = ph;
+extern TheMultiplier LayerMultiplier = j;
+extern PipStepDevideADR PipStepDevide = pg;
 extern TakeProfitDevideADR TakeProfitDevide = tk;
 extern double TakeProfitPlus = 10;
 extern double SlipPage = 5.0;
@@ -253,7 +253,7 @@ int start() {
          NumOfTrades = total;
          iLots = NormalizeDouble(StartingLots * MathPow(Multiplier, NumOfTrades), 2);
          RefreshRates();
-         ticket = OpenPendingOrder(1, iLots, Bid, SlipPage, Ask, 0, 0, EAName + "-" + NumOfTrades, MagicNumber, 0, HotPink);
+         ticket = OpenPendingOrder(1, iLots, Bid, SlipPage, Ask, 0, 0, Symbol() + "-" + NumOfTrades, MagicNumber, 0, HotPink);
          if (ticket < 0) {
             Print("Error: ", GetLastError());
             return (0);
@@ -271,7 +271,7 @@ int start() {
          iLots = NormalizeDouble(StartingLots * MathPow(Multiplier, NumOfTrades), 2);
          
          if((Hour() >= StartHour || Hour() <= EndHour)) {            
-            ticket = OpenPendingOrder(1, iLots, SellLimit, SlipPage, SellLimit, 0, 0, EAName + "-" + NumOfTrades, MagicNumber, 0, HotPink);
+            ticket = OpenPendingOrder(1, iLots, SellLimit, SlipPage, SellLimit, 0, 0, Symbol() + "-" + NumOfTrades, MagicNumber, 0, HotPink);
             if (ticket < 0) {
                Print("Error: ", GetLastError());
                return (0);
@@ -480,7 +480,7 @@ void RemoveAllOrders() {
    }
 }
 
-double GetADRs(int ATR_TimeFrame = PERIOD_D1, int ATR_Counter = 10, int ATR_Shift = 1) {
+double GetADRs(int ATR_TimeFrame = PERIOD_D1, int ATR_Counter = 20, int ATR_Shift = 1) {
 
    double ATR_PipStep;
    ATR_PipStep = iATR(Symbol(), ATR_TimeFrame, ATR_Counter, ATR_Shift);
@@ -488,3 +488,4 @@ double GetADRs(int ATR_TimeFrame = PERIOD_D1, int ATR_Counter = 10, int ATR_Shif
    return ATR_PipStep;
    
 }
+
