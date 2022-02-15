@@ -226,8 +226,8 @@ void OnTick() {
    if(TotalOrderBuy < 1) {
       NumOfTradesBuy = 0;
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(Multiplier, NumOfTradesBuy), 2);      
-      if((Hour() >= StartHour || Hour() < EndHour)) {         
-         if(GetSignalIndicator() == 1) {
+      if((Hour() >= StartHour || Hour() < EndHour)) {    
+         if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 3, 1) != EMPTY_VALUE) {     
             TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MagicNumber-" + MagicNumberBuy);
             if (TicketOrderSend < 0) {
                Print("Error: ", GetLastError());
@@ -303,8 +303,8 @@ void OnTick() {
    if(TotalOrderSell < 1) {
       NumOfTradesSell = 0;
       iLotsSell = NormalizeDouble(StartingLots * MathPow(Multiplier, NumOfTradesSell), 2);      
-      if((Hour() >= StartHour || Hour() <= EndHour)) {
-         if(GetSignalIndicator() == -1) {
+      if((Hour() >= StartHour || Hour() <= EndHour)) {         
+         if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 4, 1) != EMPTY_VALUE) {
             TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MagicNumber-" + MagicNumberSell);
             if (TicketOrderSend < 0) {
                Print("Error: ", GetLastError());
@@ -551,21 +551,5 @@ int GetMagicNumber(string TheOrderType = "BUYSELL") {
    }
    
    return MagicNumberResult;
-   
-}
-
-int GetSignalIndicator() {
-
-   int SignalResult = 0;
-   
-   if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 3, 1) != EMPTY_VALUE) {
-      SignalResult = 1;
-   }
-   
-   if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 4, 1) != EMPTY_VALUE) {
-      SignalResult = -1;
-   }
-
-   return SignalResult;
    
 }
