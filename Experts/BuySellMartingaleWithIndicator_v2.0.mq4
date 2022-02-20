@@ -55,19 +55,19 @@ enum TakeProfitDevideADR {
 extern double EquityStopEA = 9600.00;
 extern int StartHour = 3;
 extern int EndHour = 23;
-extern double StartingLots = 0.1;
-extern TheMultiplier LayerMultiplier = k;
-extern PipStepDevideADR PipStepDevide = pf;
-extern double PipStepMultiplier = 1;
-extern TakeProfitDevideADR TakeProfitDevide = tk;
+extern double StartingLots = 0.01;
+extern TheMultiplier LayerMultiplier = i;
+extern PipStepDevideADR PipStepDevide = ph;
+extern double PipStepMultiplier = 1.2;
+extern TakeProfitDevideADR TakeProfitDevide = tn;
 extern double TakeProfitPlus = 10;
 extern double SlipPage = 5.0;
 extern int MaxTrades = 22;
 extern int CopyCommentLayer = 11;
 extern double StopHighPrice = 0;
 extern double StopLowPrice = 0;
-extern int BEPHunterOnLayer = 3;
-extern double BEPHunterProfit = 10;
+extern int BEPHunterOnLayer = 4;
+extern double BEPHunterProfit = 1;
 
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
 double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, Multiplier, ADRs, PipStep, PipStepDevideResult, TakeProfit, TakeProfitDevideResult, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin;
@@ -653,14 +653,14 @@ int GetMagicNumber(string TheOrderType = "BUYSELL") {
 int GetSignal() {
    int SignalResult = 0;
    
-   if(iCustom(Symbol(), PERIOD_H4, "JurikFilter", 3, 1) != EMPTY_VALUE) {
-      if((iCustom(Symbol(), PERIOD_M15, "JurikFilter", 3, 1) != EMPTY_VALUE) || (iCustom(Symbol(), PERIOD_M15, "JurikFilter", 3, 1) != EMPTY_VALUE) || (iCustom(Symbol(), PERIOD_M15, "JurikFilter", 3, 1) != EMPTY_VALUE)) {
+   if(iCustom(Symbol(), PERIOD_M15, "JurikFilter", 3, 1) != EMPTY_VALUE) {
+      if(iCustom(Symbol(), PERIOD_M1, "JurikFilter", 3, 1) != EMPTY_VALUE) {
          SignalResult = 1;
       }
    }
    
-   if(iCustom(Symbol(), PERIOD_H4, "JurikFilter", 4, 1) != EMPTY_VALUE) {
-      if((iCustom(Symbol(), PERIOD_M15, "JurikFilter", 4, 1) != EMPTY_VALUE) || (iCustom(Symbol(), PERIOD_M15, "JurikFilter", 4, 1) != EMPTY_VALUE) || (iCustom(Symbol(), PERIOD_M15, "JurikFilter", 4, 1) != EMPTY_VALUE)) {
+   if(iCustom(Symbol(), PERIOD_M15, "JurikFilter", 4, 1) != EMPTY_VALUE) {
+      if(iCustom(Symbol(), PERIOD_M1, "JurikFilter", 4, 1) != EMPTY_VALUE) {
          SignalResult = -1;
       }
    }
