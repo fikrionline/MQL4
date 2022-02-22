@@ -1,28 +1,27 @@
-﻿#property copyright "MQL5"
+#property copyright "MQL5"
 #property link "https://www.mql5.com/en/code"
 #property description "Martingale EA"
 
-extern double EquityStopEA = 9600.00;
+extern double EquityMinStopEA = 9600.00;
+extern double EquityMaxStopEA = 10800.00;
 extern int StartHour = 3;
 extern int EndHour = 23;
 extern double StartingLots = 0.01;
-extern double LotsMultiplier = 1.1;
+extern double LotsMultiplier = 1.2;
 extern double PipStepDevideADR = 10;
-extern double PipStepMultiplier = 1.2;
+extern double PipStepMultiplier = 1;
 extern double TakeProfitDevideADR = 10;
-extern double TakeProfitPlus = 10;
+extern double TakeProfitPlus = 0;
 extern double SlipPage = 5.0;
-extern int MaxTrades = 22;
-extern int CopyCommentLayer = 11;
+extern int MaxTrades = 33;
 extern double StopHighPrice = 0;
 extern double StopLowPrice = 0;
-extern int BEPHunterOnLayer = 2;
+extern int BEPHunterOnLayer = 33;
 extern double BEPHunterProfit = 1;
 
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
-double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, ADRs, PipStep, TakeProfit, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin;
+double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, ADRs, PipStep, TakeProfit, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax;
 bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
-string AddCommentCopy = "";
 
 int init() {
    return (0);
@@ -35,7 +34,8 @@ int deinit() {
 
 void OnTick() {
 
-   RemoveExpertNow(EquityStopEA);
+   MinRemoveExpertNow(EquityMinStopEA);
+   MaxRemoveExpertNow(EquityMaxStopEA);
    
    if(StopHighPrice > 0 && Ask > StopHighPrice) {
       RemoveAllOrders();
@@ -79,6 +79,14 @@ void OnTick() {
       EquityMin = AccountEquity();
    }
    
+   if(EquityMax == 0) {
+      EquityMax = AccountEquity();
+   }
+   
+   if(AccountEquity() > EquityMax) {
+      EquityMax = AccountEquity();
+   }
+   
    //------ Only for BUY -------------------------------------------------------------------------------------------
    MagicNumberBuy = GetMagicNumber("BUY");
    
@@ -90,18 +98,15 @@ void OnTick() {
       NumOfTradesBuy = 0;
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
       if((Hour() >= StartHour || Hour() < EndHour)) {
-         //if(GetSignal() == 1) {
-            RefreshRates();
-            TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MagicNumber-" + MagicNumberBuy);
-            if (TicketOrderSend < 0) {
-               Print("Error: ", GetLastError());
-               //return (0);
-            }
-            NewOrdersPlacedBuy = TRUE;
-            FirstOrderBuy = TRUE;
-            TotalOrderBuy = 1;
-            LastPipStepMultiplierBuy = 0;
-         //}
+         RefreshRates();
+         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+         if (TicketOrderSend < 0) {
+            Print("Error: ", GetLastError());
+         }
+         NewOrdersPlacedBuy = TRUE;
+         FirstOrderBuy = TRUE;
+         TotalOrderBuy = 1;
+         LastPipStepMultiplierBuy = 0;
       }
    }
    
@@ -113,18 +118,13 @@ void OnTick() {
       LastBuyPrice = FindLastBuyPrice();
       if ((LastBuyPrice - Ask) >= (LastPipStepMultiplierBuy * Point)) {
          NumOfTradesBuy = TotalOrderBuy;
-         if(NumOfTradesBuy >= CopyCommentLayer) {
-            AddCommentCopy = "COPY_";
-         }
          iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
          RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, AddCommentCopy + Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(AddCommentCopy + Symbol() + "-" + NumOfTradesBuy + "_MagicNumber-" + MagicNumberBuy);
+         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
          if (TicketOrderSend < 0) {
             Print("Error: ", GetLastError());
-            //return (0);
          }
          NewOrdersPlacedBuy = TRUE;
-         AddCommentCopy = "";
          LastPipStepMultiplierBuy = NormalizeDouble((LastPipStepMultiplierBuy * PipStepMultiplier), 2);
       }
    }
@@ -171,18 +171,15 @@ void OnTick() {
       NumOfTradesSell = 0;
       iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
       if((Hour() >= StartHour || Hour() <= EndHour)) {
-         //if(GetSignal() == -1) {
-            RefreshRates();
-            TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MagicNumber-" + MagicNumberSell);
-            if (TicketOrderSend < 0) {
-               Print("Error: ", GetLastError());
-               //return (0);
-            }
-            NewOrdersPlacedSell = TRUE;
-            FirstOrderSell = TRUE;
-            TotalOrderSell = 1;
-            LastPipStepMultiplierSell = 0;
-         //}
+         RefreshRates();
+         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+         if (TicketOrderSend < 0) {
+            Print("Error: ", GetLastError());
+         }
+         NewOrdersPlacedSell = TRUE;
+         FirstOrderSell = TRUE;
+         TotalOrderSell = 1;
+         LastPipStepMultiplierSell = 0;
       }
    }
    
@@ -194,18 +191,13 @@ void OnTick() {
       LastSellPrice = FindLastSellPrice();
       if ((Bid - LastSellPrice) >= (LastPipStepMultiplierSell * Point)) {
          NumOfTradesSell = TotalOrderSell;
-         if(NumOfTradesSell >= CopyCommentLayer) {
-            AddCommentCopy = "COPY_";
-         }
          iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
          RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, AddCommentCopy + Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(AddCommentCopy + Symbol() + "-" + NumOfTradesSell + "_MagicNumber-" + MagicNumberSell);
+         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
          if (TicketOrderSend < 0) {
             Print("Error: ", GetLastError());
-            //return (0);
          }
          NewOrdersPlacedSell = TRUE;
-         AddCommentCopy = "";
          LastPipStepMultiplierSell = NormalizeDouble((LastPipStepMultiplierSell * PipStepMultiplier), 2);
       }
    }
@@ -242,8 +234,6 @@ void OnTick() {
    //----------------------------------------------------------------------------------------------------------------
    
    Info();
-   
-   //return (0);
    
 }
 
@@ -339,7 +329,8 @@ void Info() {
       "Martingale EA",
       "\nStartEquityBuySell = ", StartEquityBuySell,
       "\nEquity = ", DoubleToString(AccountEquity(), 2),
-      "\nEquity Min = ", DoubleToString(EquityMin, 2),
+      "\nEquity Min = ", DoubleToString(EquityMin, 2) + " (" + DoubleToString((EquityMin - StartEquityBuySell), 2) + ")",
+      "\nEquity Max = ", DoubleToString(EquityMax, 2) + " (+" + DoubleToString((EquityMax - StartEquityBuySell), 2) + ")",
       "\nPnL = ", DoubleToString(PNL, 2),
       "\nPnL Min = ", DoubleToString(PNLMin, 2),
       "\nPnL Max = ", DoubleToString(PNLMax, 2),
@@ -350,6 +341,7 @@ void Info() {
       "\nPnL Sell Min = ", DoubleToString(PNLSellMin, 2),
       "\nPnL Sell Max = ", DoubleToString(PNLSellMax, 2),
       "\nStarting Lot = ", StartingLots,
+      "\nLot Multiplier = ", LotsMultiplier,
       "\nAverage Daily Range = ", GetADRs(PERIOD_D1, 20, 1),
       "\nPipStepBuy = ", LastPipStepMultiplierBuy,
       "\nPipStepSell = ", LastPipStepMultiplierSell,
@@ -358,9 +350,21 @@ void Info() {
    
 }
 
-int RemoveExpertNow(double MinimumEquity = 0) {
+int MinRemoveExpertNow(double MinimumEquity = 0) {
    
    if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
+      RemoveAllOrders();
+      RemoveAllOrders();
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+int MaxRemoveExpertNow(double MaximumEquity = 0) {
+   
+   if(MaximumEquity > 0 && AccountEquity() > MaximumEquity) {
       RemoveAllOrders();
       RemoveAllOrders();
       RemoveAllOrders();
