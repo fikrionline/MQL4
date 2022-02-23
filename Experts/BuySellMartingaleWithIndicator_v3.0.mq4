@@ -9,18 +9,19 @@ extern int EndHour = 23;
 extern double StartingLots = 0.01;
 extern double LotsMultiplier = 1;
 extern double PipStepDevideADR = 10;
-extern double PipStepMultiplier = 1;
+extern double PipStepMultiplier = 1.2;
 extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 0;
 extern double SlipPage = 5.0;
 extern int MaxTrades = 33;
+extern int MaxLayerBeforeCutLoss = 3;
 extern double StopHighPrice = 0;
 extern double StopLowPrice = 0;
 extern int BEPHunterOnLayer = 33;
 extern double BEPHunterProfit = 1;
 
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
-double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, ADRs, PipStep, TakeProfit, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax;
+double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, ADRs, PipStep, TakeProfit, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax, MaxLayerBuy, MaxLayerSell;
 bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
 
 int init() {
@@ -99,14 +100,18 @@ void OnTick() {
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
       if((Hour() >= StartHour || Hour() < EndHour)) {
          RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
-         if (TicketOrderSend < 0) {
-            Print("Error: ", GetLastError());
-         }
-         NewOrdersPlacedBuy = TRUE;
-         FirstOrderBuy = TRUE;
-         TotalOrderBuy = 1;
-         LastPipStepMultiplierBuy = 0;
+         //if(iCustom(Symbol(), PERIOD_CURRENT, "ObosRSI", 0, 1) != EMPTY_VALUE) {
+            if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 3, 1) != EMPTY_VALUE) {
+               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+               if (TicketOrderSend < 0) {
+                  Print("Error: ", GetLastError());
+               }
+               NewOrdersPlacedBuy = TRUE;
+               FirstOrderBuy = TRUE;
+               TotalOrderBuy = 1;
+               LastPipStepMultiplierBuy = 0;
+            }
+         //}
       }
    }
    
@@ -117,15 +122,21 @@ void OnTick() {
    if (TotalOrderBuy > 0 && TotalOrderBuy < MaxTrades) {
       LastBuyPrice = FindLastBuyPrice();
       if ((LastBuyPrice - Ask) >= (LastPipStepMultiplierBuy * Point)) {
-         NumOfTradesBuy = TotalOrderBuy;
-         iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
-         RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
-         if (TicketOrderSend < 0) {
-            Print("Error: ", GetLastError());
+         if(TotalOrderBuy >= MaxLayerBeforeCutLoss) {
+            CloseOrderBuy(MagicNumberBuy);
+            TotalOrderBuy = 0;
+            LastPipStepMultiplierBuy = 0;
+         } else if(TotalOrderBuy <= MaxLayerBeforeCutLoss) {
+            NumOfTradesBuy = TotalOrderBuy;
+            iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
+            RefreshRates();
+            TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+            if (TicketOrderSend < 0) {
+               Print("Error: ", GetLastError());
+            }
+            NewOrdersPlacedBuy = TRUE;
+            LastPipStepMultiplierBuy = NormalizeDouble((LastPipStepMultiplierBuy * PipStepMultiplier), 2);
          }
-         NewOrdersPlacedBuy = TRUE;
-         LastPipStepMultiplierBuy = NormalizeDouble((LastPipStepMultiplierBuy * PipStepMultiplier), 2);
       }
    }
    
@@ -158,6 +169,10 @@ void OnTick() {
       }
       NewOrdersPlacedBuy = FALSE;
    }
+   
+   if(TotalOrderBuy > MaxLayerBuy) {
+      MaxLayerBuy = TotalOrderBuy;
+   }
    //----------------------------------------------------------------------------------------------------------------
    
    //------ Only for SELL -------------------------------------------------------------------------------------------
@@ -172,14 +187,18 @@ void OnTick() {
       iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
       if((Hour() >= StartHour || Hour() <= EndHour)) {
          RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
-         if (TicketOrderSend < 0) {
-            Print("Error: ", GetLastError());
-         }
-         NewOrdersPlacedSell = TRUE;
-         FirstOrderSell = TRUE;
-         TotalOrderSell = 1;
-         LastPipStepMultiplierSell = 0;
+         //if(iCustom(Symbol(), PERIOD_CURRENT, "ObosRSI", 1, 1) != EMPTY_VALUE) {
+            if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 4, 1) != EMPTY_VALUE) {
+               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+               if (TicketOrderSend < 0) {
+                  Print("Error: ", GetLastError());
+               }
+               NewOrdersPlacedSell = TRUE;
+               FirstOrderSell = TRUE;
+               TotalOrderSell = 1;
+               LastPipStepMultiplierSell = 0;
+            }
+         //}
       }
    }
    
@@ -190,15 +209,21 @@ void OnTick() {
    if (TotalOrderSell > 0 && TotalOrderSell < MaxTrades) {
       LastSellPrice = FindLastSellPrice();
       if ((Bid - LastSellPrice) >= (LastPipStepMultiplierSell * Point)) {
-         NumOfTradesSell = TotalOrderSell;
-         iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
-         RefreshRates();
-         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
-         if (TicketOrderSend < 0) {
-            Print("Error: ", GetLastError());
+         if(TotalOrderSell >= MaxLayerBeforeCutLoss) {
+            CloseOrderSell(MagicNumberSell);
+            TotalOrderSell = 0;
+            LastPipStepMultiplierSell = 0;
+         } else if(TotalOrderSell <= MaxLayerBeforeCutLoss) {
+            NumOfTradesSell = TotalOrderSell;
+            iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
+            RefreshRates();
+            TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+            if (TicketOrderSend < 0) {
+               Print("Error: ", GetLastError());
+            }
+            NewOrdersPlacedSell = TRUE;
+            LastPipStepMultiplierSell = NormalizeDouble((LastPipStepMultiplierSell * PipStepMultiplier), 2);
          }
-         NewOrdersPlacedSell = TRUE;
-         LastPipStepMultiplierSell = NormalizeDouble((LastPipStepMultiplierSell * PipStepMultiplier), 2);
       }
    }
    
@@ -230,7 +255,11 @@ void OnTick() {
          TicketOrderModify = OrderModify(OrderTicket(), AveragePriceSell, 0, PriceTargetSell, 0, Yellow);
       }
       NewOrdersPlacedSell = FALSE;
-   }   
+   }
+   
+   if(TotalOrderSell > MaxLayerSell) {
+      MaxLayerSell = TotalOrderSell;
+   }
    //----------------------------------------------------------------------------------------------------------------
    
    Info();
@@ -345,7 +374,9 @@ void Info() {
       "\nAverage Daily Range = ", GetADRs(PERIOD_D1, 20, 1),
       "\nPipStepBuy = ", LastPipStepMultiplierBuy,
       "\nPipStepSell = ", LastPipStepMultiplierSell,
-      "\nTakeProfit = ", TakeProfit
+      "\nTakeProfit = ", TakeProfit,
+      "\nMax Layer Buy = ", MaxLayerBuy,
+      "\nMax Layer Sell = ", MaxLayerSell
    );
    
 }
@@ -372,6 +403,32 @@ int MaxRemoveExpertNow(double MaximumEquity = 0) {
    }
    return(0);
    
+}
+
+int CloseOrderBuy(int TheMagicNumberBuy) {
+
+   for(int i = OrdersTotal() - 1; i >= 0 ; i--) {
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
+            TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);
+      }
+   }
+   
+   return (0);
+
+}
+
+int CloseOrderSell(int TheMagicNumberSell) {
+
+   for(int i = OrdersTotal() - 1; i >= 0 ; i--) {
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
+            TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+      }
+   }
+   
+   return (0);
+
 }
 
 void RemoveAllOrders() {

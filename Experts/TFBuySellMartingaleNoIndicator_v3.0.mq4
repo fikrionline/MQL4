@@ -2,15 +2,15 @@
 #property link "https://www.mql5.com/en/code"
 #property description "Martingale EA"
 
-extern double EquityMinStopEA = 9600.00;
-extern double EquityMaxStopEA = 10800.00;
+extern double EquityMinStopEA = 96000.00;
+extern double EquityMaxStopEA = 108000.00;
 extern int StartHour = 3;
 extern int EndHour = 23;
 extern double StartingLots = 0.01;
-extern double LotsMultiplier = 1.2;
+extern double LotsMultiplier = 1.1;
 extern double PipStepDevideADR = 10;
 extern double TakeProfitDevideADR = 10;
-extern double TakeProfitPlus = 0;
+extern double TakeProfitPlus = 17;
 extern double SlipPage = 5.0;
 extern int MaxTrades = 33;
 extern double StopHighPrice = 0;
@@ -20,7 +20,7 @@ extern double BEPHunterProfit = 1;
 
 datetime NextCandle;
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
-double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, ADRs, TakeProfit, StartEquityBuySell, Count, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax, MinPipStep;
+double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, MaxLotsBuy, MaxLotsSell, ADRs, TakeProfit, FirstTPOrderBuy, FirstTPOrderSell, StartEquityBuySell, Count, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax, MinPipStep;
 bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
 
 int init() {
@@ -102,8 +102,9 @@ void OnTick() {
          NumOfTradesBuy = 0;
          iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
          if((Hour() >= StartHour || Hour() < EndHour)) {
+            FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
             RefreshRates();
-            TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+            TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
             if (TicketOrderSend < 0) {
                Print("Error: ", GetLastError());
             }
@@ -125,6 +126,10 @@ void OnTick() {
             }
             NewOrdersPlacedBuy = TRUE;
          }
+      }
+      
+      if(iLotsBuy > MaxLotsBuy) {
+         MaxLotsBuy = iLotsBuy;
       }
       
       if (TotalOrderBuy > 0) {
@@ -169,8 +174,9 @@ void OnTick() {
          NumOfTradesSell = 0;
          iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
          if((Hour() >= StartHour || Hour() <= EndHour)) {
+            FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
             RefreshRates();
-            TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+            TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
             if (TicketOrderSend < 0) {
                Print("Error: ", GetLastError());
             }
@@ -192,6 +198,10 @@ void OnTick() {
             }
             NewOrdersPlacedSell = TRUE;
          }
+      }
+      
+      if(iLotsSell > MaxLotsSell) {
+         MaxLotsSell = iLotsSell;
       }
       
       if (TotalOrderSell > 0) {
@@ -336,6 +346,8 @@ void Info() {
       "\nPnL Sell Max = ", DoubleToString(PNLSellMax, 2),
       "\nStarting Lot = ", StartingLots,
       "\nLot Multiplier = ", LotsMultiplier,
+      "\nMax Lot Buy = ", MaxLotsBuy,
+      "\nMax Lot Sell = ", MaxLotsSell,
       "\nAverage Daily Range = ", GetADRs(PERIOD_D1, 20, 1),
       "\nTakeProfit = ", TakeProfit,
       "\nMinPipStep = ", MinPipStep
