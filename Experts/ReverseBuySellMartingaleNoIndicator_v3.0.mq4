@@ -3,7 +3,7 @@
 #property description "Reverse Martingale EA"
 
 extern double EquityMinStopEA = 9600.00;
-extern double EquityMaxStopEA = 10800.00;
+extern double EquityMaxStopEA = 10880.00;
 extern double PNLCloseBuy = 0;
 extern double PNLCloseSell = 0;
 extern double PNLCloseBuySell = 0;
