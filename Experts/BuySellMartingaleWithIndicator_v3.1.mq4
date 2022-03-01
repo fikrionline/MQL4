@@ -39,14 +39,10 @@ void OnTick() {
    
    if(StopHighPrice > 0 && Ask > StopHighPrice) {
       RemoveAllOrders();
-      RemoveAllOrders();
-      RemoveAllOrders();
       ExpertRemove();
    }
    
    if(StopLowPrice > 0 && Bid < StopLowPrice) {
-      RemoveAllOrders();
-      RemoveAllOrders();
       RemoveAllOrders();
       ExpertRemove();
    }
@@ -90,9 +86,9 @@ void OnTick() {
    NewSignal = GetSignal();
    
    if(NewSignal == 1) {
-      CloseOrderSell();
+      //CloseOrderSell();
    } else if(NewSignal == -1) {
-      CloseOrderBuy();
+      //CloseOrderBuy();
    }
    
    //------ Only for BUY -------------------------------------------------------------------------------------------
@@ -527,11 +523,11 @@ int GetSignal() {
 
    int SignalResult = 0;
    
-   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 0, 1) != EMPTY_VALUE) {
+   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 10, 2.9, 0, 1) != EMPTY_VALUE) {
       SignalResult = 1;
    }
    
-   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 1, 1) != EMPTY_VALUE) {
+   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 10, 2.9, 1, 1) != EMPTY_VALUE) {
       SignalResult = -1;
    }
    
