@@ -1,6 +1,14 @@
-#property copyright "MQL5"
-#property link "https://www.mql5.com/en/code"
-#property description "Martingale EA"
+//+------------------------------------------------------------------+
+//|                              BuySellMartingaleWithIndicator_v3.1 |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+
+//Test terbaik terakhir GBPAUD M15
+
+#property copyright "Copyright 2021, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
+#property version   "1.1"
 
 extern double EquityMinStopEA = 9600.00;
 extern double EquityMaxStopEA = 10880.00;
@@ -298,7 +306,7 @@ int CloseOrderBuy() {
       TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
       if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
       if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
-         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);        
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), SlipPage, clrNONE);        
       }      
    }   
    return (0);
@@ -309,7 +317,7 @@ int CloseOrderSell() {
       TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
       if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
       if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {         
-         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), SlipPage, clrNONE);
       }      
    }   
    return (0);
@@ -523,12 +531,16 @@ int GetSignal() {
 
    int SignalResult = 0;
    
-   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 10, 2.9, 0, 1) != EMPTY_VALUE) {
-      SignalResult = 1;
+   if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 3, 0) != EMPTY_VALUE) {
+      //if(iCustom(Symbol(), PERIOD_M1, "JurikFilter", 3, 0) != EMPTY_VALUE) {
+         SignalResult = 1;
+      //}
    }
    
-   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend2", 10, 2.9, 1, 1) != EMPTY_VALUE) {
-      SignalResult = -1;
+   if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 4, 0) != EMPTY_VALUE) {
+      //if(iCustom(Symbol(), PERIOD_M1, "JurikFilter", 4, 0) != EMPTY_VALUE) {
+         SignalResult = -1;
+      //}
    }
    
    return SignalResult;

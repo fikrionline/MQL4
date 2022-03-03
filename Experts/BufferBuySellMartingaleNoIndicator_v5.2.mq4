@@ -9,13 +9,13 @@
 
 extern double EquityMinStopEA = 9600.00;
 extern double EquityMaxStopEA = 10880.00;
-extern int StartHour = 1;
-extern int EndHour = 23;
+extern int StartHour = 0;
+extern int EndHour = 25;
 extern double StartingLots = 0.01;
 extern double LotsMultiplier = 1.3;
 extern double PipStepDevideADR = 10;
 extern double PipStepMultiplier = 1.2;
-extern int RealOrderLayerStart = 9;
+extern int RealOrderLayerStart = 5;
 extern double RealOrderLotStart = 0.01;
 extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 10;
@@ -23,17 +23,18 @@ extern double SlipPage = 5.0;
 extern int MaxTrades = 99;
 extern double StopHighPrice = 0;
 extern double StopLowPrice = 0;
+extern int SetZeroAfterSomeTP = 1;
 
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
 double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, MaxLotsBuy, MaxLotsSell, ADRs, PipStep, TakeProfit, FirstTPOrderBuy, FirstTPOrderSell, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax;
 bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
 
 double BufferBuyPrice[], BufferBuyLots[], BufferLastBuyPrice, BufferBuyTP, BufferLastPipStepMultiplierBuy, BufferiLotsBuy, BufferAveragePriceBuy;
-int BufferBuyCounter, BufferTotalOrderBuy;
+int BufferBuyCounter, BufferTotalOrderBuy, SetZeroAfterSomeTPBuy;
 bool BufferNewOrderBuy = FALSE;
 
 double BufferSellPrice[], BufferSellLots[], BufferLastSellPrice, BufferSellTP, BufferLastPipStepMultiplierSell, BufferiLotsSell, BufferAveragePriceSell;
-int BufferSellCounter, BufferTotalOrderSell;
+int BufferSellCounter, BufferTotalOrderSell, SetZeroAfterSomeTPSell;
 bool BufferNewOrderSell = FALSE;
 
 double RealPriceMaxBuy, RealPriceMinSell, iLotsBuyReal, iLotsSellReal;
@@ -226,20 +227,32 @@ void OnTick() {
          TotalOrderBuy = GetTotalOrderBuy();
    
          if(TotalOrderBuy < 1) {
-            NumOfTradesBuy = 0;
-            iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
-            if((Hour() >= StartHour || Hour() <= EndHour)) {
-               FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
-               RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
-               if (TicketOrderSend < 0) {
-                  Print("Error: ", GetLastError());
-               }
-               NewOrdersPlacedBuy = TRUE;
-               FirstOrderBuy = TRUE;
-               TotalOrderBuy = 1;
-               LastPipStepMultiplierBuy = 0;
+            
+            if(SetZeroAfterSomeTPBuy > 0) {
+               SetZeroAfterSomeTPBuy = SetZeroAfterSomeTPBuy + 1;
             }
+            
+            if(SetZeroAfterSomeTPBuy == 0) {
+               SetZeroAfterSomeTPBuy = 1;
+            }
+            
+            if(SetZeroAfterSomeTPBuy <= SetZeroAfterSomeTP) {            
+               NumOfTradesBuy = 0;
+               iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
+               if((Hour() >= StartHour || Hour() <= EndHour)) {
+                  FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
+                  RefreshRates();
+                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
+                  if (TicketOrderSend < 0) {
+                     Print("Error: ", GetLastError());
+                  }
+                  NewOrdersPlacedBuy = TRUE;
+                  FirstOrderBuy = TRUE;
+                  TotalOrderBuy = 1;
+                  LastPipStepMultiplierBuy = 0;
+               }               
+            }
+             
          }
          
          if(LastPipStepMultiplierBuy <= 0) {
@@ -297,14 +310,21 @@ void OnTick() {
          
       }
       
-      if(Bid > RealPriceMaxBuy) {
-         
+      if(Bid > RealPriceMaxBuy) {         
+         ObjectDelete("RealPriceMaxBuy");
+         ObjectDelete("BufferBuyTP");
+         RealStartBuy = FALSE;
+         BufferTotalOrderBuy = 0;
+         CloseOrderBuy(MagicNumberBuy);         
+      }
+      
+      if(SetZeroAfterSomeTPBuy > SetZeroAfterSomeTP) {
          ObjectDelete("RealPriceMaxBuy");
          ObjectDelete("BufferBuyTP");
          RealStartBuy = FALSE;
          BufferTotalOrderBuy = 0;
          CloseOrderBuy(MagicNumberBuy);
-         
+         SetZeroAfterSomeTPBuy = 0;
       }
       
    }
@@ -434,20 +454,34 @@ void OnTick() {
          TotalOrderSell = GetTotalOrderSell();
    
          if(TotalOrderSell < 1) {
-            NumOfTradesSell = 0;
-            iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
-            if((Hour() >= StartHour || Hour() <= EndHour)) {
-               FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
-               RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
-               if (TicketOrderSend < 0) {
-                  Print("Error: ", GetLastError());
-               }
-               NewOrdersPlacedSell = TRUE;
-               FirstOrderSell = TRUE;
-               TotalOrderSell = 1;
-               LastPipStepMultiplierSell = 0;
+         
+            if(SetZeroAfterSomeTPSell > 0) {
+               SetZeroAfterSomeTPSell = SetZeroAfterSomeTPSell + 1;
             }
+            
+            if(SetZeroAfterSomeTPSell == 0) {
+               SetZeroAfterSomeTPSell = 1;
+            }
+            
+            if(SetZeroAfterSomeTPSell <= SetZeroAfterSomeTP) {
+            
+               NumOfTradesSell = 0;
+               iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
+               if((Hour() >= StartHour || Hour() <= EndHour)) {
+                  FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
+                  RefreshRates();
+                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
+                  if (TicketOrderSend < 0) {
+                     Print("Error: ", GetLastError());
+                  }
+                  NewOrdersPlacedSell = TRUE;
+                  FirstOrderSell = TRUE;
+                  TotalOrderSell = 1;
+                  LastPipStepMultiplierSell = 0;
+               }
+               
+            }
+            
          }
          
          if(LastPipStepMultiplierSell <= 0) {
@@ -505,14 +539,21 @@ void OnTick() {
          
       }
       
-      if(Ask < RealPriceMinSell) {
-         
+      if(Ask < RealPriceMinSell) {         
+         ObjectDelete("RealPriceMinSell");
+         ObjectDelete("BufferSellTP");
+         RealStartSell = FALSE;
+         BufferTotalOrderSell = 0;
+         CloseOrderSell(MagicNumberSell);         
+      }
+      
+      if(SetZeroAfterSomeTPSell > SetZeroAfterSomeTP) {
          ObjectDelete("RealPriceMinSell");
          ObjectDelete("BufferSellTP");
          RealStartSell = FALSE;
          BufferTotalOrderSell = 0;
          CloseOrderSell(MagicNumberSell);
-         
+         SetZeroAfterSomeTPSell = 0;
       }
       
    }   
