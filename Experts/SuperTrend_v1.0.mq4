@@ -8,11 +8,11 @@
 #property version   "1.00"
 
 extern double EquityMinStopEA = 9600.00;
-extern double EquityMaxStopEA = 10808.00;
+extern double EquityMaxStopEA = 10880.00;
 extern int StartHour = 0;
 extern int EndHour = 25;
-extern double StartingLots = 0.01;
-extern double AdditionalLots = 0.01;
+extern double StartingLots = 0.1;
+extern double AdditionalLots = 0.1;
 extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 0;
 extern double SlipPage = 5.0;

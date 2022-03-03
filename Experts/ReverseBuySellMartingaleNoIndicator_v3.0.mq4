@@ -1,18 +1,23 @@
-#property copyright "MQL5"
-#property link "https://www.mql5.com/en/code"
-#property description "Reverse Martingale EA"
+//+------------------------------------------------------------------+
+//|                     ReverseBuySellMartingaleNoIndicator_v3.0.mq4 |
+//|                        Copyright 2022, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2022, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
+#property version   "3.00"
 
 extern double EquityMinStopEA = 9600.00;
 extern double EquityMaxStopEA = 10880.00;
-extern double PNLCloseBuy = 0;
-extern double PNLCloseSell = 0;
-extern double PNLCloseBuySell = 0;
+extern double PNLCloseBuy = 10;
+extern double PNLCloseSell = 10;
+extern double PNLCloseBuySell = 10;
 extern int StartHour = 3;
 extern int EndHour = 22;
 extern double StartingLots = 0.01;
-extern double LotsMultiplier = 1.2;
+extern double LotsMultiplier = 1.3;
 extern double PipStepDevideADR = 10;
-extern double PipStepMultiplier = 1;
+extern double PipStepMultiplier = 1.2;
 extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 10;
 extern double SlipPage = 5.0;
@@ -86,8 +91,7 @@ void OnTick() {
    
    if(PNL > PNLCloseBuySell && PNLCloseBuySell > 0) {
       PNL = 0;
-      RemoveAllOrders();
-      
+      RemoveAllOrders();      
    }
    
    if(TotalOrderBuy == 0 && TotalOrderSell == 0) {

@@ -1,6 +1,11 @@
-#property copyright "MQL5"
-#property link "https://www.mql5.com/en/code"
-#property description "Martingale EA"
+//+------------------------------------------------------------------+
+//|                          BufferBuySellMartingaleNoIndicator_v4.0 |
+//|                        Copyright 2022, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2022, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
+#property version   "4.00"
 
 extern double EquityMinStopEA = 9600.00;
 extern double EquityMaxStopEA = 10880.00;

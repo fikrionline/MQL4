@@ -3,7 +3,7 @@
 #property description "Martingale EA"
 
 extern double EquityMinStopEA = 9600.00;
-extern double EquityMaxStopEA = 10800.00;
+extern double EquityMaxStopEA = 10880.00;
 extern int StartHour = 3;
 extern int EndHour = 22;
 extern double StartingLots = 0.01;
