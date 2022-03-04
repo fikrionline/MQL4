@@ -228,7 +228,7 @@ void OnTick() {
          if(TotalOrderBuy < 1) {
             NumOfTradesBuy = 0;
             iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
-            if((Hour() >= StartHour || Hour() <= EndHour)) {
+            if((Hour() >= StartHour && Hour() <= EndHour)) {
                FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
                RefreshRates();
                TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
@@ -436,7 +436,7 @@ void OnTick() {
          if(TotalOrderSell < 1) {
             NumOfTradesSell = 0;
             iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
-            if((Hour() >= StartHour || Hour() <= EndHour)) {
+            if((Hour() >= StartHour && Hour() <= EndHour)) {
                FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
                RefreshRates();
                TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
@@ -613,7 +613,7 @@ int CloseOrderBuy(int CheckMagicNumberBuy) {
       TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
       if (OrderSymbol() != Symbol() || OrderMagicNumber() != CheckMagicNumberBuy) continue;
       if (OrderSymbol() == Symbol() && OrderMagicNumber() == CheckMagicNumberBuy && OrderType() == OP_BUY) {
-         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);        
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), SlipPage, clrNONE);        
       }      
    }   
    return (0);
@@ -624,7 +624,7 @@ int CloseOrderSell(int CheckMagicNumberSell) {
       TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
       if (OrderSymbol() != Symbol() || OrderMagicNumber() != CheckMagicNumberSell) continue;
       if (OrderSymbol() == Symbol() && OrderMagicNumber() == CheckMagicNumberSell && OrderType() == OP_SELL) {         
-         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), SlipPage, clrNONE);
       }      
    }   
    return (0);

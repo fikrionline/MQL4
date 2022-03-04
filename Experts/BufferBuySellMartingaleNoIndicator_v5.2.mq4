@@ -242,7 +242,7 @@ void OnTick() {
                if((Hour() >= StartHour || Hour() <= EndHour)) {
                   FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
                   RefreshRates();
-                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
+                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
                   if (TicketOrderSend < 0) {
                      Print("Error: ", GetLastError());
                   }
@@ -265,7 +265,7 @@ void OnTick() {
                NumOfTradesBuy = TotalOrderBuy;
                iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
                RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
                if (TicketOrderSend < 0) {
                   Print("Error: ", GetLastError());
                }
@@ -293,19 +293,21 @@ void OnTick() {
          }
          
          if (NewOrdersPlacedBuy == TRUE) {
-            for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
-               TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
-               if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
-               if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
-                  if(FirstOrderBuy == TRUE) {
-                     PriceTargetBuy = NormalizeDouble(AveragePriceBuy + (TakeProfit * Point), Digits);
-                  } else {
-                     PriceTargetBuy = NormalizeDouble(AveragePriceBuy, Digits);
+            if (TotalOrderBuy > 1) {
+               for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+                  TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+                  if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+                  if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
+                     if(FirstOrderBuy == TRUE) {
+                        PriceTargetBuy = NormalizeDouble(AveragePriceBuy + (TakeProfit * Point), Digits);
+                     } else {
+                        PriceTargetBuy = NormalizeDouble(AveragePriceBuy, Digits);
+                     }
                   }
+                  TicketOrderModify = OrderModify(OrderTicket(), AveragePriceBuy, 0, PriceTargetBuy, 0, Yellow);
                }
-               TicketOrderModify = OrderModify(OrderTicket(), AveragePriceBuy, 0, PriceTargetBuy, 0, Yellow);
+               NewOrdersPlacedBuy = FALSE;
             }
-            NewOrdersPlacedBuy = FALSE;
          }
          
       }
@@ -347,7 +349,7 @@ void OnTick() {
          BufferSellTP = NormalizeDouble(Bid - ((double) TakeProfit * Point), Digits);
          BufferSellLots[BufferSellCounter] = BufferiLotsSell;
          BufferSellPrice[BufferSellCounter] = Bid;
-         BufferTotalOrderSell = 1; Print("BufferTotalOrderSell --> " + BufferTotalOrderSell + " | " +BufferSellPrice[BufferSellCounter]);
+         BufferTotalOrderSell = 1; //Print("BufferTotalOrderSell --> " + BufferTotalOrderSell + " | " +BufferSellPrice[BufferSellCounter]);
          BufferLastPipStepMultiplierSell = 0;
          
          ObjectCreate("BufferSell_" + BufferSellCounter, OBJ_HLINE, 0, CurTime(), BufferSellPrice[BufferSellCounter]);
@@ -372,7 +374,7 @@ void OnTick() {
             BufferiLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, BufferTotalOrderSell), 2);
             BufferSellLots[BufferSellCounter] = BufferiLotsSell;
             BufferSellPrice[BufferSellCounter] = Bid;
-            BufferTotalOrderSell = BufferTotalOrderSell + 1; Print("BufferTotalOrderSell --> " + BufferTotalOrderSell + " | " + BufferSellPrice[BufferSellCounter]);
+            BufferTotalOrderSell = BufferTotalOrderSell + 1; //Print("BufferTotalOrderSell --> " + BufferTotalOrderSell + " | " + BufferSellPrice[BufferSellCounter]);
             BufferLastPipStepMultiplierSell = NormalizeDouble((BufferLastPipStepMultiplierSell * PipStepMultiplier), 2);
             BufferNewOrderSell = TRUE;
             
@@ -470,7 +472,7 @@ void OnTick() {
                if((Hour() >= StartHour || Hour() <= EndHour)) {
                   FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
                   RefreshRates();
-                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
+                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
                   if (TicketOrderSend < 0) {
                      Print("Error: ", GetLastError());
                   }
@@ -494,7 +496,7 @@ void OnTick() {
                NumOfTradesSell = TotalOrderSell;
                iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
                RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
                if (TicketOrderSend < 0) {
                   Print("Error: ", GetLastError());
                }
@@ -522,19 +524,21 @@ void OnTick() {
          }
          
          if (NewOrdersPlacedSell == TRUE) {
-            for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
-               TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
-               if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
-               if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
-                  if(FirstOrderSell == TRUE) {
-                     PriceTargetSell = NormalizeDouble(AveragePriceSell - (TakeProfit * Point), Digits);
-                  } else {
-                     PriceTargetSell = NormalizeDouble(AveragePriceSell, Digits);
+            if (TotalOrderSell > 1) {
+               for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+                  TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+                  if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+                  if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
+                     if(FirstOrderSell == TRUE) {
+                        PriceTargetSell = NormalizeDouble(AveragePriceSell - (TakeProfit * Point), Digits);
+                     } else {
+                        PriceTargetSell = NormalizeDouble(AveragePriceSell, Digits);
+                     }
                   }
+                  TicketOrderModify = OrderModify(OrderTicket(), AveragePriceSell, 0, PriceTargetSell, 0, Yellow);
                }
-               TicketOrderModify = OrderModify(OrderTicket(), AveragePriceSell, 0, PriceTargetSell, 0, Yellow);
-            }
-            NewOrdersPlacedSell = FALSE;
+               NewOrdersPlacedSell = FALSE;
+            } 
          }
          
       }

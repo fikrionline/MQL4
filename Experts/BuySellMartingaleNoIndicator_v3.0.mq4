@@ -177,7 +177,7 @@ void OnTick() {
    if(TotalOrderSell < 1) {
       NumOfTradesSell = 0;
       iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
-      if((Hour() >= StartHour || Hour() <= EndHour)) {
+      if((Hour() >= StartHour && Hour() <= EndHour)) {
          FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
          RefreshRates();
          TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
