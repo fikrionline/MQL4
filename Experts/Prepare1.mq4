@@ -118,7 +118,7 @@ int PosSelect(int CheckMagicNumber) {
 
 }
 
-//CloseLastBuy -------------------------------------------------------------------------------
+//CloseLastOrder -------------------------------------------------------------------------------
 int CloseLast(int CheckMagicNumber) {
    int i_ticket = OrdersTotal() - 1;
 

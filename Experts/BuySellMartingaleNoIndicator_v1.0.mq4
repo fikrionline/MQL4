@@ -226,7 +226,7 @@ void OnTick() {
    if(TotalOrderBuy < 1) {
       NumOfTradesBuy = 0;
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(Multiplier, NumOfTradesBuy), 2);      
-      if((Hour() >= StartHour || Hour() < EndHour)) {         
+      if((Hour() >= StartHour && Hour() < EndHour)) {         
          TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); Print(Symbol() + "-" + NumOfTradesBuy + "_MagicNumber-" + MagicNumberBuy);
          if (TicketOrderSend < 0) {
             Print("Error: ", GetLastError());

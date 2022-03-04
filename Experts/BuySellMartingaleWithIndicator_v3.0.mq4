@@ -98,7 +98,7 @@ void OnTick() {
    if(TotalOrderBuy < 1) {
       NumOfTradesBuy = 0;
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
-      if((Hour() >= StartHour || Hour() < EndHour)) {
+      if((Hour() >= StartHour && Hour() < EndHour)) {
          RefreshRates();
          //if(iCustom(Symbol(), PERIOD_CURRENT, "ObosRSI", 0, 1) != EMPTY_VALUE) {
             if(iCustom(Symbol(), PERIOD_CURRENT, "JurikFilter", 3, 1) != EMPTY_VALUE) {

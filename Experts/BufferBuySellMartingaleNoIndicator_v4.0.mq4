@@ -110,7 +110,7 @@ void OnTick() {
    
    if(BufferTotalOrderBuy < 1) {
       BufferBuyCounter = 0;
-      if((Hour() >= StartHour || Hour() < EndHour)) {
+      if((Hour() >= StartHour && Hour() < EndHour)) {
          BufferiLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, BufferBuyCounter), 2);
          RefreshRates();
          BufferBuyTP = NormalizeDouble(Ask + ((double) TakeProfit * Point), Digits); //Print(BufferBuyTP);
@@ -228,7 +228,7 @@ void OnTick() {
    
    if(BufferTotalOrderSell < 1) {
       BufferSellCounter = 0;
-      if((Hour() >= StartHour || Hour() < EndHour)) {
+      if((Hour() >= StartHour && Hour() < EndHour)) {
          BufferiLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, BufferSellCounter), 2);
          RefreshRates();
          BufferSellTP = NormalizeDouble(Bid - ((double) TakeProfit * Point), Digits); //Print(BufferSellTP);

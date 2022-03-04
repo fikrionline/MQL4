@@ -124,7 +124,7 @@ void OnTick() {
    if(TotalOrderBuy < 1) {
       NumOfTradesBuy = 0;
       iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
-      if((Hour() >= StartHour || Hour() < EndHour)) {
+      if((Hour() >= StartHour && Hour() < EndHour)) {
          FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
          FirstSLOrderBuy = NormalizeDouble(Ask - (double) TakeProfit * Point, Digits);
          RefreshRates();

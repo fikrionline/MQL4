@@ -59,7 +59,7 @@ void OnTick() {
       if(TotalOrderBuy < 1) {
          AlreadyRemoveTPBuySell = FALSE;
          iLotsBuy = StartingLots;      
-         if((Hour() >= StartHour || Hour() < EndHour)) {
+         if((Hour() >= StartHour && Hour() < EndHour)) {
             
             if(TotalOrderSell < 1) {
                TPBuy = NormalizeDouble(MarketInfo(Symbol(), MODE_ASK) + (double) TakeProfit * Point, Digits);

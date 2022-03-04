@@ -45,7 +45,7 @@ int start() {
       NextCandle = Time[0] + Period();
       // New candle, your trading functions here
       
-      if((Hour() >= StartHour || Hour() < EndHour)) {
+      if((Hour() >= StartHour && Hour() < EndHour)) {
 
          //Order when there are no order
          if (PosSelect(MagicNumber) == 0) {
