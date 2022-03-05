@@ -8,7 +8,7 @@
 
 #property indicator_chart_window
 
-extern string FiboID = "A";
+extern string FiboID = "D1Up";
 
 enum EnumTimeFrame {
    M1,
@@ -25,10 +25,16 @@ extern EnumTimeFrame TimeFrame = D1;
 
 extern int CandleBase = 1;
 extern bool ShowPrice = true;
-extern color FiboColor = Orange;
+extern color FiboColor = Blue;
+
+enum FiboUpDown {
+   Up,
+   Down
+};
+extern FiboUpDown ChooseFiboUpDown = Up;
 
 int gi_FibLevels;
-double gd_FLvl[31];
+double gd_FLvl[19];
 double gd_High, gd_Low;
 
 datetime gdt_LastBar;
@@ -78,38 +84,42 @@ int init() {
    }
 
    gd_FLvl[0] = 0;
-   gd_FLvl[1] = 0.085;
-   gd_FLvl[2] = 0.17;
-   gd_FLvl[3] = 0.34;
-   gd_FLvl[4] = 0.45;
-   gd_FLvl[5] = 0.50;
-   gd_FLvl[6] = 0.55;
-   gd_FLvl[7] = 0.66;
-   gd_FLvl[8] = 0.83;
-   gd_FLvl[9] = 0.915;
-   gd_FLvl[10] = 1;
-   gd_FLvl[11] = 1.085;
-   gd_FLvl[12] = 1.17;
-   gd_FLvl[13] = 1.34;
-   gd_FLvl[14] = 1.45;
-   gd_FLvl[15] = 1.50;
-   gd_FLvl[16] = 1.55;
-   gd_FLvl[17] = 1.66;
-   gd_FLvl[18] = 1.83;
-   gd_FLvl[19] = 1.915;
-   gd_FLvl[20] = 2;
-   gd_FLvl[21] = -0.085;
-   gd_FLvl[22] = -0.17;
-   gd_FLvl[23] = -0.34;
-   gd_FLvl[24] = -0.45;
-   gd_FLvl[25] = -0.50;
-   gd_FLvl[26] = -0.55;
-   gd_FLvl[27] = -0.66;
-   gd_FLvl[28] = -0.83;
-   gd_FLvl[29] = -0.915;
-   gd_FLvl[30] = -1;
+   gd_FLvl[1] = 0.17;
+   gd_FLvl[2] = 0.34;
+   gd_FLvl[3] = 0.50;
+   gd_FLvl[4] = 0.66;
+   gd_FLvl[5] = 0.83;
+   gd_FLvl[6] = 1;
+   
+   if(ChooseFiboUpDown == Up) {
+      gd_FLvl[7] = 1.17;
+      gd_FLvl[8] = 1.34;
+      gd_FLvl[9] = 1.50;
+      gd_FLvl[10] = 1.66;
+      gd_FLvl[11] = 1.83;
+      gd_FLvl[12] = 2;
+      gd_FLvl[13] = 2.17;
+      gd_FLvl[14] = 2.34;
+      gd_FLvl[15] = 2.50;
+      gd_FLvl[16] = 2.66;
+      gd_FLvl[17] = 2.83;
+      gd_FLvl[18] = 3;
+   } else if(ChooseFiboUpDown == Down) {
+      gd_FLvl[7] = -0.17;
+      gd_FLvl[8] = -0.34;
+      gd_FLvl[9] = -0.50;
+      gd_FLvl[10] = -0.66;
+      gd_FLvl[11] = -0.83;
+      gd_FLvl[12] = -1;
+      gd_FLvl[13] = -1.17;
+      gd_FLvl[14] = -1.34;
+      gd_FLvl[15] = -1.50;
+      gd_FLvl[16] = -1.66;
+      gd_FLvl[17] = -1.83;
+      gd_FLvl[18] = -2;
+   }
 
-   gi_FibLevels = 31;
+   gi_FibLevels = 19;
 
    gs_Fibo = "Fibo-" + FiboID + "-" + xi_Period;
 
