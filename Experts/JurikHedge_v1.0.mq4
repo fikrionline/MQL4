@@ -10,8 +10,8 @@
 extern double EquityMinStopEA = 9600.00;
 extern double EquityMaxStopEA = 10880.00;
 extern int MagicNumber = 5758;
-extern int StartHour = 0;
-extern int EndHour = 24;
+extern int StartHour = 5;
+extern int EndHour = 20;
 extern double Lots = 0.1;
 extern double TakeProfit = 0;
 extern double StopLoss = 0;
@@ -20,7 +20,7 @@ extern bool OrderReverse = FALSE;
 extern bool UseTrailStopPoint = FALSE;
 extern double TrailingStopPoint = 100;
 extern double TrailingStopPointLock = 50;
-extern bool UseTrailingStopUSD = FALSE;
+extern bool UseTrailingStopUSD = TRUE;
 extern double TrailingStopUSD = 100;
 extern double TrailingStopUSDLock = 50;
 extern double StopOrderProfit = 0;
@@ -97,6 +97,7 @@ void OnTick() {
    if(StopOrderProfit > 0 && PNL > StopOrderProfit) {
       CloseOrderBuy(MagicNumber);
       CloseOrderSell(MagicNumber);
+      StartEquityBuySell = AccountEquity();
    }
 
    if(UseTrailStopPoint == TRUE) {
@@ -116,6 +117,7 @@ void OnTick() {
          TemporaryProfitToLock = 0;
          CloseOrderBuy(MagicNumber);
          CloseOrderSell(MagicNumber);
+         StartEquityBuySell = AccountEquity();
       }
    } 
    
