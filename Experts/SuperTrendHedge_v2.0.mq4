@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                SuperTDI_v1.0.mq4 |
+//|                                         SuperTrendHedge_v2.0.mq4 |
 //|                        Copyright 2021, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -16,11 +16,11 @@ extern double StopLoss = 0;
 extern int SlipPage = 5;
 extern bool OrderReverse = FALSE;
 extern bool UseTrailStopPoint = FALSE;
-extern double TrailingStopPoint = 500;
-extern double TrailingStopPointLock = 250;
+extern double TrailingStopPoint = 200;
+extern double TrailingStopPointLock = 100;
 
 datetime NextCandle;
-int SelectOrder, type, TicketOpen = 0, TicketClose = 0, TotalOrderBuy, TotalOrderSell, MagicNumberBuy, MagicNumberSell;
+int SelectOrder, type, TicketOpen = 0, TicketClose = 0, TotalOrderBuy, TotalOrderSell, MagicNumberBuy, MagicNumberSell, NewSignal;
 double price, sl, tp, slCandle, tpCandle, StartEquityBuySell, EquityMin, EquityMax;
 
 //Init
@@ -41,14 +41,16 @@ int deinit() {
 //Start
 void OnTick() {
 
-   if(UseTrailStopPoint == TRUE) {
-      RunTrailStop(MagicNumber, TrailingStopPoint, TrailingStopPointLock);
+   NewSignal = GetSignal();
+   
+   if(NewSignal == 1) {
+      CloseOrderSell(MagicNumber);
+   } else if(NewSignal == -1) {
+      CloseOrderBuy(MagicNumber);
    }
 
-   if(CloseOrder() == 1) {
-      //CloseOrderBuy(MagicNumber);
-   } else if(CloseOrder() == -1) {
-      //CloseOrderSell(MagicNumber);
+   if(UseTrailStopPoint == TRUE && TrailingStopPoint > 0 && TrailingStopPointLock > 0) {
+      RunTrailStop(MagicNumber, TrailingStopPoint, TrailingStopPointLock);
    }
    
    TotalOrderBuy = GetTotalOrderBuy();
@@ -84,12 +86,6 @@ void OnTick() {
          if (PosSelect(MagicNumber) == 0) {
    
             if (GetSignal() == 1) {
-            
-               slCandle = (iHigh(Symbol(), PERIOD_CURRENT, 1) - iLow(Symbol(), PERIOD_CURRENT, 1)) / Point(); //Print(slCandle);
-               tpCandle = slCandle * 2;
-               
-               StopLoss = slCandle;
-               TakeProfit = tpCandle;
    
                type = OP_BUY;
                price = Ask;
@@ -98,12 +94,6 @@ void OnTick() {
                TicketOpen = OrderSend(Symbol(), type, Lots, price, SlipPage, sl, tp, IntegerToString(MagicNumber), MagicNumber, 0, Aqua);
    
             } else if (GetSignal() == -1) {
-            
-               slCandle = (iHigh(Symbol(), PERIOD_CURRENT, 1) - iLow(Symbol(), PERIOD_CURRENT, 1)) / Point(); //Print(slCandle);
-               tpCandle = slCandle * 2;
-               
-               StopLoss = slCandle;
-               TakeProfit = tpCandle;
    
                type = OP_SELL;
                price = Bid;
@@ -230,88 +220,6 @@ int CloseOrderSell(int CheckMagicNumberSell) {
    return (0);
 }
 
-//GetSignal
-int GetSignal() {
-
-   int SignalResult = 0, iStochasticResult = 0, TDIResult = 0;
-   
-   double iStochastic_1433_main_2 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_MAIN, 2);
-   double iStochastic_1433_signal_2 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_SIGNAL, 2);
-   
-   double iStochastic_1433_main_1 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_MAIN, 1);
-   double iStochastic_1433_signal_1 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_SIGNAL, 1);
-   
-   if(iStochastic_1433_main_1 > 80 && iStochastic_1433_signal_1 > 80) {
-      iStochasticResult = 1;
-   }
-   
-   if(iStochastic_1433_main_1 < 20 && iStochastic_1433_signal_1 < 20) {
-      iStochasticResult = -1;
-   }
-   
-   double TDI_main_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 2);
-   double TDI_signal_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 2);
-   
-   double TDI_main_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 1);
-   double TDI_signal_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 1);
-   
-   if(TDI_main_1 > TDI_signal_1 && TDI_main_2 < TDI_signal_2) {
-      TDIResult = 1;
-   } else if(TDI_main_1 < TDI_signal_1 && TDI_main_2 > TDI_signal_2) {
-      TDIResult = -1;
-   }
-   
-   if(iStochasticResult == 1 && TDIResult == 1) {
-      SignalResult = 1;
-   }
-   
-   if(iStochasticResult == -1 && TDIResult == -1) {
-      SignalResult = -1;
-   }
-   
-   if(OrderReverse == TRUE) {
-   
-      if(SignalResult == 1) {
-         SignalResult = -1;
-      } else if(SignalResult == -1) {
-         SignalResult = 1;
-      }
-   
-   }
-   
-   return SignalResult;
-
-}
-
-//CloseOrder
-int CloseOrder() {
-   
-   int CloseResult = 0;
-   
-   double iStochastic_1433_main = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_MAIN, 1);
-   double iStochastic_1433_signal = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_SIGNAL, 1);
-   
-   double TDI_main = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 1);
-   double TDI_signal = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 1);
-   
-   if(TDI_main > TDI_signal) {
-      CloseResult = -1;
-   } else if(TDI_signal < TDI_main) {
-      CloseResult = 1;
-   }
-   
-   /*if(iStochastic_1433_main < iStochastic_1433_signal && iStochastic_1433_main < 20 && iStochastic_1433_signal < 20) {
-      CloseResult = 1;
-   }
-   
-   if(iStochastic_1433_main > iStochastic_1433_signal && iStochastic_1433_main > 80 && iStochastic_1433_signal > 80) {
-      CloseResult = -1;
-   }*/
-   
-   return CloseResult;
-   
-}
-
 void RunTrailStop(int CheckMagicNumber, double TheTrailingStopPoint, double TheTrailingStopPointLock) {
    int TicketTrail;
    for (int i = 0; i < OrdersTotal(); i++) {
@@ -335,4 +243,40 @@ void RunTrailStop(int CheckMagicNumber, double TheTrailingStopPoint, double TheT
          }
       }
    }
+}
+
+//GetSignal
+int GetSignal() {
+   int SignalResult = 0, TDIResult = 0, SuperTrendResult = 0;
+
+   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend4", 2, 1) != EMPTY_VALUE) {
+      SuperTrendResult = 1;
+   }
+   
+   if(iCustom(Symbol(), PERIOD_CURRENT, "SuperTrend4", 1, 1) != EMPTY_VALUE) {
+      SuperTrendResult = -1;
+   }
+   
+   double TDI_main_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 2);
+   double TDI_signal_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 2);
+   
+   double TDI_main_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 1);
+   double TDI_signal_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 1);
+   
+   if(TDI_main_1 > TDI_signal_1 && TDI_main_2 < TDI_signal_2) {
+      TDIResult = 1;
+   } else if(TDI_main_1 < TDI_signal_1 && TDI_main_2 > TDI_signal_2) {
+      TDIResult = -1;
+   }
+   
+   if(SuperTrendResult == 1 && TDIResult == 1) {
+      SignalResult = 1;
+   }
+   
+   if(SuperTrendResult == -1 && TDIResult == -1) {
+      SignalResult = -1;
+   }
+   
+   return SignalResult;
+
 }

@@ -1,0 +1,644 @@
+/* Test AUDCAD M15
+extern double EquityMinStopEA = 9600.00;
+extern double EquityMaxStopEA = 10880.00;
+extern int StartHour = 3;
+extern int EndHour = 22;
+extern double StartingLots = 0.5;
+extern double LotsMultiplier = 1.2;
+extern double PipStepDevideADR = 3;
+extern double PipStepMultiplier = 1;
+extern double TakeProfitDevideADR = 10;
+extern double TakeProfitPlus = 10;
+extern double SlipPage = 5.0;
+extern int MaxTrades = 99;
+extern bool OrderReverse = FALSE;
+extern double StopHighPrice = 0;
+extern double StopLowPrice = 0;
+extern int BEPHunterOnLayer = 99;
+extern double BEPHunterProfit = 1;
+extern int StopLossOnLayer = 5;
+*/
+
+/* GBPAUD M15
+extern double EquityMinStopEA = 9600.00;
+extern double EquityMaxStopEA = 10880.00;
+extern int StartHour = 3;
+extern int EndHour = 22;
+extern double StartingLots = 0.1;
+extern double LotsMultiplier = 1.2;
+extern double PipStepDevideADR = 3;
+extern double PipStepMultiplier = 1;
+extern double TakeProfitDevideADR = 10;
+extern double TakeProfitPlus = 10;
+extern double SlipPage = 5.0;
+extern int MaxTrades = 99;
+extern bool OrderReverse = FALSE;
+extern double StopHighPrice = 0;
+extern double StopLowPrice = 0;
+extern int BEPHunterOnLayer = 99;
+extern double BEPHunterProfit = 1;
+extern int StopLossOnLayer = 5;
+*/
+
+//+------------------------------------------------------------------+
+//|                                            TDIGridHedge_v1.0.mq4 |
+//|                        Copyright 2021, MetaQuotes Software Corp. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+
+#property copyright "Copyright 2021, MetaQuotes Software Corp."
+#property link      "https://www.mql5.com"
+#property version   "1.1"
+
+extern double EquityMinStopEA = 9600.00;
+extern double EquityMaxStopEA = 10880.00;
+extern int ManualMagicNumber = 5758;
+extern int StartHour = 3;
+extern int EndHour = 22;
+extern double StartingLots = 0.1;
+extern double LotsMultiplier = 1.2;
+extern double PipStepDevideADR = 3;
+extern double PipStepMultiplier = 1;
+extern double TakeProfitDevideADR = 10;
+extern double TakeProfitPlus = 10;
+extern double SlipPage = 5.0;
+extern int MaxTrades = 99;
+extern bool OrderReverse = FALSE;
+extern double StopHighPrice = 0;
+extern double StopLowPrice = 0;
+extern int BEPHunterOnLayer = 3;
+extern double BEPHunterProfit = 1;
+extern int StopLossOnLayer = 5;
+
+int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, MaxLayerBuy, MaxLayerSell, cnt, NewSignal;
+double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, MaxLotsBuy, MaxLotsSell, ADRs, PipStep, TakeProfit, FirstTPOrderBuy, FirstTPOrderSell, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax;
+bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
+
+int init() {
+   return (0);
+}
+
+int deinit() {
+   Comment("");
+   return (0);
+}
+
+void OnTick() {
+
+   MinRemoveExpertNow(EquityMinStopEA);
+   MaxRemoveExpertNow(EquityMaxStopEA);
+   
+   if(StopHighPrice > 0 && Ask > StopHighPrice) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   
+   if(StopLowPrice > 0 && Bid < StopLowPrice) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   
+   PipStep = NormalizeDouble(GetADRs(PERIOD_D1, 20, 1) / PipStepDevideADR, 2);
+   
+   PNL = PNLBuy + PNLSell;
+   
+   if(PNL > 0) {
+      if(PNL > PNLMax) {
+         PNLMax = PNL;
+      }
+   }
+   
+   if(PNL < 0) {
+      if(PNL < PNLMin) {
+         PNLMin = PNL;
+      }
+   }
+   
+   if(TotalOrderBuy == 0 && TotalOrderSell == 0) {
+      StartEquityBuySell = DoubleToString(AccountEquity(), 2);
+   }
+   
+   if(EquityMin == 0) {
+      EquityMin = AccountEquity();
+   }
+   
+   if(AccountEquity() < EquityMin) {
+      EquityMin = AccountEquity();
+   }
+   
+   if(EquityMax == 0) {
+      EquityMax = AccountEquity();
+   }
+   
+   if(AccountEquity() > EquityMax) {
+      EquityMax = AccountEquity();
+   }
+   
+   if(TotalOrderBuy >= BEPHunterOnLayer || TotalOrderSell >= BEPHunterOnLayer) {
+      if(AccountEquity() > (StartEquityBuySell + BEPHunterProfit)) {
+         RemoveAllOrders();
+         TotalOrderBuy = 0;
+         TotalOrderSell = 0;
+         StartEquityBuySell = DoubleToString(AccountEquity(), 2);
+      }
+   }
+   
+   NewSignal = GetSignal();
+   
+   if(NewSignal == 1) {
+      CloseOrderSell();
+   } else if(NewSignal == -1) {
+      CloseOrderBuy();
+   }
+   
+   //------ Only for BUY -------------------------------------------------------------------------------------------
+   if(ManualMagicNumber > 0) {
+      MagicNumberBuy = ManualMagicNumber;
+   } else {
+      MagicNumberBuy = GetMagicNumber("BUY");
+   }
+   
+   TakeProfit = NormalizeDouble((GetADRs(PERIOD_D1, 20, 1) / TakeProfitDevideADR) + TakeProfitPlus, 0); //Print("TakeProfit BUY = " + TakeProfit);
+   
+   TotalOrderBuy = GetTotalOrderBuy();
+   
+   if(TotalOrderBuy > MaxLayerBuy) {
+      MaxLayerBuy = TotalOrderBuy;
+   }
+   
+   if(TotalOrderBuy < 1) {
+      NumOfTradesBuy = 0;
+      iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);      
+      if((Hour() >= StartHour && Hour() < EndHour)) {
+         FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
+         RefreshRates();
+         if(NewSignal == 1) {
+            TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
+            if (TicketOrderSend < 0) {
+               Print("Error: ", GetLastError());
+            }
+            //Sleep(999);
+            //RefreshRates();
+            NewOrdersPlacedBuy = TRUE;
+            FirstOrderBuy = TRUE;
+            TotalOrderBuy = 1;
+            LastPipStepMultiplierBuy = 0;
+         }
+      }
+   }
+   
+   if(LastPipStepMultiplierBuy <= 0) {
+      LastPipStepMultiplierBuy = PipStep;
+   }
+   
+   if (TotalOrderBuy > 0 && TotalOrderBuy < MaxTrades) {
+      LastBuyPrice = FindLastBuyPrice();
+      if ((LastBuyPrice - Ask) >= (LastPipStepMultiplierBuy * Point)) {
+         NumOfTradesBuy = TotalOrderBuy;
+         iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
+         RefreshRates();
+         TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+         if (TicketOrderSend < 0) {
+            Print("Error: ", GetLastError());
+         }
+         NewOrdersPlacedBuy = TRUE;
+         LastPipStepMultiplierBuy = NormalizeDouble((LastPipStepMultiplierBuy * PipStepMultiplier), 2);
+      }
+   }
+   
+   if(iLotsBuy > MaxLotsBuy) {
+      MaxLotsBuy = iLotsBuy;
+   }
+   
+   if (TotalOrderBuy > 0) {
+      AveragePriceBuy = 0;
+      Count = 0;
+      for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+         TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+         if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+         if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
+            AveragePriceBuy += OrderOpenPrice() * OrderLots();
+            Count += OrderLots();
+         }
+      }
+      AveragePriceBuy = NormalizeDouble(AveragePriceBuy / Count, Digits);
+   }
+   
+   if (NewOrdersPlacedBuy == TRUE) {
+      if (TotalOrderBuy > 1) {
+         for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+            TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+            if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+            if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
+               if(FirstOrderBuy == TRUE) {
+                  PriceTargetBuy = NormalizeDouble(AveragePriceBuy + (TakeProfit * Point), Digits);
+               } else {
+                  PriceTargetBuy = NormalizeDouble(AveragePriceBuy, Digits);
+               }
+            }
+            TicketOrderModify = OrderModify(OrderTicket(), AveragePriceBuy, 0, PriceTargetBuy, 0, Yellow);
+         }
+         NewOrdersPlacedBuy = FALSE;
+      }
+   }
+   //----------------------------------------------------------------------------------------------------------------
+   
+   //------ Only for SELL -------------------------------------------------------------------------------------------
+   if(ManualMagicNumber > 0) {
+      MagicNumberSell = ManualMagicNumber;
+   } else {
+      MagicNumberSell = GetMagicNumber("SELL");
+   }
+   
+   TakeProfit = NormalizeDouble((GetADRs(PERIOD_D1, 20, 1) / TakeProfitDevideADR) + TakeProfitPlus, 0); //Print("TakeProfit SELL = " + TakeProfit);
+   
+   TotalOrderSell = GetTotalOrderSell();
+   
+   if(TotalOrderSell > MaxLayerSell) {
+      MaxLayerSell = TotalOrderSell;
+   }
+   
+   if(TotalOrderSell < 1) {
+      NumOfTradesSell = 0;
+      iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);      
+      if((Hour() >= StartHour && Hour() <= EndHour)) {
+         FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
+         RefreshRates();
+         if(NewSignal == -1) {
+            TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
+            if (TicketOrderSend < 0) {
+               Print("Error: ", GetLastError());
+            }
+            //Sleep(999);
+            //RefreshRates();
+            NewOrdersPlacedSell = TRUE;
+            FirstOrderSell = TRUE;
+            TotalOrderSell = 1;
+            LastPipStepMultiplierSell = 0;
+         }
+      }
+   }
+   
+   if(LastPipStepMultiplierSell <= 0) {
+      LastPipStepMultiplierSell = PipStep;
+   }
+   
+   if (TotalOrderSell > 0 && TotalOrderSell < MaxTrades) {
+      LastSellPrice = FindLastSellPrice();
+      if ((Bid - LastSellPrice) >= (LastPipStepMultiplierSell * Point)) {
+         NumOfTradesSell = TotalOrderSell;
+         iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
+         RefreshRates();
+         TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+         if (TicketOrderSend < 0) {
+            Print("Error: ", GetLastError());
+         }
+         NewOrdersPlacedSell = TRUE;
+         LastPipStepMultiplierSell = NormalizeDouble((LastPipStepMultiplierSell * PipStepMultiplier), 2);
+      }
+   }
+   
+   if(iLotsSell > MaxLotsSell) {
+      MaxLotsSell = iLotsSell;
+   }
+   
+   if (TotalOrderSell > 0) {
+      AveragePriceSell = 0;
+      Count = 0;
+      for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+         TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+         if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+         if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
+            AveragePriceSell += OrderOpenPrice() * OrderLots();
+            Count += OrderLots();
+         }
+      }
+      AveragePriceSell = NormalizeDouble(AveragePriceSell / Count, Digits);
+   }
+   
+   if (NewOrdersPlacedSell == TRUE) {
+      if(TotalOrderSell > 1) {
+         for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+            TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+            if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+            if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
+               if(FirstOrderSell == TRUE) {
+                  PriceTargetSell = NormalizeDouble(AveragePriceSell - (TakeProfit * Point), Digits);
+               } else {
+                  PriceTargetSell = NormalizeDouble(AveragePriceSell, Digits);
+               }
+            }
+            TicketOrderModify = OrderModify(OrderTicket(), AveragePriceSell, 0, PriceTargetSell, 0, Yellow);
+         }
+         NewOrdersPlacedSell = FALSE;
+      }
+   }   
+   //----------------------------------------------------------------------------------------------------------------
+   
+   Info();
+   
+}
+
+int GetTotalOrderBuy() {
+   int countOrderBuy = 0;
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {         
+         countOrderBuy++;         
+      }
+      
+   }
+   return (countOrderBuy);
+}
+
+int GetTotalOrderSell() {
+   int countOrderSell = 0;
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {         
+         countOrderSell++;         
+      }
+      
+   }
+   return (countOrderSell);
+}
+
+int CloseOrderBuy() {
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), SlipPage, clrNONE);        
+      }      
+   }   
+   return (0);
+}
+
+int CloseOrderSell() {
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {         
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), SlipPage, clrNONE);
+      }      
+   }   
+   return (0);
+}
+
+double FindLastBuyPrice() {
+   int LastOrderTicketBuy;
+   int TemporaryLastOrderTicketBuy;
+   double LastOrderOpenPriceBuy;
+   PNLBuy = 0;
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) { 
+         TemporaryLastOrderTicketBuy = OrderTicket();
+         if(TemporaryLastOrderTicketBuy > LastOrderTicketBuy) {
+            LastOrderTicketBuy = TemporaryLastOrderTicketBuy;
+            LastOrderOpenPriceBuy = OrderOpenPrice();
+         }
+         PNLBuy = PNLBuy + OrderProfit() + OrderCommission() + OrderSwap();
+      }      
+   }
+   if(PNLBuy > 0) {
+      if(PNLBuyMax < PNLBuy) {
+         PNLBuyMax = PNLBuy;
+      }
+   }
+   if(PNLBuy < 0) {
+      if(PNLBuyMin > PNLBuy) {
+         PNLBuyMin = PNLBuy;
+      }
+   }
+   return (LastOrderOpenPriceBuy);
+}
+
+double FindLastSellPrice() {
+   int LastOrderTicketSell;
+   int TemporaryLastOrderTicketSell;
+   double LastOrderOpenPriceSell;
+   PNLSell = 0;
+   for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
+      TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
+      if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
+      if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) { 
+         TemporaryLastOrderTicketSell = OrderTicket();
+         if(TemporaryLastOrderTicketSell > LastOrderTicketSell) {
+            LastOrderTicketSell = TemporaryLastOrderTicketSell;
+            LastOrderOpenPriceSell = OrderOpenPrice();
+         }
+         PNLSell = PNLSell + OrderProfit() + OrderCommission() + OrderSwap();
+      }      
+   }
+   if(PNLSell > 0) {
+      if(PNLSellMax < PNLSell) {
+         PNLSellMax = PNLSell;
+      }
+   }
+   if(PNLBuy < 0) {
+      if(PNLSellMin > PNLSell) {
+         PNLSellMin = PNLSell;
+      }
+   }
+   return (LastOrderOpenPriceSell);
+}
+
+void Info() {
+
+   Comment("",
+      "TDI Grid Hedge",
+      "\nStartEquityBuySell = ", StartEquityBuySell,
+      "\nEquity = ", DoubleToString(AccountEquity(), 2),
+      "\nEquity Min = ", DoubleToString(EquityMin, 2) + " (" + DoubleToString((EquityMin - StartEquityBuySell), 2) + ")",
+      "\nEquity Max = ", DoubleToString(EquityMax, 2) + " (+" + DoubleToString((EquityMax - StartEquityBuySell), 2) + ")",
+      "\nPnL = ", DoubleToString(PNL, 2),
+      "\nPnL Min = ", DoubleToString(PNLMin, 2),
+      "\nPnL Max = ", DoubleToString(PNLMax, 2),
+      "\nPnL Buy = ", DoubleToString(PNLBuy, 2),
+      "\nPnL Buy Min = ", DoubleToString(PNLBuyMin, 2),
+      "\nPnL Buy Max = ", DoubleToString(PNLBuyMax, 2),
+      "\nPnL Sell = ", DoubleToString(PNLSell, 2),
+      "\nPnL Sell Min = ", DoubleToString(PNLSellMin, 2),
+      "\nPnL Sell Max = ", DoubleToString(PNLSellMax, 2),
+      "\nStarting Lot = ", StartingLots,
+      "\nLot Multiplier = ", LotsMultiplier,
+      "\nMax Lot Buy = ", MaxLotsBuy,
+      "\nMax Lot Sell = ", MaxLotsSell,
+      "\nMax Layer Buy = ", MaxLayerBuy,
+      "\nMax Layer Sell = ", MaxLayerSell,
+      "\nAverage Daily Range = ", GetADRs(PERIOD_D1, 20, 1),
+      "\nPipStepBuy = ", LastPipStepMultiplierBuy,
+      "\nPipStepSell = ", LastPipStepMultiplierSell,
+      "\nTakeProfit = ", TakeProfit
+   );
+   
+}
+
+int MinRemoveExpertNow(double MinimumEquity = 0) {
+   
+   if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
+      RemoveAllOrders();
+      RemoveAllOrders();
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+int MaxRemoveExpertNow(double MaximumEquity = 0) {
+   
+   if(MaximumEquity > 0 && AccountEquity() > MaximumEquity) {
+      RemoveAllOrders();
+      RemoveAllOrders();
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+void RemoveAllOrders() {
+   for(int i = OrdersTotal() - 1; i >= 0 ; i--)    {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS);
+      if(OrderType() == OP_BUY) {
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);
+      } else if(OrderType() == OP_SELL) {
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+      } else {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+      
+      int MessageError = GetLastError();
+      if(MessageError > 0) {
+         Print("Unanticipated error " + IntegerToString(MessageError));
+      }
+      
+      Sleep(100);      
+      RefreshRates();
+      
+   }
+}
+
+double GetADRs(int ATR_TimeFrame = PERIOD_D1, int ATR_Counter = 20, int ATR_Shift = 1) {
+
+   double ATR_PipStep;
+   ATR_PipStep = iATR(Symbol(), ATR_TimeFrame, ATR_Counter, ATR_Shift);
+   ATR_PipStep = MathRound(ATR_PipStep / _Point);
+   return ATR_PipStep;
+   
+}
+
+int GetMagicNumber(string TheOrderType = "BUYSELL") {
+   
+   int MagicNumberResult = 987654321;
+   string MagicNumberString;
+   string StringSymbol[29];
+   StringSymbol[0] = "AUDCAD";
+   StringSymbol[1] = "AUDCHF";
+   StringSymbol[2] = "AUDJPY";
+   StringSymbol[3] = "AUDNZD";
+   StringSymbol[4] = "AUDUSD";
+   StringSymbol[5] = "CADCHF";
+   StringSymbol[6] = "CADJPY";
+   StringSymbol[7] = "CHFJPY";
+   StringSymbol[8] = "EURAUD";
+   StringSymbol[9] = "EURCAD";
+   StringSymbol[10] = "EURCHF";
+   StringSymbol[11] = "EURGBP";
+   StringSymbol[12] = "EURJPY";
+   StringSymbol[13] = "EURNZD";
+   StringSymbol[14] = "EURUSD";
+   StringSymbol[15] = "GBPAUD";
+   StringSymbol[16] = "GBPCAD";
+   StringSymbol[17] = "GBPCHF";
+   StringSymbol[18] = "GBPJPY";
+   StringSymbol[19] = "GBPNZD";
+   StringSymbol[20] = "GBPUSD";
+   StringSymbol[21] = "NZDCAD";
+   StringSymbol[22] = "NZDCHF";
+   StringSymbol[23] = "NZDJPY";
+   StringSymbol[24] = "NZDUSD";
+   StringSymbol[25] = "USDCAD";
+   StringSymbol[26] = "USDCHF";
+   StringSymbol[27] = "USDJPY";
+   StringSymbol[28] = "XAUUSD";
+   
+   for(int i=0; i<29; i++) {
+      if(StringSymbol[i] == Symbol()) {
+         MagicNumberString = MagicNumberString + IntegerToString(i + 1);
+      }
+   }
+   
+   if(TheOrderType == "BUY") {
+      MagicNumberString = MagicNumberString + "1";
+      MagicNumberResult = StringToInteger(MagicNumberString);
+   } else if(TheOrderType == "SELL") {
+      MagicNumberString = MagicNumberString + "2";
+      MagicNumberResult = StringToInteger(MagicNumberString);
+   } else if(TheOrderType == "BUYSELL") {
+      MagicNumberString = MagicNumberString + "3";
+      MagicNumberResult = StringToInteger(MagicNumberString);
+   } else {
+      MagicNumberResult = MagicNumberResult;
+   }
+   
+   return MagicNumberResult;
+   
+}
+
+int GetSignal() {
+
+   int SignalResult = 0, iStochasticResult = 0, TDIResult = 0;
+   
+   double iStochastic_1433_main_2 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_MAIN, 2);
+   double iStochastic_1433_signal_2 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_SIGNAL, 2);
+   
+   double iStochastic_1433_main_1 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_MAIN, 1);
+   double iStochastic_1433_signal_1 = iStochastic(Symbol(), PERIOD_CURRENT, 14, 3, 3, MODE_SMA, 0, MODE_SIGNAL, 1);
+   
+   if(iStochastic_1433_main_1 > 80 && iStochastic_1433_signal_1 > 80) {
+      iStochasticResult = 1;
+   }
+   
+   if(iStochastic_1433_main_1 < 20 && iStochastic_1433_signal_1 < 20) {
+      iStochasticResult = -1;
+   }
+   
+   double TDI_main_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 2);
+   double TDI_signal_2 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 2);
+   
+   double TDI_main_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 3, 1);
+   double TDI_signal_1 = iCustom(Symbol(), PERIOD_CURRENT, "TDI_RT_Alerts_Divergence", 4, 1);
+   
+   if(TDI_main_1 > TDI_signal_1 && TDI_main_2 < TDI_signal_2) {
+      TDIResult = 1;
+   } else if(TDI_main_1 < TDI_signal_1 && TDI_main_2 > TDI_signal_2) {
+      TDIResult = -1;
+   }
+   
+   if(iStochasticResult == 1 && TDIResult == 1) {
+      SignalResult = 1;
+   }
+   
+   if(iStochasticResult == -1 && TDIResult == -1) {
+      SignalResult = -1;
+   }
+   
+   if(OrderReverse == TRUE) {
+   
+      if(SignalResult == 1) {
+         SignalResult = -1;
+      } else if(SignalResult == -1) {
+         SignalResult = 1;
+      }
+   
+   }
+   
+   return SignalResult;
+
+}
