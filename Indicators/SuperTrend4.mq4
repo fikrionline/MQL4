@@ -14,13 +14,13 @@
 
 #property indicator_chart_window
 #property indicator_buffers 3
-#property indicator_color1 Yellow
-#property indicator_color2 clrLightCoral
-#property indicator_color3 clrPaleGreen
+#property indicator_color1 clrYellow
+#property indicator_color2 clrRed
+#property indicator_color3 clrBlue
 #property indicator_width1 1
-#property indicator_width2 2
-#property indicator_width3 2
-#property indicator_style1 STYLE_DOT
+#property indicator_width2 1
+#property indicator_width3 1
+#property indicator_style1 STYLE_SOLID
 #property indicator_maximum 1
 #property indicator_minimum 0
 
