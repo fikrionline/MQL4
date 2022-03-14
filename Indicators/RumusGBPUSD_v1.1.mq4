@@ -9,6 +9,7 @@
 #property strict
 #property indicator_chart_window
 
+//input double StartPrice = 1.31609;
 input double StartPrice = 1.37487;
 
 enum Rumus {
