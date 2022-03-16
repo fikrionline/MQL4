@@ -9,13 +9,13 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 103.125;
+input double StartPrice = 101.177;
 input bool ShowDeviasi = false;
 input double RumusDeviasi = 1.00175623;
-
 input int LevelSize = 33;
 
 double ResultDeviasiBase;
+int counter;
 
 int deinit() {
 
@@ -43,51 +43,51 @@ int start() {
 
    ResultDeviasiBase = RumusDeviasi;
      
-   double LastLevelPlus = StartPrice;
+   double LastLevelPlus = StartPrice; //Print(LastLevelPlus);
    double LastLevelMinus = StartPrice;
    double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower;
    
-   ObjectCreate("StartPrice", OBJ_HLINE, 0, CurTime(), StartPrice);
-   ObjectSet("StartPrice", OBJPROP_COLOR, Blue);
+   ObjectCreate("StartPrice", OBJ_HLINE, 0, TimeCurrent(), StartPrice);
+   ObjectSet("StartPrice", OBJPROP_COLOR, clrBlue);
    ObjectSet("StartPrice", OBJPROP_STYLE, STYLE_DASHDOT);
    ObjectSet("StartPrice", OBJPROP_BACK, true);
    
-   ObjectCreate("StartPriceLabel", OBJ_TEXT, 0, CurTime(), StartPrice);
-   ObjectSetText("StartPriceLabel", "Start", 8, "Arial", Blue);
+   ObjectCreate("StartPriceLabel", OBJ_TEXT, 0, TimeCurrent(), StartPrice);
+   ObjectSetText("StartPriceLabel", "Start", 8, "Arial", clrBlue);
    ObjectSet("StartPriceLabel", OBJPROP_BACK, true);
    
    //ObjectCreate("StartPriceVerticalLine", OBJ_VLINE, 0, StartPriceTime, 0);
    //ObjectSet("StartPriceVerticalLine", OBJPROP_COLOR, Blue);
    //ObjectSet("StartPriceVerticalLine", OBJPROP_STYLE, STYLE_DASHDOT);
    
-   for (int i=1; i<=LevelSize; i++) {
+   for (counter=1; counter<=LevelSize; counter++) {
    
-      LastLevelPlus = LastLevelPlus * ((LastLevelPlus / (LastLevelPlus * LastLevelPlus)));
+      LastLevelPlus = LastLevelPlus * ((LastLevelPlus / (LastLevelPlus * LastLevelPlus))); Print(LastLevelPlus);
       
-      ObjectCreate("+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-      ObjectSet("+" + IntegerToString(i), OBJPROP_COLOR, Aqua);
-      ObjectSet("+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-      ObjectSet("+" + IntegerToString(i), OBJPROP_BACK, true);
+      ObjectCreate("+" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+      ObjectSet("+" + IntegerToString(counter), OBJPROP_COLOR, clrAqua);
+      ObjectSet("+" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+      ObjectSet("+" + IntegerToString(counter), OBJPROP_BACK, true);
       
-      ObjectCreate("+" + IntegerToString(i) + "Label", OBJ_TEXT, 0, CurTime(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-      ObjectSetText("+" + IntegerToString(i) + "Label", DoubleToString(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)), 8, "Arial", Aqua);
-      ObjectSet("+" + IntegerToString(i) + "Label", OBJPROP_BACK, true);
+      ObjectCreate("+" + IntegerToString(counter) + "Label", OBJ_TEXT, 0, TimeCurrent(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+      ObjectSetText("+" + IntegerToString(counter) + "Label", DoubleToString(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)), 8, "Arial", clrAqua);
+      ObjectSet("+" + IntegerToString(counter) + "Label", OBJPROP_BACK, true);
       
       if(ShowDeviasi) {
       
          LastLevelPlusDeviasiUpper = LastLevelPlus * ResultDeviasiBase;
          
-         ObjectCreate("+d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("+d+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
-         ObjectSet("+d+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("+d+" + IntegerToString(i), OBJPROP_BACK, true);
+         ObjectCreate("+d+" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("+d+" + IntegerToString(counter), OBJPROP_COLOR, StringToColor("66, 66, 66"));
+         ObjectSet("+d+" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("+d+" + IntegerToString(counter), OBJPROP_BACK, true);
          
          LastLevelPlusDeviasiLower = LastLevelPlus / ResultDeviasiBase;
          
-         ObjectCreate("+d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("+d-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
-         ObjectSet("+d-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("+d-" + IntegerToString(i), OBJPROP_BACK, true);
+         ObjectCreate("+d-" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("+d-" + IntegerToString(counter), OBJPROP_COLOR, StringToColor("66, 66, 66"));
+         ObjectSet("+d-" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("+d-" + IntegerToString(counter), OBJPROP_BACK, true);
          
       }
       
@@ -95,30 +95,30 @@ int start() {
       
       LastLevelMinus = LastLevelMinus / (1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)));
       
-      ObjectCreate("-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), LastLevelMinus);
-      ObjectSet("-" + IntegerToString(i), OBJPROP_COLOR, Aqua);
-      ObjectSet("-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-      ObjectSet("-" + IntegerToString(i), OBJPROP_BACK, true);
+      ObjectCreate("-" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), LastLevelMinus);
+      ObjectSet("-" + IntegerToString(counter), OBJPROP_COLOR, clrAqua);
+      ObjectSet("-" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+      ObjectSet("-" + IntegerToString(counter), OBJPROP_BACK, true);
       
-      ObjectCreate("-" + IntegerToString(i) + "Label", OBJ_TEXT, 0, CurTime(), NormalizeDouble(LastLevelMinus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-      ObjectSetText("-" + IntegerToString(i) + "Label", DoubleToString(LastLevelMinus, (int) MarketInfo(Symbol(), MODE_DIGITS)), 8, "Arial", Aqua);
-      ObjectSet("-" + IntegerToString(i) + "Label", OBJPROP_BACK, true);
+      ObjectCreate("-" + IntegerToString(counter) + "Label", OBJ_TEXT, 0, TimeCurrent(), NormalizeDouble(LastLevelMinus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+      ObjectSetText("-" + IntegerToString(counter) + "Label", DoubleToString(LastLevelMinus, (int) MarketInfo(Symbol(), MODE_DIGITS)), 8, "Arial", clrAqua);
+      ObjectSet("-" + IntegerToString(counter) + "Label", OBJPROP_BACK, true);
       
       if(ShowDeviasi) {
       
          LastLevelPlusDeviasiUpper = LastLevelMinus * ResultDeviasiBase;
          
-         ObjectCreate("-d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("-d+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
-         ObjectSet("-d+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
+         ObjectCreate("-d+" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("-d+" + IntegerToString(counter), OBJPROP_COLOR, StringToColor("66, 66, 66"));
+         ObjectSet("-d+" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("-d+" + IntegerToString(counter), OBJPROP_BACK, true);
          
          LastLevelPlusDeviasiLower = LastLevelMinus / ResultDeviasiBase;
          
-         ObjectCreate("-d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("-d-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
-         ObjectSet("-d-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
+         ObjectCreate("-d-" + IntegerToString(counter), OBJ_HLINE, 0, TimeCurrent(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("-d-" + IntegerToString(counter), OBJPROP_COLOR, StringToColor("66, 66, 66"));
+         ObjectSet("-d-" + IntegerToString(counter), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("-d+" + IntegerToString(counter), OBJPROP_BACK, true);
          
       }
       
