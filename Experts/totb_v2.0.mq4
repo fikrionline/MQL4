@@ -14,11 +14,12 @@ extern double MaxRiskPerTradePercent = 1;
 extern double Lots = 0.3;
 extern double StopLoss = 0;
 extern double TakeProfit = 0;
-extern double PlusMinusTPSL = 15;
+extern double PlusMinusTPSL = 10;
 extern int SlipPage = 5;
 extern int CounterShift = 5;
-extern double MinBoxSize = 199;
-extern double MaxBoxSize = 599;
+extern int StartHour = 13;
+extern double MinBoxSize = 200;
+extern double MaxBoxSize = 600;
 
 datetime NextCandle;
 int counter, TicketBuy, TicketSell;
@@ -40,7 +41,7 @@ int deinit() {
 }
 
 //Start
-void OnTick() {
+int start() {
 
    MinRemoveExpertNow(EquityMinStopEA);
    MaxRemoveExpertNow(EquityMaxStopEA);
@@ -59,14 +60,14 @@ void OnTick() {
       
       //if (PosSelect(MagicNumber) == 0) {
 
-         if(Hour() >= 12 && Hour() < 13) {
+         if(Hour() >= StartHour && Hour() < (StartHour + 1)) {
          
             DeletePendingOrderBuy(MagicNumber);
             DeletePendingOrderSell(MagicNumber);
             
             for(counter = 1; counter <= CounterShift; counter ++) {
-               PeriodHighest = iHigh(Symbol(), PERIOD_CURRENT, iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, 5, 1)); //Print(PeriodHighest);
-               PeriodLowest = iLow(Symbol(), PERIOD_CURRENT, iLowest(Symbol(), PERIOD_CURRENT, MODE_HIGH, 5, 1)); //Print(PeriodLowest);
+               PeriodHighest = iHigh(Symbol(), PERIOD_CURRENT, iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodHighest);
+               PeriodLowest = iLow(Symbol(), PERIOD_CURRENT, iLowest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodLowest);
             }
             
             if(((PeriodHighest - PeriodLowest) / Point) > MinBoxSize && ((PeriodHighest - PeriodLowest) / Point) < MaxBoxSize) {
@@ -99,7 +100,7 @@ void OnTick() {
 
    }
 
-   //return (0);
+   return (0);
 
 }
 
