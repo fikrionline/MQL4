@@ -370,15 +370,15 @@ void show_boxes(datetime now)
       ObjectSet(objname, OBJPROP_LEVELSTYLE, STYLE_SOLID);
       _SetFibLevel(objname, 0, 0.0, "Buy = %$");
       _SetFibLevel(objname, 1, 1.0, "Sell = %$");
-      _SetFibLevel(objname, 2, -TP1Factor, "Buy TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
-      _SetFibLevel(objname, 3, 1 + TP1Factor, "Sell TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
+      //_SetFibLevel(objname, 2, -TP1Factor, "Buy TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
+      //_SetFibLevel(objname, 3, 1 + TP1Factor, "Sell TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
       _SetFibLevel(objname, 6, -TP3Factor, "Buy TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "p)");
       _SetFibLevel(objname, 7, 1 + TP3Factor, "Sell TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "p)");
       if (TP5Factor > 0) { // draw TP4 and TP5 optional targets
-         _SetFibLevel(objname, 8, -TP4Factor, "SL SELL1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
-         _SetFibLevel(objname, 9, 1 + TP4Factor, "SL BUY1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
-         _SetFibLevel(objname, 10, -TP5Factor, "SL SELL2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
-         _SetFibLevel(objname, 11, 1 + TP5Factor, "SL BUY2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
+         //_SetFibLevel(objname, 8, -TP4Factor, "SL SELL1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
+         //_SetFibLevel(objname, 9, 1 + TP4Factor, "SL BUY1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
+         //_SetFibLevel(objname, 10, -TP5Factor, "SL SELL2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
+         //_SetFibLevel(objname, 11, 1 + TP5Factor, "SL BUY2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
       }
    }
 
