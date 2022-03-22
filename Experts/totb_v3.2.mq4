@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                    totb_v3.1.mq4 |
+//|                                                    totb_v3.2.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -9,7 +9,11 @@
 #property strict
 #include <stdlib.mqh>
 
-extern double StartEquity = 10000;
+enum RiskPercentFrom {
+   TheStartBalance,
+   TheEquity
+};
+extern double StartBalance = 10000;
 extern double EquityMinStopEA = 0;
 extern double EquityMaxStopEA = 0;
 extern string TimeToOpen = "12:00:07";
@@ -19,6 +23,7 @@ extern int MagicNumber = 5758;
 extern bool MultiOrder = true;
 extern double Lots = 0.01;
 extern double MaxRiskPerTradePercent = 1;
+extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
 extern bool DoubleLotAfterProfit = true;
 extern double StopLoss = 0;
 extern double TakeProfit = 0;
@@ -163,13 +168,25 @@ bool OpenTrade() {
       }
       
       if(MaxRiskPerTradePercent > 0) {
-         Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent);
+         if(MaxRiskPercentFrom == TheStartBalance) {
+            Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent, StartBalance);
+         } else if(MaxRiskPercentFrom == TheEquity) {
+            Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent,  AccountEquity());
+         }
       }
       
       if(DoubleLotAfterProfit == true) {
-         if(AccountBalance() - ((AccountBalance() / 100) * MaxRiskPerTradePercent) > StartEquity) {
-            if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
-               Lots = Lots * 2;
+         if(MaxRiskPercentFrom == TheStartBalance) {
+            if(AccountEquity() - ((TheStartBalance / 100) * MaxRiskPerTradePercent) > StartBalance) {
+               if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
+                  Lots = Lots * 2;
+               }
+            }
+         } else if(MaxRiskPercentFrom == TheEquity) {
+            if(AccountEquity() - ((AccountEquity() / 100) * MaxRiskPerTradePercent) > StartBalance) {
+               if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
+                  Lots = Lots * 2;
+               }
             }
          }
       }
@@ -221,7 +238,7 @@ void DeletePendingOrderSell(int TheMagicNumberSell) {
    
 }
 
-double CalculateLotSize(double SL, double MaxRiskPerTrade){ // Calculate the position size.
+double CalculateLotSize(double SL, double MaxRiskPerTrade, double BalanceOrEquity){ // Calculate the position size.
    double LotSize = 0;
    // We get the value of a tick.
    double nTickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
@@ -230,7 +247,7 @@ double CalculateLotSize(double SL, double MaxRiskPerTrade){ // Calculate the pos
       //nTickValue = nTickValue * 10;
    }
    // We apply the formula to calculate the position size and assign the value to the variable.
-   LotSize = ((AccountBalance() * MaxRiskPerTrade) / 100) / (SL * nTickValue);
+   LotSize = ((BalanceOrEquity * MaxRiskPerTrade) / 100) / (SL * nTickValue);
    return LotSize;
 }
 

@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                    totb_v3.1.mq4 |
+//|                                                    totb_v3.3.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -9,27 +9,41 @@
 #property strict
 #include <stdlib.mqh>
 
-extern double StartEquity = 10000;
+enum RiskPercentFrom {
+   TheStartBalance,
+   TheEquity
+};
+enum TheRiskReward {
+   RRZeroPointFive, //1:0.5
+   RROne, //1:1
+   RRTwo, //1:2
+   RRThree //1:3
+};
+extern double StartBalance = 10000;
 extern double EquityMinStopEA = 0;
 extern double EquityMaxStopEA = 0;
-extern string TimeToOpen = "12:00:07";
+extern string TimeToOpen = "12:00:01";
 extern int TimeToStopAllOrders = 0;
 extern int TimeToDeletePendingOrders = 22;
 extern int MagicNumber = 5758;
 extern bool MultiOrder = true;
-extern double Lots = 0.01;
-extern double MaxRiskPerTradePercent = 1;
+extern double Lots = 0;
+extern double MinLots = 0.01;
+extern double MaxLots = 3;
+extern double MaxRiskPerTradePercent = 0.5;
+extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
 extern bool DoubleLotAfterProfit = true;
-extern double StopLoss = 0;
-extern double TakeProfit = 0;
+extern bool RiskAllProfitAfterProfit = true;
+extern double RiskAllProfitAfterProfitFromStartBalance = 400;
 extern double PlusMinusTPSL = 10;
 extern int SlipPage = 5;
+extern TheRiskReward RiskReward = RROne;
 extern double MinBoxSize = 100;
 extern double MaxBoxSize = 600;
 extern int CounterShift = 5;
 
 MqlDateTime time_to_open;
-double EquityMin, EquityMax;
+double EquityMin, EquityMax, BalanceToRisk;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -93,6 +107,8 @@ void OnTick() {
       EquityMax = AccountEquity();
    }
    
+    BalanceToRisk = 0;
+   
    MqlDateTime time;
    TimeCurrent(time);
    time.hour = time_to_open.hour;
@@ -152,30 +168,84 @@ bool OpenTrade() {
       PriceBuy = PeriodHighest;
       PriceSell = PeriodLowest;
       
-      if(StopLoss == 0) {
-         SLBuy = PeriodLowest + (PlusMinusTPSL * Point);
-         SLSell = PeriodHighest - (PlusMinusTPSL * Point);
-      }
+      SLBuy = PeriodLowest + (PlusMinusTPSL * Point);
+      SLSell = PeriodHighest - (PlusMinusTPSL * Point);
       
-      if(TakeProfit == 0) {         
+      if(RiskReward == RRZeroPointFive) {
+         TPBuy = PeriodHighest + ((PeriodHighest - PeriodLowest) / 2) + (PlusMinusTPSL * Point);
+         TPSell = PeriodLowest - ((PeriodHighest - PeriodLowest) / 2) - (PlusMinusTPSL * Point);
+      } else if(RiskReward == RROne) {
+         TPBuy = PeriodHighest + (PeriodHighest - PeriodLowest) + (PlusMinusTPSL * Point);
+         TPSell = PeriodLowest - (PeriodHighest - PeriodLowest) - (PlusMinusTPSL * Point);
+      } else if(RiskReward == RRTwo) {
+         TPBuy = PeriodHighest + ((PeriodHighest - PeriodLowest) * 2) + (PlusMinusTPSL * Point);
+         TPSell = PeriodLowest - ((PeriodHighest - PeriodLowest) * 2) - (PlusMinusTPSL * Point);
+      } else if(RiskReward == RRThree) {
+         TPBuy = PeriodHighest + ((PeriodHighest - PeriodLowest) * 3) + (PlusMinusTPSL * Point);
+         TPSell = PeriodLowest - ((PeriodHighest - PeriodLowest) * 3) - (PlusMinusTPSL * Point);
+      } else { //Other is 1:1
          TPBuy = PeriodHighest + (PeriodHighest - PeriodLowest) + (PlusMinusTPSL * Point);
          TPSell = PeriodLowest - (PeriodHighest - PeriodLowest) - (PlusMinusTPSL * Point);
       }
       
       if(MaxRiskPerTradePercent > 0) {
-         Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent);
-      }
-      
-      if(DoubleLotAfterProfit == true) {
-         if(AccountBalance() - ((AccountBalance() / 100) * MaxRiskPerTradePercent) > StartEquity) {
-            if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
-               Lots = Lots * 2;
-            }
+         if(MaxRiskPercentFrom == TheStartBalance) {
+            Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent, StartBalance);
+         } else if(MaxRiskPercentFrom == TheEquity) {
+            Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, MaxRiskPerTradePercent,  AccountEquity());
          }
       }
       
-      TicketBuy = OrderSend(Symbol(), OP_BUYSTOP, Lots, PriceBuy, SlipPage, SLBuy, TPBuy, IntegerToString(MagicNumber), MagicNumber, 0, clrBlue);
-      TicketSell = OrderSend(Symbol(), OP_SELLSTOP, Lots, PriceSell, SlipPage, SLSell, TPSell, IntegerToString(MagicNumber), MagicNumber, 0, clrRed);
+      if(DoubleLotAfterProfit == true) {
+         
+         if(MaxRiskPercentFrom == TheStartBalance) {
+            if(AccountEquity() - ((TheStartBalance / 100) * MaxRiskPerTradePercent) > StartBalance) {
+               if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
+                  Lots = Lots * 2;
+               }
+            }
+         } else if(MaxRiskPercentFrom == TheEquity) {
+            if(AccountEquity() - ((AccountEquity() / 100) * MaxRiskPerTradePercent) > StartBalance) {
+               if(CheckProfitLastTrade(Symbol(), MagicNumber) == 1) {
+                  Lots = Lots * 2;
+               }
+            }
+         }
+         
+         if(RiskAllProfitAfterProfit == true) {
+            
+            BalanceToRisk = AccountBalance() - StartBalance;
+            if(BalanceToRisk < ((MaxRiskPerTradePercent / 100) * StartBalance)) {
+               Lots = Lots;
+            } else if(BalanceToRisk > ((MaxRiskPerTradePercent / 100) * StartBalance)) {
+               Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, (BalanceToRisk / AccountBalance()) * 100,  AccountBalance());
+            }
+            
+            if(RiskAllProfitAfterProfitFromStartBalance > 0) {
+               if(BalanceToRisk > RiskAllProfitAfterProfitFromStartBalance) {
+                  Lots = CalculateLotSize((PeriodHighest - PeriodLowest) / Point, (RiskAllProfitAfterProfitFromStartBalance / StartBalance) * 100,  StartBalance);
+               }
+            }
+            
+         }
+         
+      }
+      
+      if(Lots < MinLots) {
+         Lots = MinLots;
+      }
+      
+      if(Lots > MaxLots) {
+         Lots = MaxLots;
+      }
+      
+      if(PosSelectBuyStop(MagicNumber) == 0) {
+         TicketBuy = OrderSend(Symbol(), OP_BUYSTOP, Lots, PriceBuy, SlipPage, SLBuy, TPBuy, "Bismillahirrohmanirrohim_BUY", MagicNumber, 0, clrBlue);
+      }
+      
+      if(PosSelectSellStop(MagicNumber) == 0) {
+         TicketSell = OrderSend(Symbol(), OP_SELLSTOP, Lots, PriceSell, SlipPage, SLSell, TPSell, "Bismillahirrohmanirrohim_SELL", MagicNumber, 0, clrRed);
+      }
    
    }
    
@@ -221,7 +291,7 @@ void DeletePendingOrderSell(int TheMagicNumberSell) {
    
 }
 
-double CalculateLotSize(double SL, double MaxRiskPerTrade){ // Calculate the position size.
+double CalculateLotSize(double SL, double MaxRiskPerTrade, double BalanceOrEquity){ // Calculate the position size.
    double LotSize = 0;
    // We get the value of a tick.
    double nTickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
@@ -230,7 +300,7 @@ double CalculateLotSize(double SL, double MaxRiskPerTrade){ // Calculate the pos
       //nTickValue = nTickValue * 10;
    }
    // We apply the formula to calculate the position size and assign the value to the variable.
-   LotSize = ((AccountBalance() * MaxRiskPerTrade) / 100) / (SL * nTickValue);
+   LotSize = ((BalanceOrEquity * MaxRiskPerTrade) / 100) / (SL * nTickValue);
    return LotSize;
 }
 
@@ -258,6 +328,42 @@ int PosSelect(int CheckMagicNumber) {
 
    return (posi);
 
+}
+
+int PosSelectBuyStop(int CheckMagicNumber) {
+   
+   int posi = 0, total = OrdersTotal(), TicketOrderSelect;
+
+   for (int i = total - 1; i >= 0; i--) {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
+      if (OrderMagicNumber() != CheckMagicNumber || OrderSymbol() != Symbol() || OrderType() != OP_BUYSTOP) {
+         continue;
+      }
+      if (OrderMagicNumber() == CheckMagicNumber && OrderSymbol() == Symbol() && OrderType() == OP_BUYSTOP) {
+         posi = 1;
+      }
+   }
+   
+   return posi;
+   
+}
+
+int PosSelectSellStop(int CheckMagicNumber) {
+   
+   int posi = 0, total = OrdersTotal(), TicketOrderSelect;
+
+   for (int i = total - 1; i >= 0; i--) {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
+      if (OrderMagicNumber() != CheckMagicNumber || OrderSymbol() != Symbol() || OrderType() != OP_SELLSTOP) {
+         continue;
+      }
+      if (OrderMagicNumber() == CheckMagicNumber && OrderSymbol() == Symbol() && OrderType() == OP_SELLSTOP) {
+         posi = -1;
+      }
+   }
+   
+   return posi;
+   
 }
 
 int MinRemoveExpertNow(double MinimumEquity = 0) {
