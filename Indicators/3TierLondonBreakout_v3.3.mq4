@@ -7,7 +7,7 @@
 
 #property indicator_chart_window
 
-#define VERSION "3 Tier London Breakout Indicator V.3.2b"
+#define VERSION "3TierLondonBreakout"
 
 /*+------------------------------------------------------------------+
  *
@@ -47,9 +47,9 @@
  */
 
 extern string Info = VERSION; // version number information
-extern string StartTime = "08:00"; // time for start of price establishment window
-extern string EndTime = "12:00"; // time for end of price establishment window
-extern string SessionEndTime = "23:00"; // end of daily session; tomorrow is another day!
+extern string StartTime = "08:01"; // time for start of price establishment window
+extern string EndTime = "11:59"; // time for end of price establishment window
+extern string SessionEndTime = "22:00"; // end of daily session; tomorrow is another day!
 extern color SessionColor = clrNONE; // show Session periods with a different background color
 extern int NumDays = 100; // days back
 extern int MinBoxSizeInPips = 10; // min tradable box size; when box is smaller than that, you should at least reduce your usual lot-size if you decide to trade it;
@@ -74,6 +74,7 @@ extern int FibLength = 14;
 extern bool showProfitZone = false;
 extern color ProfitColor = LightGreen;
 extern bool MondayFix = True;
+extern bool OHLCTotalShow = true;
 
 extern string objPrefix = "LB2-"; // all objects drawn by this indicator will be prefixed with this
 
@@ -99,17 +100,19 @@ int StartShift;
 int EndShift;
 datetime alreadyDrawn;
 
+double OCbullish, OCbearish, OCtotal, HLbullish, HLbearish, HLtotal;
+int OCHLcounter, OCHLcounterStart, OCHLcounterEnd;
+
 //+------------------------------------------------------------------+
 int init() {
    //+------------------------------------------------------------------+
 
-   Comment(Info + " [" + StartTime + "-" + EndTime + "] end " + SessionEndTime + " min " + DoubleToStr(MinBoxSizeInPips, 0) + "p," + " max " + DoubleToStr(MaxBoxSizeInPips, 0) + "p," +
-      DoubleToStr(TP1Factor, 1) + "/" + DoubleToStr(TP3Factor, 1) + "/" + DoubleToStr(TP5Factor, 1));
+   Comment(Info + " [" + StartTime + "-" + EndTime + "] end " + SessionEndTime + " min " + DoubleToStr(MinBoxSizeInPips, 0) + "P," + " max " + DoubleToStr(MaxBoxSizeInPips, 0) + "P");
 
    RemoveObjects(objPrefix);
    getpip();
 
-   BarsBack = NumDays * (PERIOD_D1 / Period());
+   BarsBack = (NumDays - 1) * (PERIOD_D1 / Period());
    alreadyDrawn = 0;
 
    //save input Factors;
@@ -134,6 +137,7 @@ int init() {
 int deinit() {
    //+------------------------------------------------------------------+
 
+   Comment("");
    RemoveObjects(objPrefix);
 
    return (0);
@@ -172,12 +176,17 @@ void compute_LB_Indi_LEVELS(datetime now)
 {
    int boxStartShift, boxEndShift;
 
-   if (now >= tSessionStart && now <= tSessionEnd) return; // box already up-to-date, no need to recompute
+   if (now >= tSessionStart && now <= tSessionEnd) {
+      return; // box already up-to-date, no need to recompute
+   }
 
    //determine box and session times 
    tBoxStart = StrToTime(TimeToStr(now, TIME_DATE) + " " + StartTime);
    tBoxEnd = StrToTime(TimeToStr(now, TIME_DATE) + " " + EndTime);
-   if (tBoxStart > tBoxEnd) tBoxStart -= 86400; // midnight wrap fix
+   if (tBoxStart > tBoxEnd) {
+      tBoxStart -= 86400; // midnight wrap fix
+   }
+   
    if (now < tBoxEnd) { // consider the last PAST box
       tBoxStart -= 86400;
       tBoxEnd -= 86400;
@@ -191,9 +200,11 @@ void compute_LB_Indi_LEVELS(datetime now)
 
    tSessionStart = tBoxEnd;
    tSessionEnd = StrToTime(TimeToStr(tSessionStart, TIME_DATE) + " " + SessionEndTime);
-   if (tSessionStart > tSessionEnd) tSessionEnd = tSessionEnd + 86400; // midnight wrap fix
+   if (tSessionStart > tSessionEnd) {
+      tSessionEnd = tSessionEnd + 86400; // midnight wrap fix
+   }
+   
    //if session ends on saturday or sunday, then extend it to monday so it includes the monday morning candles
-
    //DodgeV83 - fixes the Monday no box issue
 
    if (MondayFix == False) {
@@ -214,6 +225,26 @@ void compute_LB_Indi_LEVELS(datetime now)
    boxLow = Low[iLowest(NULL, 0, MODE_LOW, (boxStartShift - boxEndShift + 1), boxEndShift)];
    boxMedianPrice = (boxHigh + boxLow) / 2;
    boxExtent = boxHigh - boxLow;
+   
+   OCHLcounterStart = boxEndShift;
+   OCHLcounterEnd = boxStartShift;
+   OCbullish = 0;
+   OCbearish = 0;
+   OCtotal =  0;
+   HLbullish = 0;
+   HLbearish = 0;
+   HLtotal = 0;
+   for(OCHLcounter = OCHLcounterStart; OCHLcounter <= OCHLcounterEnd; OCHLcounter++) {
+      if(iOpen(Symbol(), PERIOD_CURRENT, OCHLcounter) < iClose(Symbol(), PERIOD_CURRENT, OCHLcounter)) {
+         OCbullish = OCbullish + (iClose(Symbol(), PERIOD_CURRENT, OCHLcounter) - iOpen(Symbol(), PERIOD_CURRENT, OCHLcounter));
+         HLbullish = HLbullish + (iHigh(Symbol(), PERIOD_CURRENT, OCHLcounter) - iLow(Symbol(), PERIOD_CURRENT, OCHLcounter));
+      } else if(iOpen(Symbol(), PERIOD_CURRENT, OCHLcounter) > iClose(Symbol(), PERIOD_CURRENT, OCHLcounter)) {
+         OCbearish = OCbearish + (iOpen(Symbol(), PERIOD_CURRENT, OCHLcounter) - iClose(Symbol(), PERIOD_CURRENT, OCHLcounter));
+         HLbearish = HLbearish + (iHigh(Symbol(), PERIOD_CURRENT, OCHLcounter) - iLow(Symbol(), PERIOD_CURRENT, OCHLcounter));
+      }
+   }
+   OCtotal = (OCbullish - OCbearish) / Point;
+   HLtotal = (HLbullish - HLbearish) / Point;
 
    if (boxExtent >= MaxBoxSizeInPips * pip && LimitBoxToMaxSize == true) { // box too large, but we allow to trade it at its max acceptable value
       if (StickBoxToLatestExtreme == true) {
@@ -322,7 +353,7 @@ void show_boxes(datetime now)
    //static datetime alreadyDrawn = 0;
 
    // show session period with a different "background" color
-   drawBoxOnce(objPrefix + "Session-" + TimeToStr(tSessionStart, TIME_DATE | TIME_SECONDS), tSessionStart, 0, tSessionEnd, BuyEntry * 2, SessionColor, 1, STYLE_SOLID, true);
+   //drawBoxOnce(objPrefix + "Session-" + TimeToStr(tSessionStart, TIME_DATE | TIME_SECONDS), tSessionStart, 0, tSessionEnd, BuyEntry * 2, SessionColor, 1, STYLE_SOLID, true);
 
    // draw pre-breakout box blue/red once per Session:
    if (alreadyDrawn != tBoxEnd) {
@@ -333,19 +364,23 @@ void show_boxes(datetime now)
       if (boxExtent >= MaxBoxSizeInPips * pip) { // box too large: DON'T TRADE !
          if (LimitBoxToMaxSize == false) { // box too large, but we allow to trade it at its max acceptable value
             drawBox(boxName, tBoxStart, boxLow, tBoxEnd, boxHigh, BoxColorNOK, 1, STYLE_SOLID, true);
-            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "NO TRADE! (" + DoubleToStr(boxExtent / pip, 0) + "p)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 12, "Arial Black", LevelColor, 3);
+            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "NoTrade!! (" + DoubleToStr(boxExtent / pip, 0) + "P)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
          } else {
             drawBox(boxName, tBoxStart, boxLow, tBoxEnd, boxHigh, BoxColorMAX, 1, STYLE_SOLID, true);
-            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "MAX LIMIT! (" + DoubleToStr(boxExtent / pip, 0) + "p)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 12, "Arial Black", LevelColor, 3);
+            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "MaxLimit!! (" + DoubleToStr(boxExtent / pip, 0) + "P)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
          }
       } else if (boxExtent >= MinBoxSizeInPips * pip) { // box OK
          drawBox(boxName, tBoxStart, boxLow, tBoxEnd, boxHigh, BoxColorOK, 1, STYLE_SOLID, true);
-         DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "p", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 12, "Arial Black", LevelColor, 3);
+         if(OHLCTotalShow == true) {
+            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "P(OC/" + DoubleToString(OCtotal, 0) + ")(HL/" + DoubleToString(HLtotal, 0) + ")", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
+         } else if(OHLCTotalShow == false) {
+            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "P", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
+         }
       } else { // "Caution!" box
          drawBox(boxName, tBoxStart, boxLow, tBoxEnd, boxHigh, BoxColorNOK, 1, STYLE_SOLID, true);
-         DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "Caution! (" + DoubleToStr(boxExtent / pip, 0) + "p)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 12, "Arial Black", BoxColorNOK, 3);
+         DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "Caution! (" + DoubleToStr(boxExtent / pip, 0) + "P)", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", BoxColorNOK, 3);
       }
-      DrawLbl(objPrefix + "Lbl2-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow - 6 * pip, 12, "Arial Black", LevelColor, 2);
+      DrawLbl(objPrefix + "Lbl2-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, "", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow - 6 * pip, 8, "Arial", LevelColor, 2);
 
       // draw profit/loss boxes for the session
       if (showProfitZone) {
@@ -363,29 +398,40 @@ void show_boxes(datetime now)
 
       // draw "fib" lines for entry+stop+TP levels:
       string objname = objPrefix + "Fibo-" + tBoxEnd;
-      ObjectCreate(objname, OBJ_FIBO, 0, tBoxStart, SellEntry, tBoxStart + FibLength * 60 * 10, BuyEntry);
+      ObjectCreate(objname, OBJ_FIBO, 0, tBoxStart, SellEntry, tBoxStart + (FibLength * 60 * 10), BuyEntry);
       ObjectSet(objname, OBJPROP_RAY, false);
       ObjectSet(objname, OBJPROP_LEVELCOLOR, LevelColor);
       ObjectSet(objname, OBJPROP_FIBOLEVELS, 12);
       ObjectSet(objname, OBJPROP_LEVELSTYLE, STYLE_SOLID);
-      _SetFibLevel(objname, 0, 0.0, "Buy = %$");
-      _SetFibLevel(objname, 1, 1.0, "Sell = %$");
-      //_SetFibLevel(objname, 2, -TP1Factor, "Buy TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
-      //_SetFibLevel(objname, 3, 1 + TP1Factor, "Sell TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "p)");
-      _SetFibLevel(objname, 6, -TP3Factor, "Buy TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "p)");
-      _SetFibLevel(objname, 7, 1 + TP3Factor, "Sell TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "p)");
-      if (TP5Factor > 0) { // draw TP4 and TP5 optional targets
-         //_SetFibLevel(objname, 8, -TP4Factor, "SL SELL1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
-         //_SetFibLevel(objname, 9, 1 + TP4Factor, "SL BUY1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "p)");
-         //_SetFibLevel(objname, 10, -TP5Factor, "SL SELL2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
-         //_SetFibLevel(objname, 11, 1 + TP5Factor, "SL BUY2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "p)");
-      }
+      SetFibLevel(objname, 0, 0.0, "Buy = %$");
+      SetFibLevel(objname, 1, 1.0, "Sell = %$");
+      //SetFibLevel(objname, 2, -TP1Factor, "Buy TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "P)");
+      //SetFibLevel(objname, 3, 1 + TP1Factor, "Sell TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "P)");
+      SetFibLevel(objname, 6, -TP3Factor, "Buy TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "P)");
+      SetFibLevel(objname, 7, 1 + TP3Factor, "Sell TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "P)");
+      /*if(OCtotal > 0) {
+         SetFibLevel(objname, 0, 0.0, "Buy = %$");
+         SetFibLevel(objname, 1, 1.0, "SL = %$");
+         SetFibLevel(objname, 2, -TP1Factor, "Buy TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "P)");
+         SetFibLevel(objname, 6, -TP3Factor, "Buy TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "P)");
+      } else if(OCtotal < 0) {
+         SetFibLevel(objname, 0, 0.0, "SL = %$");
+         SetFibLevel(objname, 1, 1.0, "Sell = %$");
+         SetFibLevel(objname, 3, 1 + TP1Factor, "Sell TP1 = %$ (+" + DoubleToStr(TP1_pips, 0) + "P)");
+         SetFibLevel(objname, 7, 1 + TP3Factor, "Sell TP2 = %$ (+" + DoubleToStr(TP3_pips, 0) + "P)");
+      }*/
+      /*if (TP5Factor > 0) { // draw TP4 and TP5 optional targets
+         //SetFibLevel(objname, 8, -TP4Factor, "SL SELL1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "P)");
+         //SetFibLevel(objname, 9, 1 + TP4Factor, "SL BUY1 = %$ (+" + DoubleToStr(TP4_pips, 0) + "P)");
+         //SetFibLevel(objname, 10, -TP5Factor, "SL SELL2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "P)");
+         //SetFibLevel(objname, 11, 1 + TP5Factor, "SL BUY2 = %$ (+" + DoubleToStr(TP5_pips, 0) + "P)");
+      }*/
    }
 
 } //show_boxes()
 
 //+------------------------------------------------------------------+
-void _SetFibLevel(string objname, int level, double value, string description)
+void SetFibLevel(string objname, int level, double value, string description)
 //+------------------------------------------------------------------+
 {
    ObjectSet(objname, OBJPROP_FIRSTLEVEL + level, value);
