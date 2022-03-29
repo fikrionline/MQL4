@@ -152,11 +152,34 @@ bool CanTrade() {
 
 bool OpenTrade() {
 
-   int TicketBuy, TicketSell;
-   double PeriodHighest, PeriodLowest, PriceBuy, PriceSell, SLBuy, SLSell, TPBuy, TPSell;
+   int counter, TicketBuy, TicketSell, OrderBuySell = 0;
+   double PeriodHighest, PeriodLowest, PriceBuy, PriceSell, SLBuy, SLSell, TPBuy, TPSell, OCbullish = 0, OCbearish = 0, OCtotal = 0, HLbullish = 0, HLbearish = 0, HLtotal = 0;
 
    DeletePendingOrderBuy(MagicNumber);
    DeletePendingOrderSell(MagicNumber);
+   
+   for(counter = 1; counter <= CounterShift; counter ++) {
+      
+      if(iOpen(Symbol(), PERIOD_CURRENT, counter) < iClose(Symbol(), PERIOD_CURRENT, counter)) {
+         OCbullish = OCbullish + (iClose(Symbol(), PERIOD_CURRENT, counter) - iOpen(Symbol(), PERIOD_CURRENT, counter));
+         HLbullish = HLbullish + (iHigh(Symbol(), PERIOD_CURRENT, counter) - iLow(Symbol(), PERIOD_CURRENT, counter));
+      } else if(iOpen(Symbol(), PERIOD_CURRENT, counter) > iClose(Symbol(), PERIOD_CURRENT, counter)) {
+         OCbearish = OCbearish + (iOpen(Symbol(), PERIOD_CURRENT, counter) - iClose(Symbol(), PERIOD_CURRENT, counter));
+         HLbearish = HLbearish + (iHigh(Symbol(), PERIOD_CURRENT, counter) - iLow(Symbol(), PERIOD_CURRENT, counter));
+      }
+      
+   }
+   
+   OCtotal = (OCbullish - OCbearish) / Point;
+   HLtotal = (HLbullish - HLbearish) / Point;
+   
+   if(OCtotal > 0 && HLtotal > 0) {
+      OrderBuySell = 1;
+   } else if(OCtotal < 0 && HLtotal < 0) {
+      OrderBuySell = -1;
+   } else {
+      OrderBuySell = 0;
+   }
    
    PeriodHighest = iHigh(Symbol(), PERIOD_CURRENT, iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodHighest);
    PeriodLowest = iLow(Symbol(), PERIOD_CURRENT, iLowest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodLowest);
@@ -237,12 +260,12 @@ bool OpenTrade() {
          Lots = MaxLots;
       }
       
-      if(PosSelectBuyStop(MagicNumber) == 0) {
-         TicketBuy = OrderSend(Symbol(), OP_BUYSTOP, Lots, PriceBuy, SlipPage, SLBuy, TPBuy, "Bismillahirrohmanirrohim_BUY", MagicNumber, 0, clrBlue);
+      if(PosSelectBuyStop(MagicNumber) == 0 && OrderBuySell == 1) {
+         TicketBuy = OrderSend(Symbol(), OP_BUYSTOP, Lots, PriceBuy, SlipPage, SLBuy, TPBuy, "Alhamdulillah_BUY", MagicNumber, 0, clrBlue);
       }
       
-      if(PosSelectSellStop(MagicNumber) == 0) {
-         TicketSell = OrderSend(Symbol(), OP_SELLSTOP, Lots, PriceSell, SlipPage, SLSell, TPSell, "Bismillahirrohmanirrohim_SELL", MagicNumber, 0, clrRed);
+      if(PosSelectSellStop(MagicNumber) == 0 && OrderBuySell == -1) {
+         TicketSell = OrderSend(Symbol(), OP_SELLSTOP, Lots, PriceSell, SlipPage, SLSell, TPSell, "Alhamdulillah_SELL", MagicNumber, 0, clrRed);
       }
    
    }
