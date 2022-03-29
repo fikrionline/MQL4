@@ -372,7 +372,7 @@ void show_boxes(datetime now)
       } else if (boxExtent >= MinBoxSizeInPips * pip) { // box OK
          drawBox(boxName, tBoxStart, boxLow, tBoxEnd, boxHigh, BoxColorOK, 1, STYLE_SOLID, true);
          if(OHLCTotalShow == true) {
-            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "P(OC/" + DoubleToString(OCtotal, 0) + ")(HL/" + DoubleToString(HLtotal, 0) + ")", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
+            DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "P(" + DoubleToString(OCtotal, 0) + ")(" + DoubleToString(HLtotal, 0) + ")", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
          } else if(OHLCTotalShow == false) {
             DrawLbl(objPrefix + "Lbl-" + TimeToStr(now, TIME_DATE) + "-" + StartTime + "-" + EndTime, DoubleToStr(boxExtent / pip, 0) + "P", tBoxStart + (tBoxEnd - tBoxStart) / 2, boxLow, 8, "Arial", LevelColor, 3);
          }
