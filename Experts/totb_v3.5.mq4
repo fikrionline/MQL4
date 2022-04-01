@@ -107,7 +107,7 @@ void OnTick() {
       EquityMax = AccountEquity();
    }
    
-    BalanceToRisk = 0;
+   BalanceToRisk = 0;
    
    MqlDateTime time;
    TimeCurrent(time);
@@ -154,9 +154,6 @@ bool OpenTrade() {
 
    int counter, TicketBuy, TicketSell, OrderBuySell = 0;
    double PeriodHighest, PeriodLowest, PriceBuy, PriceSell, SLBuy, SLSell, TPBuy, TPSell, OCbullish = 0, OCbearish = 0, OCtotal = 0, HLbullish = 0, HLbearish = 0, HLtotal = 0;
-
-   DeletePendingOrderBuy(MagicNumber);
-   DeletePendingOrderSell(MagicNumber);
    
    for(counter = 1; counter <= CounterShift; counter ++) {
       

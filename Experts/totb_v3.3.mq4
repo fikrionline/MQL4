@@ -154,9 +154,6 @@ bool OpenTrade() {
 
    int TicketBuy, TicketSell;
    double PeriodHighest, PeriodLowest, PriceBuy, PriceSell, SLBuy, SLSell, TPBuy, TPSell;
-
-   DeletePendingOrderBuy(MagicNumber);
-   DeletePendingOrderSell(MagicNumber);
    
    PeriodHighest = iHigh(Symbol(), PERIOD_CURRENT, iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodHighest);
    PeriodLowest = iLow(Symbol(), PERIOD_CURRENT, iLowest(Symbol(), PERIOD_CURRENT, MODE_HIGH, CounterShift, 1)); //Print(PeriodLowest);

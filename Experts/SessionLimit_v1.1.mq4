@@ -23,10 +23,10 @@ enum TheRiskReward {
 extern int OpenHour = 10;
 extern int OpenMinute = 1;
 extern ENUM_TIMEFRAMES ChooseTF = PERIOD_H1;
-extern int CounterShift = 8;
+extern int CounterShift = 7;
+extern int TimeToDeletePendingOrders = 18;
 extern double MinBoxSize = 100;
 extern double MaxBoxSize = 600;
-extern int TimeToDeletePendingOrders = 19;
 extern int TimeToStopAllOrders = 0;
 extern int MagicNumber = 5758;
 extern bool MultiOrder = true;
@@ -34,16 +34,16 @@ extern double Lots = 0;
 extern double MinLots = 0.01;
 extern double MaxLots = 3;
 extern double StartBalance = 10000;
-extern double EquityMinStopEA = 0;
-extern double EquityMaxStopEA = 0;
 extern double MaxRiskPerTradePercent = 1;
 extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
 extern bool DoubleLotAfterProfit = false;
 extern bool RiskAllProfitAfterProfit = false;
 extern double RiskAllProfitAfterProfitFromStartBalance = 400;
-extern double PlusMinusTPSL = 0;
+extern double PlusMinusTPSL = 10;
 extern int SlipPage = 5;
 extern TheRiskReward RiskReward = RROne;
+extern double EquityMinStopEA = 0;
+extern double EquityMaxStopEA = 0;
 
 double EquityMin, EquityMax, BalanceToRisk;
 
