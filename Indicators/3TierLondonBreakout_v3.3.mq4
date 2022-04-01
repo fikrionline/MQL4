@@ -47,7 +47,7 @@
  */
 
 extern string Info = VERSION; // version number information
-extern string StartTime = "08:01"; // time for start of price establishment window
+extern string StartTime = "07:00"; // time for start of price establishment window
 extern string EndTime = "11:59"; // time for end of price establishment window
 extern string SessionEndTime = "22:00"; // end of daily session; tomorrow is another day!
 extern color SessionColor = clrNONE; // show Session periods with a different background color

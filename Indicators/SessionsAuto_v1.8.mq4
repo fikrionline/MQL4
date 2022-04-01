@@ -7,9 +7,9 @@
 
 input string _00 = "***** Set colour to  None  to disable session";
 input color Sydney = CLR_NONE; // 'CLR_NONE' to disable by default
-input color Tokyo = SteelBlue; // 'CLR_NONE' to disable by default
-input color London = Green; // 'CLR_NONE' to disable by default
-input color NewYork = CLR_NONE; //FireBrick; // 'CLR_NONE' to disable by default
+input color Tokyo = SteelBlue; // SteelBlue // 'CLR_NONE' to disable by default
+input color London = Green; // Green // 'CLR_NONE' to disable by default
+input color NewYork = CLR_NONE; // FireBrick // 'CLR_NONE' to disable by default
 input string _10 = "***** Show/hide session high-low range (in pips)";
 input bool ShowRange = true;
 input string _11 = "***** Max timeframe to draw sessions on";
@@ -28,10 +28,10 @@ input string _41 = "***** Open/Close mods - move session open/close";
 input string _42 = "***** Negative numbers: left; positive: right, e.g.";
 input string _43 = "***** '4,0' shows 5 last hours (moves open by 4)";
 input string _44 = "***** '0,-4' shows 5 first hours (moves close by -4)";
-input string LondonMod = "-1,0";
-input string NewYorkMod = "-1,0";
 input string SydneyMod = "0,0";
-input string TokyoMod = "-4,-3";
+input string TokyoMod = "-3,-3";
+input string LondonMod = "-1,-1";
+input string NewYorkMod = "-1,-1";
 input string _45 = "***** If you are unsure leave ALL at '0,0'!";
 
 int days, daysLimit, digits;
