@@ -99,16 +99,18 @@ int init() {
    SetIndexBuffer(3, arrowu);
    SetIndexStyle(3, astyle, 0, UpArrowSize, UpArrowColor);
    SetIndexArrow(3, UpArrowCode);
+   SetIndexLabel(3, "UpArrow");
    SetIndexBuffer(4, arrowd);
    SetIndexStyle(4, astyle, 0, DnArrowSize, DnArrowColor);
    SetIndexArrow(4, DnArrowCode);
+   SetIndexLabel(4, "DownArrow");
    SetIndexBuffer(5, trend);
    SetIndexBuffer(6, count);
 
    indicatorFileName = WindowExpertName();
    TimeFrame = fmax(TimeFrame, _Period);
    for (int i = 0; i < 7; i++) SetIndexShift(i, Shift * TimeFrame / Period());
-   IndicatorShortName(timeFrameToString(TimeFrame) + " JMA(" + (string) Length + ")");
+   IndicatorShortName(timeFrameToString(TimeFrame) + "/Jurik/" + (string) Length);
    return (0);
 }
 
