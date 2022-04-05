@@ -150,6 +150,8 @@ int OnInit() {
       SetIndexArrow(1, BidWingDing);
       SetIndexStyle(0, DRAW_ARROW, 2, 1, colorAsk);
       SetIndexStyle(1, DRAW_ARROW, 2, 1, colorBid);
+      SetIndexLabel(0, NULL);
+      SetIndexLabel(1, NULL);
 
    }
 

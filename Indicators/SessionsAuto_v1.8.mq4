@@ -7,9 +7,9 @@
 
 input string _00 = "***** Set colour to  None  to disable session";
 input color Sydney = CLR_NONE; // 'CLR_NONE' to disable by default
-input color Tokyo = SteelBlue; // SteelBlue // 'CLR_NONE' to disable by default
-input color London = Green; // Green // 'CLR_NONE' to disable by default
-input color NewYork = CLR_NONE; // FireBrick // 'CLR_NONE' to disable by default
+input color Tokyo = Green; // SteelBlue // 'CLR_NONE' to disable by default
+input color London = DarkGoldenrod; // Green // 'CLR_NONE' to disable by default
+input color NewYork = FireBrick; // FireBrick // 'CLR_NONE' to disable by default
 input string _10 = "***** Show/hide session high-low range (in pips)";
 input bool ShowRange = true;
 input string _11 = "***** Max timeframe to draw sessions on";
@@ -252,6 +252,12 @@ void Session(string id, datetime begin, datetime bMOD, datetime eMOD) {
          ObjectSet(idMid, OBJPROP_COLOR, clrWhite);
       }
    }
+   
+   // show (or not) session range in pips
+   if (ShowRange) {
+      //ObjectCreate(id, OBJ_TEXT, 0, 0, 0, 0, 0);
+      //ObjectSetText(id, DoubleToStr((high - low) / points, 0), 8, "Arial", clrWhite);
+   }
 
    // create a box if none found with a specified day-number
    if (ObjectFind(id) < 0) {
@@ -268,7 +274,9 @@ void Session(string id, datetime begin, datetime bMOD, datetime eMOD) {
 
    // show (or not) session range in pips
    if (ShowRange) {
-      ObjectSetText(id, DoubleToStr((high - low) / points, 0));
+      //ObjectSetText(id, DoubleToStr((high - low) / points), 8);
+      ObjectCreate(id, OBJ_TEXT, 0, 0, 0, 0, 0);
+      ObjectSetText(id, DoubleToStr((high - low) / points, 0), 8, "Arial", clrWhite);
    }
 }
 
