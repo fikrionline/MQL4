@@ -115,13 +115,17 @@ void OnTick() {
          ZoneBarStart = iCustom(Symbol(), PERIOD_CURRENT, "SidewaysDetector", 5, 0);
          ZoneBarEnd = iCustom(Symbol(), PERIOD_CURRENT, "SidewaysDetector", 6, 0);
          
+         NewSignal = 0;
+         
          if(ReverseOrder == false) {
             if(ZoneOCTotal > 0) {
                NewSignal = 1;
             } else if(ZoneOCTotal < 0) {
                NewSignal = -1;
             }
-         } else if(ReverseOrder == true) {
+         }
+         
+         if(ReverseOrder == true) {
             if(ZoneOCTotal > 0) {
                NewSignal = -1;
             } else if(ZoneOCTotal < 0) {
