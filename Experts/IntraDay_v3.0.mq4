@@ -20,14 +20,15 @@ enum TheRiskReward {
    RRTwo, //1:2
    RRThree //1:3
 };
+extern bool ReverseOrder = false;
 extern int StartHour = 3;
-extern int EndHour = 15;
+extern int EndHour = 17;
 extern int MagicNumber = 5758;
 extern double Lots = 0;
 extern double MinLots = 0.01;
 extern double MaxLots = 3;
 extern double StartBalance = 10000;
-extern double MaxRiskPerTradePercent = 1;
+extern double MaxRiskPerTradePercent = 0.5;
 extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
 extern double SLPlusMinus = 0;
 extern double TPPlusMinus = 0;
@@ -35,7 +36,7 @@ extern bool DoubleLotAfterProfit = false;
 extern bool RiskAllProfitAfterProfit = false;
 extern double RiskAllProfitAfterProfitFromStartBalance = 400;
 extern int SlipPage = 5;
-extern TheRiskReward RiskReward = RROne;
+extern TheRiskReward RiskReward = RRTwo;
 extern int TimeToStopAllOrders = 0;
 extern bool UseTrailStopPoint = false;
 extern double TrailingStopPoint = 2000;
@@ -45,6 +46,7 @@ extern double EquityMaxStopEA = 0;
 
 datetime NextCandle;
 double EquityMin, EquityMax, BalanceToRisk;
+int NewSignal;
 
 //Init
 int init() {
@@ -112,11 +114,25 @@ void OnTick() {
          ZoneHLTotal = iCustom(Symbol(), PERIOD_CURRENT, "SidewaysDetector", 4, 0);
          ZoneBarStart = iCustom(Symbol(), PERIOD_CURRENT, "SidewaysDetector", 5, 0);
          ZoneBarEnd = iCustom(Symbol(), PERIOD_CURRENT, "SidewaysDetector", 6, 0);
+         
+         if(ReverseOrder == false) {
+            if(ZoneOCTotal > 0) {
+               NewSignal = 1;
+            } else if(ZoneOCTotal < 0) {
+               NewSignal = -1;
+            }
+         } else if(ReverseOrder == true) {
+            if(ZoneOCTotal > 0) {
+               NewSignal = -1;
+            } else if(ZoneOCTotal < 0) {
+               NewSignal = 1;
+            }
+         }
 
          //Order when there are no order
-         if (PosSelect(MagicNumber) == 0 && ZoneBarEnd == 0 && (ZoneBarStart - ZoneBarEnd) >= 4) {
+         if (ZoneBarEnd == 0 && (ZoneBarStart - ZoneBarEnd) >= 4) {
          
-            if(ZoneOCTotal > 0) {
+            if(NewSignal == 1 && PosSelect(MagicNumber) == 0) {
                
                StopLoss = ZoneLowest + (SLPlusMinus * Point);
                
@@ -188,7 +204,7 @@ void OnTick() {
                   TicketBuy = OrderSend(Symbol(), OP_BUY, Lots, Ask, SlipPage, StopLoss, TakeProfit, "Alhamdulillah", MagicNumber, 0, clrBlue);
                }
                
-            } else if(ZoneOCTotal < 0) {
+            } else if(NewSignal == -1 && PosSelect(MagicNumber) == 0) {
             
                StopLoss = ZoneHighest - (SLPlusMinus * Point);
                
