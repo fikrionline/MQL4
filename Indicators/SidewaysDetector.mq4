@@ -29,7 +29,7 @@ struct Zone {
 // Multiplier for the average zone height. The bigger, the lower the zones
 extern double Average_Weight = 1.0;
 // Number of consecutive bars within a zone
-extern int Min_Zone_Width = 5;
+extern int Min_Zone_Width = 6;
 // Tolerance in points above a low / high of a bar
 extern int Tolerance = 20;
 // Color of the zone
