@@ -21,8 +21,13 @@ enum TheRiskReward {
    RRThree //1:3
 };
 extern bool InverseOrder = false;
-extern int StartHour = 3;
-extern int EndHour = 17;
+extern int TheZoneBarStart = 2;
+extern int TheMinZoneBar = 5;
+extern int TheMaxZoneBar = 100;
+extern double MinBoxSize = 50;
+extern double MaxBoxSize = 200;
+extern int StartHour = 10;
+extern int EndHour = 19;
 extern int MagicNumber = 5758;
 extern double Lots = 0;
 extern double MinLots = 0.01;
@@ -38,8 +43,6 @@ extern bool RiskAllProfitAfterProfit = false;
 extern double RiskAllProfitAfterProfitFromStartBalance = 400;
 extern int SlipPage = 5;
 extern TheRiskReward RiskReward = RRTwo;
-extern double MinBoxSize = 200;
-extern double MaxBoxSize = 2000;
 extern int TimeToStopAllOrders = 0;
 extern bool UseTrailStopPoint = false;
 extern double TrailingStopPoint = 2000;
@@ -123,17 +126,17 @@ void OnTick() {
             NewSignal = 0;
             
             if(InverseOrder == false) {
-               if(ZoneOCTotal > 0) {
+               if(ZoneOCTotal > 0 && ZoneHLTotal > 0) {
                   NewSignal = 1;
-               } else if(ZoneOCTotal < 0) {
+               } else if(ZoneOCTotal < 0 && ZoneHLTotal < 0) {
                   NewSignal = -1;
                }
             }
             
             if(InverseOrder == true) {
-               if(ZoneOCTotal > 0) {
+               if(ZoneOCTotal > 0 && ZoneHLTotal > 0) {
                   NewSignal = -1;
-               } else if(ZoneOCTotal < 0) {
+               } else if(ZoneOCTotal < 0 && ZoneHLTotal < 0) {
                   NewSignal = 1;
                }
             }
@@ -141,7 +144,7 @@ void OnTick() {
          }
 
          //Order when there are no order
-         if (ZoneBarEnd == 0 && ZoneBarStart >= 5) {
+         if (ZoneBarEnd == TheZoneBarStart && ZoneBarStart >= TheMinZoneBar && ZoneBarStart <= TheMaxZoneBar) {
          
             if(NewSignal == 1 && PosSelect(MagicNumber) == 0) {
                
