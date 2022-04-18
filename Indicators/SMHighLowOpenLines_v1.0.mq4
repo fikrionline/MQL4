@@ -760,7 +760,7 @@ void Show_TimeInfos() {
       "\nTime GMT = ", TimeToString(timeGMT, TIME_DATE | TIME_MINUTES),
       //           "Time BarHour.... ",TimeToString(timeBarHour,TIME_DATE|TIME_MINUTES),CR,
       "\nBar ends in = " + sTimeLeft,
-      "\nSpread Pips = " + DoubleToStr(TheSpread, 1),
+      "\nSpread Pips = " + DoubleToStr(TheSpread, 1) + " / " + DoubleToString(Ask, Digits()) + " - " + DoubleToString(Bid, Digits()),
       "\nDaily Range = " + DoubleToStr(range, 0),
       "\nDaily ATR(100) = " + DoubleToStr(atr, 0),
       "\nRange/ATR(100) = " + DoubleToStr(ra, 0) + "%",
