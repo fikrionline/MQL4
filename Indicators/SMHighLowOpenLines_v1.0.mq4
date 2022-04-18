@@ -89,7 +89,7 @@ input bool Draw_PriceBoxes_Monthly = true;
 input bool Draw_Text_Monthly = true;
 
 input string ts2 = ""; //______Ask Bid_____
-input bool Draw_Ask_Bid = true;
+input bool Draw_Ask_Bid = false;
 input int AskWingDing = 165;
 input int BidWingDing = 165;
 input int TextPostion = 4;
