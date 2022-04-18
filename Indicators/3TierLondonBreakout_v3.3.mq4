@@ -92,6 +92,7 @@ double BuyEntry, BuyTP1, BuyTP2, BuyTP3, BuyTP4, BuyTP5, BuySL;
 double SellEntry, SellTP1, SellTP2, SellTP3, SellTP4, SellTP5, SellSL;
 int SL_pips, TP1_pips, TP2_pips, TP3_pips, TP4_pips, TP5_pips;
 double TP1FactorInput, TP2FactorInput, TP3FactorInput, TP4FactorInput, TP5FactorInput, SLFactorInput;
+
 //box and session
 datetime tBoxStart, tBoxEnd, tSessionStart, tSessionEnd, tLastComputedSessionStart, tLastComputedSessionEnd;
 double boxHigh, boxLow, boxExtent, boxMedianPrice;
