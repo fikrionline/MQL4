@@ -7,9 +7,9 @@
 
 input string _00 = "***** Set colour to  None  to disable session";
 input color Sydney = CLR_NONE; // 'CLR_NONE' to disable by default
-input color Tokyo = Green; // SteelBlue // 'CLR_NONE' to disable by default
-input color London = DarkGoldenrod; // Green // 'CLR_NONE' to disable by default
-input color NewYork = FireBrick; // FireBrick // 'CLR_NONE' to disable by default
+input color Tokyo = clrGreen; // SteelBlue // 'CLR_NONE' to disable by default
+input color London = clrDarkGoldenrod; // Green // 'CLR_NONE' to disable by default
+input color NewYork = clrFireBrick; // FireBrick // 'CLR_NONE' to disable by default
 input string _10 = "***** Show/hide session high-low range (in pips)";
 input bool ShowRange = true;
 input string _11 = "***** Max timeframe to draw sessions on";

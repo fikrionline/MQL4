@@ -7,18 +7,18 @@
 #property link ""
 #property indicator_chart_window
 
-extern bool ShowHour1 = false;
-extern int Hour_Num1 = 0;
+extern bool ShowHour1 = true;
+extern int Hour_Num1 = 3;
 extern int Minute_Num1 = 00;
-extern color Line_Color1 = Green;
+extern color Line_Color1 = clrGreen;
 extern bool ShowHour2 = true;
 extern int Hour_Num2 = 10;
 extern int Minute_Num2 = 00;
-extern color Line_Color2 = DarkOliveGreen;
-extern bool ShowHour3 = false;
+extern color Line_Color2 = clrDarkGoldenrod;
+extern bool ShowHour3 = true;
 extern int Hour_Num3 = 15;
 extern int Minute_Num3 = 0;
-extern color Line_Color3 = Blue;
+extern color Line_Color3 = clrFireBrick;
 extern int Line_Style = 2; // 1=SOLID, 2=DASH, 3=DOT, 4=DASHDOT, 5=DASHDOTDOT
 
 //+------------------------------------------------------------------+
