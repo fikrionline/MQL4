@@ -6,10 +6,10 @@
 #property indicator_chart_window
 
 input string _00 = "***** Set colour to  None  to disable session";
-input color Sydney = CLR_NONE; // 'CLR_NONE' to disable by default
-input color Tokyo = Green; // SteelBlue // 'CLR_NONE' to disable by default
-input color London = DarkGoldenrod; // Green // 'CLR_NONE' to disable by default
-input color NewYork = CLR_NONE; // FireBrick // 'CLR_NONE' to disable by default
+input color Sydney = clrNONE; // 'CLR_NONE' to disable by default
+input color Tokyo = clrGreen; // clrSteelBlue // 'CLR_NONE' to disable by default
+input color London = clrDarkGoldenrod; // clrGreen // 'CLR_NONE' to disable by default
+input color NewYork = clrFireBrick; // clrFireBrick // 'CLR_NONE' to disable by default
 input string _10 = "***** Show/hide session high-low range (in pips)";
 input bool ShowRange = true;
 input string _11 = "***** Max timeframe to draw sessions on";
