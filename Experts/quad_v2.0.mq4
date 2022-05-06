@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
-//|                                                    totb_v5.0.mq4 |
+//|                                                    quad_v2.0.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2022, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
-#property version   "5.00"
+#property version   "1.00"
 #property strict
 
 #include <stdlib.mqh>
@@ -18,19 +18,17 @@ enum TheRiskReward {
    RRZeroPointFive, //1:0.5
    RROne, //1:1
    RRTwo, //1:2
-   RRThree, //1:3
-   RRFour, //1:4
-   RRFive //1:5
+   RRThree //1:3
 };
 extern bool InverseOrder = false;
-extern bool BuySellHedging = false;
 extern int ZoneBarStart = 2;
-extern int StartHour = 2;
-extern int EndHour = 3;
+extern int ZoneBarCompare = 1;
+extern int StartHour = 3;
+extern int EndHour = 20;
 extern int MagicNumber = 5758;
 extern double Lots = 0;
 extern double MinLots = 0.01;
-extern double MaxLots = 1;
+extern double MaxLots = 5;
 extern double StartBalance = 10000;
 extern double MaxRiskPerTradePercent = 1;
 extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
@@ -41,7 +39,7 @@ extern bool DoubleLotAfterProfit = false;
 extern bool RiskAllProfitAfterProfit = false;
 extern double RiskAllProfitAfterProfitFromStartBalance = 400;
 extern int SlipPage = 5;
-extern TheRiskReward RiskReward = RRTwo;
+extern TheRiskReward RiskReward = RROne;
 extern int TimeToStopAllOrders = 0;
 extern bool UseTrailStopPoint = false;
 extern double TrailingStopPoint = 500;
@@ -69,8 +67,8 @@ int deinit() {
 
 }
 
-//Begin
-void OnTick() {
+//Start
+int start() {
 
    int TicketBuy, TicketSell;
    double StopLoss, TakeProfit;
@@ -118,11 +116,7 @@ void OnTick() {
          
          NewSignal = GetSignal();
          
-         if(BuySellHedging == true) {
-            NewSignal = 1;
-         }
-         
-         if(PosSelectBuy(MagicNumber) != 1 && NewSignal == 1) {
+         if(PosSelect(MagicNumber) == 0 && NewSignal == 1) {
          
             StopLoss = iLow(Symbol(), PERIOD_CURRENT, iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, 2, 1)); //Print(NormalizeDouble((Ask - StopLoss) / Point(), 0));
             if((MinSL + SLPlusMinus) > ((Ask - StopLoss) / Point())) {
@@ -137,10 +131,6 @@ void OnTick() {
                TakeProfit = Ask + ((Ask - StopLoss) * 2) + (TPPlusMinus * Point());
             } else if(RiskReward == RRThree) {
                TakeProfit = Ask + ((Ask - StopLoss) * 3) + (TPPlusMinus * Point());
-            } else if(RiskReward == RRFour) {
-               TakeProfit = Ask + ((Ask - StopLoss) * 4) + (TPPlusMinus * Point());
-            } else if(RiskReward == RRFive) {
-               TakeProfit = Ask + ((Ask - StopLoss) * 5) + (TPPlusMinus * Point());
             } else { //Other is 1:1
                TakeProfit = Ask + (Ask - StopLoss) + (TPPlusMinus * Point());
             }
@@ -201,11 +191,7 @@ void OnTick() {
             
          }
          
-         if(BuySellHedging == true) {
-            NewSignal = -1;
-         }
-         
-         if(PosSelectSell(MagicNumber) != -1 && NewSignal == -1) {
+         if(PosSelect(MagicNumber) == 0 && NewSignal == -1) {
          
             StopLoss = iHigh(Symbol(), PERIOD_CURRENT, iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, 2, 1)); //Print(NormalizeDouble((StopLoss - Bid) / Point(), 0));
             if((MinSL + SLPlusMinus) > ((StopLoss - Bid) / Point())) {
@@ -220,10 +206,6 @@ void OnTick() {
                TakeProfit = Bid - ((StopLoss - Bid) * 2) - (TPPlusMinus * Point());
             } else if(RiskReward == RRThree) {
                TakeProfit = Bid - ((StopLoss - Bid) * 3) - (TPPlusMinus * Point());
-            } else if(RiskReward == RRFour) {
-               TakeProfit = Bid - ((StopLoss - Bid) * 4) - (TPPlusMinus * Point());
-            } else if(RiskReward == RRFive) {
-               TakeProfit = Bid - ((StopLoss - Bid) * 5) - (TPPlusMinus * Point());
             } else { //Other is 1:1
                TakeProfit = Bid - (StopLoss - Bid) - (TPPlusMinus * Point());
             }
@@ -289,15 +271,15 @@ void OnTick() {
    }
    
    Info();
-   
-   //return (0);
+
+   return (0);
 
 }
 
 //Signal
 int GetSignal() {
 
-   int SignalResult = 0, ZoneBarStartSignal = 0;
+   int SignalResult = 0, ZoneBarStartSignal = 0, ZoneBarCompareSignal = 0;
    
    for (int i=1; i<=ZoneBarStart; i++) {
       if(iClose(Symbol(), PERIOD_CURRENT, i) > iOpen(Symbol(), PERIOD_CURRENT, i)) {
@@ -308,18 +290,25 @@ int GetSignal() {
       }
    }
    
-   if(ZoneBarStartSignal == 2) {
-      SignalResult = 1;
+   for (int i=(ZoneBarStart + 1); i<=(ZoneBarStart + ZoneBarCompare); i++) {
+      if(iClose(Symbol(), PERIOD_CURRENT, i) > iOpen(Symbol(), PERIOD_CURRENT, i)) {
+         ZoneBarCompareSignal = ZoneBarCompareSignal + 1;
+      }
+      if(iClose(Symbol(), PERIOD_CURRENT, i) < iOpen(Symbol(), PERIOD_CURRENT, i)) {
+         ZoneBarCompareSignal = ZoneBarCompareSignal - 1;
+      }
    }
    
-   if(ZoneBarStartSignal == -2) {
-      SignalResult = -1;
+   if(ZoneBarStartSignal == 2 && ZoneBarCompareSignal == -1) {
+      //if(iClose(Symbol(), PERIOD_CURRENT, ZoneBarStart + ZoneBarCompare + 1) > iOpen(Symbol(), PERIOD_CURRENT, ZoneBarStart + ZoneBarCompare + 1)) {
+         SignalResult = 1;
+      //}
    }
    
-   if(Ask > iMA(Symbol(), PERIOD_M15, 14, 0, MODE_EMA, PRICE_CLOSE, 1)) {
-      SignalResult = 1;
-   } else if(Bid < iMA(Symbol(), PERIOD_M15, 14, 0, MODE_EMA, PRICE_CLOSE, 1)) {
-      SignalResult = -1;
+   if(ZoneBarStartSignal == -2 && ZoneBarCompareSignal == 1) {
+      //if(iClose(Symbol(), PERIOD_CURRENT, ZoneBarStart + ZoneBarCompare + 1) < iOpen(Symbol(), PERIOD_CURRENT, ZoneBarStart + ZoneBarCompare + 1)) {
+         SignalResult = -1;
+      //}
    }
    
    if(InverseOrder == true) {
@@ -350,52 +339,6 @@ int PosSelect(int CheckMagicNumber) {
          if (OrderType() == OP_BUY) {
             posi = 1; //Long position
          }
-         if (OrderType() == OP_SELL) {
-            posi = -1; //Short positon
-         }
-      }
-   }
-
-   return (posi);
-
-}
-
-int PosSelectBuy(int CheckMagicNumber) {
-
-   int posi = 0;
-   for (int k = OrdersTotal() - 1; k >= 0; k--) {
-      if (!OrderSelect(k, SELECT_BY_POS)) {
-         break;
-      }
-
-      if ((OrderSymbol() != Symbol()) && (OrderMagicNumber() != CheckMagicNumber)) {
-         continue;
-      }
-
-      if ((OrderCloseTime() == 0) && (OrderSymbol() == Symbol()) && (OrderMagicNumber() == CheckMagicNumber)) {
-         if (OrderType() == OP_BUY) {
-            posi = 1; //Long position
-         }
-      }
-   }
-
-   return (posi);
-
-}
-
-int PosSelectSell(int CheckMagicNumber) {
-
-   int posi = 0;
-   for (int k = OrdersTotal() - 1; k >= 0; k--) {
-      if (!OrderSelect(k, SELECT_BY_POS)) {
-         break;
-      }
-
-      if ((OrderSymbol() != Symbol()) && (OrderMagicNumber() != CheckMagicNumber)) {
-         continue;
-      }
-
-      if ((OrderCloseTime() == 0) && (OrderSymbol() == Symbol()) && (OrderMagicNumber() == CheckMagicNumber)) {
          if (OrderType() == OP_SELL) {
             posi = -1; //Short positon
          }
@@ -477,6 +420,7 @@ void Info() {
       //"\nPipStepBuy = ", LastPipStepMultiplierBuy,
       //"\nPipStepSell = ", LastPipStepMultiplierSell,
       //"\nTakeProfit = ", TakeProfit,
+      "\nMaxRiskPerTradePercent = ", DoubleToString(MaxRiskPerTradePercent, 2), "%",
       "\n----------------------------------------------------------------"
    );
    
@@ -503,6 +447,26 @@ void RemoveAllOrders() {
       RefreshRates();
       
    }
+}
+
+int MinRemoveExpertNow(double MinimumEquity = 0) {
+   
+   if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+int MaxRemoveExpertNow(double MaximumEquity = 0) {
+   
+   if(MaximumEquity > 0 && AccountEquity() > MaximumEquity) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
 }
 
 void DeletePendingOrderBuy(int TheMagicNumberBuy) {
@@ -540,25 +504,5 @@ void DeletePendingOrderSell(int TheMagicNumberSell) {
          TicketOrderDelete = OrderDelete(OrderTicket());
       }
    }
-   
-}
-
-int MinRemoveExpertNow(double MinimumEquity = 0) {
-   
-   if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
-      RemoveAllOrders();
-      ExpertRemove();
-   }
-   return(0);
-   
-}
-
-int MaxRemoveExpertNow(double MaximumEquity = 0) {
-   
-   if(MaximumEquity > 0 && AccountEquity() > MaximumEquity) {
-      RemoveAllOrders();
-      ExpertRemove();
-   }
-   return(0);
    
 }

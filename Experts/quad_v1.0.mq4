@@ -23,18 +23,18 @@ enum TheRiskReward {
 extern bool InverseOrder = false;
 extern int ZoneBarStart = 2;
 extern int ZoneBarCompare = 2;
-extern int StartHour = 10;
+extern int StartHour = 3;
 extern int EndHour = 20;
 extern int MagicNumber = 5758;
 extern double Lots = 0;
 extern double MinLots = 0.01;
-extern double MaxLots = 1;
+extern double MaxLots = 5;
 extern double StartBalance = 10000;
 extern double MaxRiskPerTradePercent = 1;
 extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
-extern double MinSL = 10;
-extern double SLPlusMinus = 10;
-extern double TPPlusMinus = 10;
+extern double MinSL = 134;
+extern double SLPlusMinus = 0;
+extern double TPPlusMinus = 0;
 extern bool DoubleLotAfterProfit = false;
 extern bool RiskAllProfitAfterProfit = false;
 extern double RiskAllProfitAfterProfitFromStartBalance = 400;
@@ -62,7 +62,7 @@ int init() {
 //Deinit
 int deinit() {
 
-   Comment("");
+   //Comment("");
    return (0);
 
 }
@@ -72,6 +72,41 @@ int start() {
 
    int TicketBuy, TicketSell;
    double StopLoss, TakeProfit;
+   
+   if(TimeToStopAllOrders > 0) {
+      if(Hour() >= TimeToStopAllOrders) {
+         RemoveAllOrders();
+      }
+   }
+
+   MinRemoveExpertNow(EquityMinStopEA);
+   MaxRemoveExpertNow(EquityMaxStopEA);
+
+   if(PosSelect(MagicNumber) == 1) {
+      DeletePendingOrderSell(MagicNumber);
+   }
+   
+   if(PosSelect(MagicNumber) == -1) {
+      DeletePendingOrderBuy(MagicNumber);
+   }
+   
+   if(EquityMin == 0) {
+      EquityMin = AccountEquity();
+   }
+   
+   if(AccountEquity() < EquityMin) {
+      EquityMin = AccountEquity();
+   }
+   
+   if(EquityMax == 0) {
+      EquityMax = AccountEquity();
+   }
+   
+   if(AccountEquity() > EquityMax) {
+      EquityMax = AccountEquity();
+   }
+   
+   BalanceToRisk = 0;
 
    if (NextCandle <= Time[0]) {
       NextCandle = Time[0] + Period();
@@ -234,6 +269,8 @@ int start() {
       }
 
    }
+   
+   Info();
 
    return (0);
 
@@ -356,3 +393,116 @@ double CalculateLotSize(double SL, double MaxRiskPerTrade, double BalanceOrEquit
    return LotSize;
 }
 
+void Info() {
+
+   Comment("",
+      "----------------------------------------------------------------",
+      "\nBismillahirrohmanirrohim",
+      //"\nStartEquityBuySell = ", StartEquityBuySell,
+      "\nBalance = ", DoubleToString(AccountBalance(), 2),
+      "\nEquity = ", DoubleToString(AccountEquity(), 2),
+      "\nEquity Min = ", DoubleToString(EquityMin, 2) + "",
+      "\nEquity Max = ", DoubleToString(EquityMax, 2) + "",
+      //"\nPnL = ", DoubleToString(PNL, 2),
+      //"\nPnL Min = ", DoubleToString(PNLMin, 2),
+      //"\nPnL Max = ", DoubleToString(PNLMax, 2),
+      //"\nPnL Buy = ", DoubleToString(PNLBuy, 2),
+      //"\nPnL Buy Min = ", DoubleToString(PNLBuyMin, 2),
+      //"\nPnL Buy Max = ", DoubleToString(PNLBuyMax, 2),
+      //"\nPnL Sell = ", DoubleToString(PNLSell, 2),
+      //"\nPnL Sell Min = ", DoubleToString(PNLSellMin, 2),
+      //"\nPnL Sell Max = ", DoubleToString(PNLSellMax, 2),
+      //"\nStarting Lot = ", StartingLots,
+      //"\nLot Multiplier = ", LotsMultiplier,
+      //"\nMax Lot Buy = ", MaxLotsBuy,
+      //"\nMax Lot Sell = ", MaxLotsSell,
+      //"\nAverage Daily Range = ", GetADRs(PERIOD_D1, 20, 1),
+      //"\nPipStepBuy = ", LastPipStepMultiplierBuy,
+      //"\nPipStepSell = ", LastPipStepMultiplierSell,
+      //"\nTakeProfit = ", TakeProfit,
+      "\nMaxRiskPerTradePercent = ", DoubleToString(MaxRiskPerTradePercent, 2), "%",
+      "\n----------------------------------------------------------------"
+   );
+   
+}
+
+void RemoveAllOrders() {
+   int TicketOrderSelect, TicketOrderClose, TicketOrderDelete;
+   for(int i = OrdersTotal() - 1; i >= 0 ; i--)    {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS);
+      if(OrderType() == OP_BUY) {
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_BID), 5, clrNONE);
+      } else if(OrderType() == OP_SELL) {
+         TicketOrderClose = OrderClose(OrderTicket(), OrderLots(), MarketInfo(OrderSymbol(), MODE_ASK), 5, clrNONE);
+      } else {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+      
+      int MessageError = GetLastError();
+      if(MessageError > 0) {
+         Print("Unanticipated error " + IntegerToString(MessageError));
+      }
+      
+      Sleep(100);      
+      RefreshRates();
+      
+   }
+}
+
+int MinRemoveExpertNow(double MinimumEquity = 0) {
+   
+   if(MinimumEquity > 0 && AccountEquity() < MinimumEquity) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+int MaxRemoveExpertNow(double MaximumEquity = 0) {
+   
+   if(MaximumEquity > 0 && AccountEquity() > MaximumEquity) {
+      RemoveAllOrders();
+      ExpertRemove();
+   }
+   return(0);
+   
+}
+
+void DeletePendingOrderBuy(int TheMagicNumberBuy) {
+   
+   int total = OrdersTotal(), TicketOrderSelect, TicketOrderDelete;
+
+   for (int i = total - 1; i >= 0; i--) {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
+      if (OrderMagicNumber() != TheMagicNumberBuy || OrderSymbol() != Symbol()) {
+         continue;
+      }
+      if (OrderMagicNumber() == TheMagicNumberBuy && OrderSymbol() == Symbol() && OrderType() == OP_BUYLIMIT) {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+      if (OrderMagicNumber() == TheMagicNumberBuy && OrderSymbol() == Symbol() && OrderType() == OP_BUYSTOP) {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+   }
+   
+}
+
+void DeletePendingOrderSell(int TheMagicNumberSell) {
+   
+   int total = OrdersTotal(), TicketOrderSelect, TicketOrderDelete;
+
+   for (int i = total - 1; i >= 0; i--) {
+      TicketOrderSelect = OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
+      if (OrderMagicNumber() != TheMagicNumberSell || OrderSymbol() != Symbol()) {
+         continue;
+      }
+      if (OrderMagicNumber() == TheMagicNumberSell && OrderSymbol() == Symbol() && OrderType() == OP_SELLLIMIT) {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+      if (OrderMagicNumber() == TheMagicNumberSell && OrderSymbol() == Symbol() && OrderType() == OP_SELLSTOP) {
+         TicketOrderDelete = OrderDelete(OrderTicket());
+      }
+   }
+   
+}
