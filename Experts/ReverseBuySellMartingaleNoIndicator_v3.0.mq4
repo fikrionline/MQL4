@@ -7,7 +7,7 @@
 #property link      "https://www.mql5.com"
 #property version   "3.00"
 
-extern double EquityMinStopEA = 9600.00;
+extern double EquityMinStopEA = 8800.00;
 extern double EquityMaxStopEA = 10880.00;
 extern double PNLCloseBuy = 10;
 extern double PNLCloseSell = 10;

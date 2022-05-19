@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
-//|                                                    totb_v3.3.mq4 |
+//|                                                    totb_v3.5.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2022, MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
-#property version "1.00"
+#property version "3.5"
 #property strict
 #include <stdlib.mqh>
 
@@ -30,7 +30,7 @@ extern bool MultiOrder = true;
 extern double Lots = 0;
 extern double MinLots = 0.01;
 extern double MaxLots = 3;
-extern double MaxRiskPerTradePercent = 1;
+extern double MaxRiskPerTradePercent = 0.1;
 extern RiskPercentFrom MaxRiskPercentFrom = TheStartBalance;
 extern bool DoubleLotAfterProfit = false;
 extern bool RiskAllProfitAfterProfit = false;

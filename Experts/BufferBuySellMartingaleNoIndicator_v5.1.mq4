@@ -44,7 +44,7 @@ int init() {
 }
 
 int deinit() {
-   Comment("");
+   //Comment("");
    return (0);
 }
 

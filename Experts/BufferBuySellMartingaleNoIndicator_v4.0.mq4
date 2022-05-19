@@ -7,11 +7,11 @@
 #property link      "https://www.mql5.com"
 #property version   "4.00"
 
-extern double EquityMinStopEA = 9600.00;
+extern double EquityMinStopEA = 8800.00;
 extern double EquityMaxStopEA = 10880.00;
 extern int StartHour = 1;
 extern int EndHour = 23;
-extern double StartingLots = 0.01;
+extern double StartingLots = 0.02;
 extern double LotsMultiplier = 1.2;
 extern double PipStepDevideADR = 10;
 extern double PipStepMultiplier = 1;
@@ -41,7 +41,7 @@ int init() {
 }
 
 int deinit() {
-   Comment("");
+   //Comment("");
    return (0);
 }
 

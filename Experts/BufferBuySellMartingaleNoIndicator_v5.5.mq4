@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                      BufferBuySellMartingaleNoIndicator_v5.0.mq4 |
+//|                      BufferBuySellMartingaleNoIndicator_v5.5.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -7,15 +7,28 @@
 #property link      "https://www.mql5.com"
 #property version   "4.00"
 
-extern double EquityMinStopEA = 9600.00;
+enum MagicNumberPartList {
+   One,
+   Two,
+   Three,
+   Four,
+   Five,
+   Six,
+   Seven,
+   Eight,
+   Nine
+};
+
+extern MagicNumberPartList MagicNumberPart = One;
+extern double EquityMinStopEA = 8800.00;
 extern double EquityMaxStopEA = 10880.00;
 extern int StartHour = 0;
 extern int EndHour = 25;
 extern double StartingLots = 0.01;
-extern double LotsMultiplier = 1.3;
+extern double LotsMultiplier = 1.5;
 extern double PipStepDevideADR = 10;
-extern double PipStepMultiplier = 1.2;
-extern int RealOrderLayerStart = 5;
+extern double PipStepMultiplier = 1.5;
+extern int RealOrderLayerStart = 7;
 extern double RealOrderLotStart = 0.01;
 extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 10;
@@ -242,7 +255,7 @@ void OnTick() {
                if((Hour() >= StartHour || Hour() <= EndHour)) {
                   FirstTPOrderBuy = NormalizeDouble(Ask + (double) TakeProfit * Point, Digits);
                   RefreshRates();
-                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
+                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, FirstTPOrderBuy, Symbol() + "-" + MagicNumberBuy + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy + "_FirstTP");
                   if (TicketOrderSend < 0) {
                      Print("Error: ", GetLastError());
                   }
@@ -265,7 +278,7 @@ void OnTick() {
                NumOfTradesBuy = TotalOrderBuy;
                iLotsBuy = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesBuy), 2);
                RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
+               TicketOrderSend = OrderSend(Symbol(), OP_BUY, iLotsBuy, Ask, SlipPage, 0, 0, Symbol() + "-" + MagicNumberBuy + NumOfTradesBuy, MagicNumberBuy, 0, Lime); //Print(Symbol() + "-" + NumOfTradesBuy + "_MN-" + MagicNumberBuy);
                if (TicketOrderSend < 0) {
                   Print("Error: ", GetLastError());
                }
@@ -472,7 +485,7 @@ void OnTick() {
                if((Hour() >= StartHour || Hour() <= EndHour)) {
                   FirstTPOrderSell = NormalizeDouble(Bid - (double) TakeProfit * Point, Digits);
                   RefreshRates();
-                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
+                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, FirstTPOrderSell, Symbol() + "-" + MagicNumberSell + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell + "_FirstTP");
                   if (TicketOrderSend < 0) {
                      Print("Error: ", GetLastError());
                   }
@@ -496,7 +509,7 @@ void OnTick() {
                NumOfTradesSell = TotalOrderSell;
                iLotsSell = NormalizeDouble(StartingLots * MathPow(LotsMultiplier, NumOfTradesSell), 2);
                RefreshRates();
-               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
+               TicketOrderSend = OrderSend(Symbol(), OP_SELL, iLotsSell, Bid, SlipPage, 0, 0, Symbol() + "-" + MagicNumberSell + NumOfTradesSell, MagicNumberSell, 0, Lime); //Print(Symbol() + "-" + NumOfTradesSell + "_MN-" + MagicNumberSell);
                if (TicketOrderSend < 0) {
                   Print("Error: ", GetLastError());
                }
@@ -762,6 +775,36 @@ double GetADRs(int ATR_TimeFrame = PERIOD_D1, int ATR_Counter = 20, int ATR_Shif
 }
 
 int GetMagicNumber(string TheOrderType = "BUYSELL") {
+
+   int TheMagicNumberPart;
+   switch(MagicNumberPart) {
+      case One:
+         TheMagicNumberPart = 1;
+      case Two:
+         TheMagicNumberPart = 2;
+         break;
+      case Three:
+         TheMagicNumberPart = 3;
+         break;
+      case Four:
+         TheMagicNumberPart = 4;
+         break;
+      case Five:
+         TheMagicNumberPart = 5;
+         break;
+      case Six:
+         TheMagicNumberPart = 6;
+         break;
+      case Seven:
+         TheMagicNumberPart = 7;
+         break;
+      case Eight:
+         TheMagicNumberPart = 8;
+         break;
+      case Nine:
+         TheMagicNumberPart = 9;
+         break;
+   }
    
    int MagicNumberResult = 987654321;
    string MagicNumberString;
@@ -803,16 +846,17 @@ int GetMagicNumber(string TheOrderType = "BUYSELL") {
    }
    
    if(TheOrderType == "BUY") {
-      MagicNumberString = MagicNumberString + "1";
+      MagicNumberString = MagicNumberString + "1" + IntegerToString(TheMagicNumberPart, 0);
       MagicNumberResult = StringToInteger(MagicNumberString);
    } else if(TheOrderType == "SELL") {
-      MagicNumberString = MagicNumberString + "2";
+      MagicNumberString = MagicNumberString + "2" + IntegerToString(TheMagicNumberPart, 0);
       MagicNumberResult = StringToInteger(MagicNumberString);
    } else if(TheOrderType == "BUYSELL") {
-      MagicNumberString = MagicNumberString + "3";
+      MagicNumberString = MagicNumberString + "3" + IntegerToString(TheMagicNumberPart, 0);
       MagicNumberResult = StringToInteger(MagicNumberString);
    } else {
-      MagicNumberResult = MagicNumberResult;
+      MagicNumberString = IntegerToString(MagicNumberResult, 0) + IntegerToString(TheMagicNumberPart, 0);
+      MagicNumberResult = StringToInteger(MagicNumberString);
    }
    
    return MagicNumberResult;
