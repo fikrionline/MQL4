@@ -8,7 +8,7 @@
 
 #property indicator_chart_window
 #property indicator_buffers 1
-#property indicator_color1 Peru
+#property indicator_color1 clrGray
 extern int Candle = 480;
 extern int Length = 4;
 double ExtMapBuffer1[];
