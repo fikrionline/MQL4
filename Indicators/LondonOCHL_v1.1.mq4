@@ -57,7 +57,7 @@ void start() {
       ObjectSetInteger(IndicatorID + i, IndicatorID + i, OBJPROP_BACK, true);
       
       ObjectCreate(IndicatorID + i + "Label", OBJ_TEXT, 0, iTime(Symbol(), PERIOD_H1, EndiBarShift), iOpen(Symbol(), PERIOD_H1, EndiBarShift) + PositionLabel * Point());
-      ObjectSetText(IndicatorID + i + "Label", iOpen(Symbol(), PERIOD_H1, EndiBarShift), 8, "Arial", ColorActive);
+      ObjectSetText(IndicatorID + i + "Label", iOpen(Symbol(), PERIOD_H1, EndiBarShift), 8, "Courier New", ColorActive);
       
    }
 
