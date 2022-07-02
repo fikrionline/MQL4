@@ -26,6 +26,8 @@ DeviasiSNRB = 2 //1.00351748471
 };
 input Deviasi DeviasiBase = 1;
 
+input bool ShowMiddleLine = true;
+
 input int LevelSize = 33;
 
 double ResultRumusBase, ResultDeviasiBase;
@@ -45,6 +47,8 @@ int deinit() {
       ObjectDelete("-d-" + IntegerToString(d));
       ObjectDelete("+" + IntegerToString(d) + "Label");
       ObjectDelete("-" + IntegerToString(d) + "Label");
+      ObjectDelete("MiddleLine+" + IntegerToString(d));
+      ObjectDelete("MiddleLine-" + IntegerToString(d));
    }
    
    return (0);
@@ -82,7 +86,8 @@ int start() {
    
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;
-   double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower;
+   double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower, LastLevelMinusDeviasiUpper, LastLevelMinusDeviasiLower;
+   double LastMiddleLine;
    
    ObjectCreate("StartPrice", OBJ_HLINE, 0, CurTime(), StartPrice);
    ObjectSet("StartPrice", OBJPROP_COLOR, Blue);
@@ -98,6 +103,17 @@ int start() {
    //ObjectSet("StartPriceVerticalLine", OBJPROP_STYLE, STYLE_DASHDOT);
    
    for (int i=1; i<=LevelSize; i++) {
+   
+      if(ShowMiddleLine) {
+         
+         LastMiddleLine = (LastLevelPlus + LastLevelPlus * ResultRumusBase) / 2;
+         
+         ObjectCreate("MiddleLine+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastMiddleLine, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("33, 33, 33"));
+         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_BACK, true);
+         
+      }
    
       LastLevelPlus = LastLevelPlus * ResultRumusBase;
       
@@ -130,6 +146,17 @@ int start() {
       
       //-----------------------------------------------------------------------------------------------------------------
       
+      if(ShowMiddleLine) {
+         
+         LastMiddleLine = (LastLevelMinus + LastLevelMinus / ResultRumusBase) / 2;
+         
+         ObjectCreate("MiddleLine-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastMiddleLine, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("33, 33, 33"));
+         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
+         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_BACK, true);
+         
+      }
+      
       LastLevelMinus = LastLevelMinus / ResultRumusBase;
       
       ObjectCreate("-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), LastLevelMinus);
@@ -143,16 +170,16 @@ int start() {
       
       if(ShowDeviasi) {
       
-         LastLevelPlusDeviasiUpper = LastLevelMinus * ResultDeviasiBase;
+         LastLevelMinusDeviasiUpper = LastLevelMinus * ResultDeviasiBase;
          
-         ObjectCreate("-d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectCreate("-d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelMinusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
          
-         LastLevelPlusDeviasiLower = LastLevelMinus / ResultDeviasiBase;
+         LastLevelMinusDeviasiLower = LastLevelMinus / ResultDeviasiBase;
          
-         ObjectCreate("-d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectCreate("-d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelMinusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
          ObjectSet("-d-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
          ObjectSet("-d-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
