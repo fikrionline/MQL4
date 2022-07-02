@@ -12,8 +12,8 @@
 #property indicator_chart_window
  
 extern int    NumberOfDays = 99;        
-extern string periodBegin    = "14:30"; 
-extern string periodEnd      = "16:00";   
+extern string periodBegin    = "10:00"; 
+extern string periodEnd      = "11:00";   
 extern string BoxEnd         = "23:30"; 
 extern int    BoxBreakOut_Offset = 0; 
 extern color  BoxHLColor         = clrMidnightBlue; 
