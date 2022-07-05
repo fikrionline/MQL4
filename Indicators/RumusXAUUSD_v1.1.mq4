@@ -15,6 +15,7 @@ enum Rumus {
 TheBaseSNRA = 1, //1.00351748471
 TheBaseSNRD = 2, //1.00501748471
 TheBaseSNRE = 3, //1.00701748471
+TheBaseSNRG = 4, //1.00901748471
 };
 input Rumus RumusBase = 2;
 
@@ -64,6 +65,10 @@ int start() {
    if (RumusBase == 3)
    {
      ResultRumusBase = 1.00701748471;
+   }
+   if (RumusBase == 4)
+   {
+     ResultRumusBase = 1.00901748471;
    }
    
    if (DeviasiBase == 1)
