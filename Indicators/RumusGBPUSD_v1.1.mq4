@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 1.42481;
+input double StartPrice = 1.37488;
 
 enum Rumus {
 TheBaseSNRA = 1, //1.00175623
@@ -26,7 +26,7 @@ DeviasiSNRB = 2 //1.00351748471
 };
 input Deviasi DeviasiBase = 1;
 
-input bool ShowMiddleLine = true;
+input bool ShowMiddleLine = false;
 
 input int LevelSize = 33;
 

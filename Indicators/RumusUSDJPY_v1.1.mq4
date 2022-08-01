@@ -9,10 +9,10 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 75.563;
+input double StartPrice = 126.677;
 input bool ShowDeviasi = false;
 input double RumusDeviasi = 1.00175623;
-input bool ShowMiddleLine = true;
+input bool ShowMiddleLine = false;
 input int LevelSize = 99;
 
 double ResultDeviasiBase;
