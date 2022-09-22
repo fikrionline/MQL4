@@ -34,11 +34,11 @@ extern bool zone_merge = true;
 extern bool zone_extend = true;
 
 extern string pus4 = "/////////////////////////////////////////////////";
-extern bool zone_show_alerts = false;
+extern bool zone_show_alerts = true;
 extern bool zone_alert_popups = true;
 extern bool zone_alert_notification = true;
 extern bool zone_alert_sounds = true;
-extern int zone_alert_waitseconds = 300;
+extern int zone_alert_waitseconds = 120;
 
 extern string pus5 = "/////////////////////////////////////////////////";
 extern int Text_size = 8;

@@ -11,8 +11,8 @@
 //---
 #property indicator_chart_window
 #property indicator_buffers 2
-#property indicator_color1 clrBlue
-#property indicator_color2 clrRed
+#property indicator_color1 MediumSpringGreen
+#property indicator_color2 Red
 //---
 double TrendUp[];
 double TrendDown[];
@@ -38,9 +38,9 @@ extern int MN_CCI_Period = 14;
 //+------------------------------------------------------------------+
 int init() {
    //---- indicators
-   SetIndexStyle(0, DRAW_LINE, 0, 1);
+   SetIndexStyle(0, DRAW_LINE, 0, 2);
    SetIndexBuffer(0, TrendUp);
-   SetIndexStyle(1, DRAW_LINE, 0, 1);
+   SetIndexStyle(1, DRAW_LINE, 0, 2);
    SetIndexBuffer(1, TrendDown);
    //---
    switch (Period()) {

@@ -8,7 +8,7 @@
 #property indicator_chart_window
 
 extern bool ShowHour1 = true;
-extern int Hour_Num1 = 3;
+extern int Hour_Num1 = 02;
 extern int Minute_Num1 = 00;
 extern color Line_Color1 = clrGreen;
 extern bool ShowHour2 = true;
