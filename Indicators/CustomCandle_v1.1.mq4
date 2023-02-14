@@ -2,13 +2,13 @@
 #property copyright "© 2006, mankurt"
 #property indicator_chart_window
 //+------------------------------------------------------------------------------------------------+
-extern int   HistoryTF     = 10;
+extern int   HistoryCandle = 10;
 extern int   SetTF         = 1440;
+extern int   CandleShift   = 40;
 extern color UpCandle      = clrDarkGreen;
 extern color DnCandle      = clrDarkOrchid;
 extern color DojiColor     = clrDarkOrange;
 extern int   Width         = 1;
-extern int   TheTimeShift  = 10;
 extern bool  BGCandle      = true;
 extern bool  ShowOHLC      = false;
 //+------------------------------------------------------------------------------------------------+
@@ -168,7 +168,7 @@ int start() {
          ColorShadow(OpenNewBar, CloseCurBar, nameNewShadowL);
       }
       
-      if (i > (int)(SetTF / _Period * HistoryTF) && HistoryTF > 0) {
+      if (i > (int)(SetTF / _Period * HistoryCandle) && HistoryCandle > 0) {
          DELETE(NameBar);
          DELETE(NameHigh);
          DELETE(NameLow);
@@ -198,8 +198,8 @@ int start() {
 }
 //+---------------------Main Function "New Bar or Old Bar"-----------------------------------------+
 bool BarNew(int j, int tmf) {
-   int t0 = 1440 * (TimeDayOfWeek(Time[j + TheTimeShift]) - 1) + 60 * TimeHour(Time[j + TheTimeShift]) + TimeMinute(Time[j + TheTimeShift]),
-      t1 = 1440 * (TimeDayOfWeek(Time[j + 1 + TheTimeShift]) - 1) + 60 * TimeHour(Time[j + 1 + TheTimeShift]) + TimeMinute(Time[j + 1 + TheTimeShift]);
+   int t0 = 1440 * (TimeDayOfWeek(Time[j + CandleShift]) - 1) + 60 * TimeHour(Time[j + CandleShift]) + TimeMinute(Time[j + CandleShift]),
+      t1 = 1440 * (TimeDayOfWeek(Time[j + 1 + CandleShift]) - 1) + 60 * TimeHour(Time[j + 1 + CandleShift]) + TimeMinute(Time[j + 1 + CandleShift]);
    if (MathMod(t0, tmf) - MathMod(t1, tmf) == t0 - t1) return (false);
    else return (true);
 }
