@@ -31,19 +31,20 @@ extern MagicNumberPartList MagicNumberPart = One;
 //extern double EquityMaxStopEA = 10808;
 extern double StartBalance = 10000;
 //extern double MaxDailyDrawDown = 400;
-extern int StartHour = 8;
+extern int StartHour = 10;
 extern int EndHour = 22;
 extern double StartingLot = 0.1;
-extern double AdditionalLot = 0.01;
+extern double AdditionalLot = 0.1;
 extern int DayADR = 5;
 extern double TPDevideADR = 25;
 extern double PipStepDevideADR = 25;
 extern double SLMultiplierFromTP = 13;
-extern int SlipPage = 5.0;
+extern int SlipPage = 5;
+extern double PnLStopAfterAdditionalOrder = 3;
 
 static datetime LastTradeBarTime;
 int TicketOrderSelect, TicketOrderClose, TicketOrderDelete, TicketOrderSend, MagicNumberBuy, MagicNumberSell, TotalOrderBuy, TotalOrderSell, NumOfTradesBuy, NumOfTradesSell;
-double PipStep, EquityMin, EquityMax, TakeProfitPoint, StopLossPoint, TakeProfitBuy, TakeProfitSell, StopLossBuy, StopLossSell, LastBuyPrice, LastSellPrice, LastBuyPriceSL, LastSellPriceSL;
+double PipStep, EquityMin, EquityMax, TakeProfitPoint, StopLossPoint, TakeProfitBuy, TakeProfitSell, StopLossBuy, StopLossSell, LastBuyPrice, LastSellPrice, LastBuyPriceSL, LastSellPriceSL, PnL, sma6L, sma6H, sma30, sma60, sma120, sma240;
 
 int init() {
    LastTradeBarTime = Time[1];
@@ -58,7 +59,7 @@ void OnTick() {
 
    if (LastTradeBarTime == Time[0]) {
 
-      //return (0);
+      //Do nothing
 
    } else {
    
@@ -84,18 +85,33 @@ void OnTick() {
          EquityMax = AccountEquity();
       }
       
+      PnL = AccountEquity() - AccountBalance();
+      
+      if(TotalOrderBuy > 1 || TotalOrderSell > 1) {
+         if(PnL > PnLStopAfterAdditionalOrder) {
+           RemoveAllOrders();
+         }
+      }
+      
       TakeProfitPoint = NormalizeDouble((GetADRs(PERIOD_D1, DayADR, 1) / TPDevideADR), 0);
       PipStep = NormalizeDouble(GetADRs(PERIOD_D1, DayADR, 1) / PipStepDevideADR, 0);
       
-      if(BuyOrSell == BuyOnly || BuyOrSell == BuySell) {
+      sma6L = iMA(Symbol(), PERIOD_CURRENT, 6, 0, MODE_SMA, PRICE_LOW, 0);
+      sma6H = iMA(Symbol(), PERIOD_CURRENT, 6, 0, MODE_SMA, PRICE_HIGH, 0);
+      sma30 = iMA(Symbol(), PERIOD_CURRENT, 33, 0, MODE_SMA, PRICE_CLOSE, 0);
+      sma60 = iMA(Symbol(), PERIOD_CURRENT, 60, 0, MODE_SMA, PRICE_CLOSE, 0);
+      sma120 = iMA(Symbol(), PERIOD_CURRENT, 120, 0, MODE_SMA, PRICE_CLOSE, 0);
+      sma240 = iMA(Symbol(), PERIOD_CURRENT, 240, 0, MODE_SMA, PRICE_CLOSE, 0);
       
-         if(GetSignalBuy() == true) {
-            
-            MagicNumberBuy = GetMagicNumber("BUY");
-            TotalOrderBuy = GetTotalOrderBuy();
-            
-            if ((Hour() >= StartHour && Hour() < EndHour)) {
-            
+      if ((Hour() >= StartHour && Hour() < EndHour)) {
+      
+         if(BuyOrSell == BuyOnly || BuyOrSell == BuySell) {
+         
+            if(GetSignal() == 1) {
+               
+               MagicNumberBuy = GetMagicNumber("BUY");
+               TotalOrderBuy = GetTotalOrderBuy();
+               
                if(TotalOrderBuy <= 0) {
                   TakeProfitBuy = NormalizeDouble(Ask + (double) TakeProfitPoint * Point, Digits);
                   StopLossBuy = NormalizeDouble(Ask - (double) (TakeProfitPoint * SLMultiplierFromTP) * Point, Digits);
@@ -105,34 +121,30 @@ void OnTick() {
                   }               
                }
                
-            }
-            
-            if(TotalOrderBuy > 0) {
-               LastBuyPrice = FindLastBuyPrice();
-               LastBuyPriceSL = NormalizeDouble(FindLastBuyPriceSL(), Digits);
-               if ((LastBuyPrice - Ask) >= (PipStep * Point) && (Ask - LastBuyPriceSL) > (PipStep * Point)) {
-                  TakeProfitBuy = NormalizeDouble(Ask + (double) TakeProfitPoint * Point, Digits);
-                  NumOfTradesBuy = TotalOrderBuy + 1;
-                  TicketOrderSend = OrderSend(Symbol(), OP_BUY, AdditionalLot, Ask, SlipPage, LastBuyPriceSL, TakeProfitBuy, Symbol() + "_buy_" + NumOfTradesBuy, MagicNumberBuy, 0, clrLime);
-                  if (TicketOrderSend < 0) {
-                     Print("Error: ", GetLastError());
+               if(TotalOrderBuy > 0) {
+                  LastBuyPrice = FindLastBuyPrice();
+                  LastBuyPriceSL = NormalizeDouble(FindLastBuyPriceSL(), Digits);
+                  if ((LastBuyPrice - Ask) >= (PipStep * Point) && (Ask - LastBuyPriceSL) > (PipStep * Point)) {
+                     TakeProfitBuy = NormalizeDouble(Ask + (double) TakeProfitPoint * Point, Digits);
+                     NumOfTradesBuy = TotalOrderBuy + 1;
+                     TicketOrderSend = OrderSend(Symbol(), OP_BUY, AdditionalLot, Ask, SlipPage, LastBuyPriceSL, TakeProfitBuy, Symbol() + "_buy_" + NumOfTradesBuy, MagicNumberBuy, 0, clrLime);
+                     if (TicketOrderSend < 0) {
+                        Print("Error: ", GetLastError());
+                     }
                   }
                }
+               
             }
             
          }
          
-      }
-      
-      if(BuyOrSell == SellOnly || BuyOrSell == BuySell) {
-      
-         if(GetSignalSell() == true) {
-            
-            MagicNumberSell = GetMagicNumber("SELL");
-            TotalOrderSell = GetTotalOrderSell();
-            
-            if ((Hour() >= StartHour && Hour() < EndHour)) {
-            
+         if(BuyOrSell == SellOnly || BuyOrSell == BuySell) {
+         
+            if(GetSignal() == -1) {
+               
+               MagicNumberSell = GetMagicNumber("SELL");
+               TotalOrderSell = GetTotalOrderSell();
+               
                if(TotalOrderSell <= 0) {
                   TakeProfitPoint = NormalizeDouble((GetADRs(PERIOD_D1, DayADR, 1) / TPDevideADR), 0);
                   TakeProfitSell = NormalizeDouble(Bid - (double) TakeProfitPoint * Point, Digits);
@@ -140,50 +152,53 @@ void OnTick() {
                   TicketOrderSend = OrderSend(Symbol(), OP_SELL, StartingLot, Bid, SlipPage, StopLossSell, TakeProfitSell, Symbol() + "_sell_1", MagicNumberSell, 0, clrRed);
                }
                
-            }
-            
-            if(TotalOrderSell > 0) {
-               LastSellPrice = FindLastSellPrice();
-               LastSellPriceSL = NormalizeDouble(FindLastSellPriceSL(), Digits);
-               if ((Bid - LastSellPrice) >= (PipStep * Point) && (LastSellPriceSL - Bid) > (PipStep * Point)) {
-                  TakeProfitPoint = NormalizeDouble((GetADRs(PERIOD_D1, DayADR, 1) / TPDevideADR), 0);
-                  TakeProfitSell = NormalizeDouble(Bid - (double) TakeProfitPoint * Point, Digits);
-                  NumOfTradesSell = TotalOrderSell + 1;
-                  TicketOrderSend = OrderSend(Symbol(), OP_SELL, AdditionalLot, Bid, SlipPage, LastSellPriceSL, TakeProfitSell, Symbol() + "_sell_" + NumOfTradesSell, MagicNumberSell, 0, clrLime);
-                  if (TicketOrderSend < 0) {
-                     Print("Error: ", GetLastError());
+               if(TotalOrderSell > 0) {
+                  LastSellPrice = FindLastSellPrice();
+                  LastSellPriceSL = NormalizeDouble(FindLastSellPriceSL(), Digits);
+                  if ((Bid - LastSellPrice) >= (PipStep * Point) && (LastSellPriceSL - Bid) > (PipStep * Point)) {
+                     TakeProfitPoint = NormalizeDouble((GetADRs(PERIOD_D1, DayADR, 1) / TPDevideADR), 0);
+                     TakeProfitSell = NormalizeDouble(Bid - (double) TakeProfitPoint * Point, Digits);
+                     NumOfTradesSell = TotalOrderSell + 1;
+                     TicketOrderSend = OrderSend(Symbol(), OP_SELL, AdditionalLot, Bid, SlipPage, LastSellPriceSL, TakeProfitSell, Symbol() + "_sell_" + NumOfTradesSell, MagicNumberSell, 0, clrLime);
+                     if (TicketOrderSend < 0) {
+                        Print("Error: ", GetLastError());
+                     }
                   }
                }
+               
             }
-            
+         
          }
       
       }
       
       Info();
       
-      //return (0);
-      
    }
 
 }
 
 //##################### FUNCTION and LIBRARY #######################
-bool GetSignalBuy() {
-   
-   if(Ask < iMA(Symbol(), PERIOD_CURRENT, 6, 0, MODE_SMA, PRICE_LOW, 0)) {
-      return true;
-   }
-   return false;
-   
-}
+int GetSignal() {
 
-bool GetSignalSell() {
+   int SignalResult = 0;
+   bool good_short_ma_order = false, good_long_ma_order = false;
    
-   if(Bid > iMA(Symbol(), PERIOD_CURRENT, 6, 0, MODE_SMA, PRICE_HIGH, 0)) {
-      return true;
+   if(Ask < sma6L && sma6H < sma30 && sma30 < sma60 && sma60 < sma120 && sma120 < sma240) {
+      good_long_ma_order = true;
    }
-   return false;
+   
+   if(Bid > sma6H && sma6L > sma30 && sma30 > sma60 && sma60 > sma120 && sma120 > sma240) {
+      good_short_ma_order = true;
+   }
+   
+   if (good_long_ma_order == true && good_short_ma_order == false) {
+      SignalResult = 1;
+   } else if(good_long_ma_order == false && good_short_ma_order == true) {
+      SignalResult = -1;
+   }
+   
+   return SignalResult;
    
 }
 
@@ -267,6 +282,7 @@ void Info() {
       "\nTakeProfit = ", DoubleToString(TakeProfitPoint, 0),
       "\nPipStep = ", DoubleToString(PipStep, 0),
       "\nSpread = ", DoubleToString(MarketInfo(Symbol(), MODE_SPREAD), 0),
+      "\nPnL = ", DoubleToString(PnL, 2),
       "\n----------------------------------------------------------------"
    );
 
