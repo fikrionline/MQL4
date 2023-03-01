@@ -2,7 +2,7 @@
 #property copyright "© 2006, mankurt"
 #property indicator_chart_window
 //+------------------------------------------------------------------------------------------------+
-extern int   HistoryCandle = 10;
+extern int   HistoryCandle = 20;
 extern int   SetTF         = 1440;
 extern int   CandleShift   = 40;
 extern color UpCandle      = clrDarkGreen;

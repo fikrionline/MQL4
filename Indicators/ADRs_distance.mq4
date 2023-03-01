@@ -258,7 +258,7 @@ int start() {
    if (!adr_reached)
       reached_str = "No";
 
-   string comment = DoubleToStr(MathRound(adr / Point), 0) + " / " + DoubleToStr(MathRound((today_high - today_low) / Point), 0) + " --> " + DoubleToStr((MathRound((today_high - today_low) / Point) / MathRound(adr / Point)) * 100, 2) + "%";
+   string comment = DoubleToStr(MathRound(adr / Point) / 3 / 10, 0) + " / " + DoubleToStr(MathRound(adr / Point), 0) + " / " + DoubleToStr(MathRound((today_high - today_low) / Point), 0) + " --> " + DoubleToStr((MathRound((today_high - today_low) / Point) / MathRound(adr / Point)) * 100, 2) + "%";
    
    if(TodayChange == true) {
 
