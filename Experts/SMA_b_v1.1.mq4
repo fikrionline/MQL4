@@ -58,7 +58,7 @@ int deinit() {
 void OnTick() {
 
    if(Hour() > EndHour) {
-      RemoveAllOrders();
+      //RemoveAllOrders();
    }
 
    if (LastTradeBarTime == Time[0]) {
