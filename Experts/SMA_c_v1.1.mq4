@@ -40,7 +40,7 @@ extern double TPDevideADR = 25;
 extern double PipStepDevideADR = 25;
 extern double SLMultiplierFromTP = 13;
 extern int SlipPage = 5;
-extern double PnLStopAfterAdditionalOrder = 3;
+extern double PnLStopAfterAdditionalOrder = 5;
 
 static datetime LastTradeBarTime;
 int TicketOrderSelect, TicketOrderClose, TicketOrderDelete, TicketOrderSend, MagicNumberBuy, MagicNumberSell, TotalOrderBuy, TotalOrderSell, NumOfTradesBuy, NumOfTradesSell;
@@ -120,13 +120,11 @@ void OnTick() {
       sma_5_120 = iMA(Symbol(), PERIOD_M5, 120, 0, MODE_SMA, PRICE_CLOSE, 0);
       sma_5_240 = iMA(Symbol(), PERIOD_M5, 240, 0, MODE_SMA, PRICE_CLOSE, 0);
       
-      //Close Order when meet some like below
       MagicNumberBuy = GetMagicNumber("BUY");
       TotalOrderBuy = GetTotalOrderBuy();
       
       if(TotalOrderBuy > 0) {
          if(Bid > sma_1_30) {
-         //if(Bid > sma_1_30 || Bid > sma_5_30) {
             CloseOrderBuy(MagicNumberBuy);
          }
       }
@@ -136,7 +134,6 @@ void OnTick() {
       
       if(TotalOrderSell > 0) {
          if(Ask < sma_1_30) {
-         //if(Ask < sma_1_30 || Ask < sma_5_30) {
             CloseOrderSell(MagicNumberSell);
          }
       }
