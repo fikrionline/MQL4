@@ -36,8 +36,8 @@ extern int EndHour = 22;
 extern double StartingLot = 0.1;
 extern double AdditionalLot = 0.1;
 extern int DayADR = 5;
-extern double TPDevideADR = 25;
-extern double PipStepDevideADR = 25;
+extern double TPDevideADR = 10;
+extern double PipStepDevideADR = 10;
 extern double SLMultiplierFromTP = 13;
 extern int SlipPage = 5;
 extern double PnLStopAfterAdditionalOrder = 5;
@@ -225,7 +225,8 @@ int GetSignal() {
    if(sma_1_30 < sma_1_60 &&
       sma_1_60 < sma_1_120 &&
       sma_1_120 < sma_1_240 &&
-      sma_1_3_high < sma_1_30) {
+      sma_1_3_high < sma_1_30 &&
+      Ask < sma_1_3_low) {
       good_1min_long = true;
    }
    
@@ -239,7 +240,8 @@ int GetSignal() {
    if(sma_1_30 > sma_1_60 &&
       sma_1_60 > sma_1_120 &&
       sma_1_120 > sma_1_240 &&
-      sma_1_3_low > sma_1_30) {
+      sma_1_3_low > sma_1_30 &&
+      Bid > sma_1_3_high) {
       good_1min_short = true;
    }
    

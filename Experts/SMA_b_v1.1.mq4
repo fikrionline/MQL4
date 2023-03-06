@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                      MA_v1.1.mq4 |
+//|                                                   SMA_b_v1.1.mq4 |
 //|                        Copyright 2023, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -40,7 +40,7 @@ extern double TPDevideADR = 25;
 extern double PipStepDevideADR = 25;
 extern double SLMultiplierFromTP = 13;
 extern int SlipPage = 5;
-extern double PnLStopAfterAdditionalOrder = 3;
+extern double PnLStopAfterAdditionalOrder = 5;
 
 static datetime LastTradeBarTime;
 int TicketOrderSelect, TicketOrderClose, TicketOrderDelete, TicketOrderSend, MagicNumberBuy, MagicNumberSell, TotalOrderBuy, TotalOrderSell, NumOfTradesBuy, NumOfTradesSell;
