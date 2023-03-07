@@ -222,11 +222,11 @@ int GetSignal() {
    int SignalResult = 0;
    bool good_1min_short = false, good_5min_short = false, good_1min_long = false, good_5min_long = false;
       
-   if(sma_1_30 < sma_1_60 &&
+   if(Ask < sma_1_3_low &&
+      sma_1_30 < sma_1_60 &&
       sma_1_60 < sma_1_120 &&
       sma_1_120 < sma_1_240 &&
-      sma_1_3_high < sma_1_30 &&
-      Ask < sma_1_3_low) {
+      sma_1_3_high < sma_1_30) {
       good_1min_long = true;
    }
    
@@ -237,11 +237,11 @@ int GetSignal() {
       good_5min_long = true;
    }
    
-   if(sma_1_30 > sma_1_60 &&
+   if(Bid > sma_1_3_high &&
+      sma_1_30 > sma_1_60 &&
       sma_1_60 > sma_1_120 &&
       sma_1_120 > sma_1_240 &&
-      sma_1_3_low > sma_1_30 &&
-      Bid > sma_1_3_high) {
+      sma_1_3_low > sma_1_30) {
       good_1min_short = true;
    }
    

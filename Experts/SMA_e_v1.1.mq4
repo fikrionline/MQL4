@@ -45,7 +45,7 @@ extern double PnLStopAfterAdditionalOrder = 5;
 static datetime LastTradeBarTime;
 int TicketOrderSelect, TicketOrderClose, TicketOrderDelete, TicketOrderSend, MagicNumberBuy, MagicNumberSell, TotalOrderBuy, TotalOrderSell, NumOfTradesBuy, NumOfTradesSell;
 double PipStep, EquityMin, EquityMax, TakeProfitPoint, StopLossPoint, TakeProfitBuy, TakeProfitSell, StopLossBuy, StopLossSell, LastBuyPrice, LastSellPrice, LastBuyPriceSL, LastSellPriceSL, PnL;
-double sma_1_3_high, sma_1_3_low, sma_1_6_high, sma_1_6_low, sma_1_30, sma_1_60, sma_1_120, sma_1_240, sma_5_3_high, sma_5_3_low, sma_5_6_high, sma_5_6_low, sma_5_30, sma_5_60, sma_5_120, sma_5_240;
+double sma_1_3_high, sma_1_3_low, sma_1_6_high, sma_1_6_low, sma_1_10, sma_1_30, sma_1_60, sma_1_120, sma_1_240, sma_5_3_high, sma_5_3_low, sma_5_6_high, sma_5_6_low, sma_5_30, sma_5_60, sma_5_120, sma_5_240;
 
 int init() {
    LastTradeBarTime = Time[1];
@@ -104,6 +104,7 @@ void OnTick() {
       sma_1_6_high = iMA(Symbol(), PERIOD_M1, 6, 0, MODE_SMA, PRICE_HIGH, 0);
       sma_1_6_low = iMA(Symbol(), PERIOD_M1, 6, 0, MODE_SMA, PRICE_LOW, 0);
       
+      sma_1_10 = iMA(Symbol(), PERIOD_M1, 10, 0, MODE_SMA, PRICE_CLOSE, 0);
       sma_1_30 = iMA(Symbol(), PERIOD_M1, 30, 0, MODE_SMA, PRICE_CLOSE, 0);
       sma_1_60 = iMA(Symbol(), PERIOD_M1, 60, 0, MODE_SMA, PRICE_CLOSE, 0);
       sma_1_120 = iMA(Symbol(), PERIOD_M1, 120, 0, MODE_SMA, PRICE_CLOSE, 0);
@@ -124,7 +125,7 @@ void OnTick() {
       TotalOrderBuy = GetTotalOrderBuy();
       
       if(TotalOrderBuy > 0) {
-         if(Bid > sma_1_30) {
+         if(Bid > sma_1_30 || Bid > sma_5_30) {
             CloseOrderBuy(MagicNumberBuy);
          }
       }
@@ -133,7 +134,7 @@ void OnTick() {
       TotalOrderSell = GetTotalOrderSell();
       
       if(TotalOrderSell > 0) {
-         if(Ask < sma_1_30) {
+         if(Ask < sma_1_30 || Ask < sma_5_30) {
             CloseOrderSell(MagicNumberSell);
          }
       }
@@ -222,10 +223,14 @@ int GetSignal() {
    int SignalResult = 0;
    bool good_1min_short = false, good_5min_short = false, good_1min_long = false, good_5min_long = false;
       
-   if(sma_1_30 < sma_1_60 &&
+   if(
+      Ask < sma_1_3_low &&
+      sma_1_10 < sma_1_30 &&
+      sma_1_30 < sma_1_60 &&
       sma_1_60 < sma_1_120 &&
       sma_1_120 < sma_1_240 &&
-      sma_1_3_high < sma_1_30) {
+      sma_1_3_high < sma_1_10
+      ) {
       good_1min_long = true;
    }
    
@@ -236,10 +241,14 @@ int GetSignal() {
       good_5min_long = true;
    }
    
-   if(sma_1_30 > sma_1_60 &&
+   if(
+      Bid > sma_1_3_high &&
+      sma_1_10 > sma_1_30 &&
+      sma_1_30 > sma_1_60 &&
       sma_1_60 > sma_1_120 &&
       sma_1_120 > sma_1_240 &&
-      sma_1_3_low > sma_1_30) {
+      sma_1_3_low > sma_1_10
+      ) {
       good_1min_short = true;
    }
    
