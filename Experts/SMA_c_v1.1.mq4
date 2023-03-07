@@ -40,7 +40,7 @@ extern double TPDevideADR = 10;
 extern double PipStepDevideADR = 10;
 extern double SLMultiplierFromTP = 10;
 extern int SlipPage = 5;
-extern double PnLStopAfterAdditionalOrder = 5;
+extern double PnLStopAfterAdditionalOrder = 3;
 
 static datetime LastTradeBarTime;
 int TicketOrderSelect, TicketOrderClose, TicketOrderDelete, TicketOrderSend, MagicNumberBuy, MagicNumberSell, TotalOrderBuy, TotalOrderSell, NumOfTradesBuy, NumOfTradesSell;
