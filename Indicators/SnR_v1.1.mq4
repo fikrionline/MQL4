@@ -8,14 +8,14 @@
 
 #property indicator_chart_window
 #property indicator_buffers 8
-#property indicator_color1 Yellow
-#property indicator_color2 Yellow
-#property indicator_color3 LimeGreen
-#property indicator_color4 LimeGreen
-#property indicator_color5 Blue
-#property indicator_color6 Blue
-#property indicator_color7 Red
-#property indicator_color8 Red
+#property indicator_color1 clrRed
+#property indicator_color2 clrRed
+#property indicator_color3 clrOrange
+#property indicator_color4 clrOrange
+#property indicator_color5 clrYellow
+#property indicator_color6 clrYellow
+#property indicator_color7 clrGreen
+#property indicator_color8 clrGreen
 //---- input parameters
 
 //---- buffers
@@ -33,46 +33,46 @@ int KG;
 //+------------------------------------------------------------------+
 int init() {
    //---- indicators
-   SetIndexStyle(0, DRAW_ARROW, STYLE_DOT, 1, Yellow);
+   /*SetIndexStyle(0, DRAW_ARROW, STYLE_SOLID, 1, clrRed);
    SetIndexDrawBegin(0, KG - 1);
    SetIndexBuffer(0, ExtMapBuffer1);
    SetIndexLabel(0, "Resistance M15");
    SetIndexArrow(0, 158);
-   SetIndexStyle(1, DRAW_ARROW, STYLE_DOT, 1, Yellow);
+   SetIndexStyle(1, DRAW_ARROW, STYLE_SOLID, 1, clrRed);
    SetIndexDrawBegin(1, KG - 1);
    SetIndexBuffer(1, ExtMapBuffer2);
    SetIndexLabel(1, "Support M15");
-   SetIndexArrow(1, 158);
-   SetIndexStyle(2, DRAW_ARROW, STYLE_DOT, 1, LimeGreen);
+   SetIndexArrow(1, 158);*/
+   SetIndexStyle(2, DRAW_ARROW, STYLE_SOLID, 1, clrOrange);
    SetIndexDrawBegin(2, KG - 1);
    SetIndexBuffer(2, ExtMapBuffer3);
    SetIndexLabel(2, "Resistance H1");
    SetIndexArrow(2, 158);
-   SetIndexStyle(3, DRAW_ARROW, STYLE_DOT, 1, LimeGreen);
+   SetIndexStyle(3, DRAW_ARROW, STYLE_SOLID, 1, clrOrange);
    SetIndexDrawBegin(3, KG - 1);
    SetIndexBuffer(3, ExtMapBuffer4);
    SetIndexLabel(3, "Support H1");
    SetIndexArrow(3, 158);
-   SetIndexStyle(4, DRAW_ARROW, STYLE_DOT, 1, Blue);
+   /*SetIndexStyle(4, DRAW_ARROW, STYLE_SOLID, 1, clrYellow);
    SetIndexDrawBegin(4, KG - 1);
    SetIndexBuffer(4, ExtMapBuffer5);
    SetIndexLabel(4, "Resistance H4");
    SetIndexArrow(4, 158);
-   SetIndexStyle(5, DRAW_ARROW, STYLE_DOT, 1, Blue);
+   SetIndexStyle(5, DRAW_ARROW, STYLE_SOLID, 1, clrYellow);
    SetIndexDrawBegin(5, KG - 1);
    SetIndexBuffer(5, ExtMapBuffer6);
    SetIndexLabel(5, "Support H4");
    SetIndexArrow(5, 158);
-   SetIndexStyle(6, DRAW_ARROW, STYLE_DOT, 1, Red);
+   SetIndexStyle(6, DRAW_ARROW, STYLE_SOLID, 1, clrGreen);
    SetIndexDrawBegin(6, KG - 1);
    SetIndexBuffer(6, ExtMapBuffer7);
    SetIndexLabel(6, "Resistance D1");
    SetIndexArrow(6, 158);
-   SetIndexStyle(7, DRAW_ARROW, STYLE_DOT, 1, Red);
+   SetIndexStyle(7, DRAW_ARROW, STYLE_SOLID, 1, clrGreen);
    SetIndexDrawBegin(7, KG - 1);
    SetIndexBuffer(7, ExtMapBuffer8);
    SetIndexLabel(7, "Support D1");
-   SetIndexArrow(7, 158);
+   SetIndexArrow(7, 158);*/
    //----
    return (0);
 }

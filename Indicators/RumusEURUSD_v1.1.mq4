@@ -9,13 +9,25 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 129.638;
+input double StartPrice = 1.05169;
+
+enum Rumus {
+TheBaseSNRA = 1, //1.00175623
+TheBaseSNRB = 2, //1.00351748471
+TheBaseSNRD = 3, //1.01231748471
+};
+input Rumus RumusBase = 2;
+
 input bool ShowDeviasi = false;
-input double RumusDeviasi = 1.00175623;
-input bool ShowMiddleLine = false;
+enum Deviasi {
+DeviasiSNRA = 1, //1.00175623
+DeviasiSNRB = 2 //1.00351748471
+};
+input Deviasi DeviasiBase = 1;
+
 input int LevelSize = 99;
 
-double ResultDeviasiBase;
+double ResultRumusBase, ResultDeviasiBase;
 
 int deinit() {
 
@@ -32,8 +44,6 @@ int deinit() {
       ObjectDelete("-d-" + IntegerToString(d));
       ObjectDelete("+" + IntegerToString(d) + "Label");
       ObjectDelete("-" + IntegerToString(d) + "Label");
-      ObjectDelete("MiddleLine+" + IntegerToString(d));
-      ObjectDelete("MiddleLine-" + IntegerToString(d));
    }
    
    return (0);
@@ -43,12 +53,31 @@ int deinit() {
 
 int start() {
 
-   ResultDeviasiBase = RumusDeviasi;
-     
+   if (RumusBase == 1)
+   {
+     ResultRumusBase = 1.00175623;
+   } else
+   if (RumusBase == 2)
+   {
+     ResultRumusBase = 1.00351748471;
+   } else
+   if (RumusBase == 3)
+   {
+     ResultRumusBase = 1.01231748471;
+   }
+   
+   if (DeviasiBase == 1)
+   {
+     ResultDeviasiBase = 1.00175623;
+   } else
+   if (DeviasiBase == 2)
+   {
+     ResultDeviasiBase = 1.00351748471;
+   }
+   
    double LastLevelPlus = StartPrice;
    double LastLevelMinus = StartPrice;
-   double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower, LastLevelMinusDeviasiUpper, LastLevelMinusDeviasiLower;
-   double LastMiddleLine;
+   double LastLevelPlusDeviasiUpper, LastLevelPlusDeviasiLower;
    
    ObjectCreate("StartPrice", OBJ_HLINE, 0, CurTime(), StartPrice);
    ObjectSet("StartPrice", OBJPROP_COLOR, Blue);
@@ -65,18 +94,7 @@ int start() {
    
    for (int i=1; i<=LevelSize; i++) {
    
-      if(ShowMiddleLine) {
-         
-         LastMiddleLine = (LastLevelPlus + LastLevelPlus * (1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)))) / 2;
-         
-         ObjectCreate("MiddleLine+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastMiddleLine, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("33, 33, 33"));
-         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("MiddleLine+" + IntegerToString(i), OBJPROP_BACK, true);
-         
-      }
-   
-      LastLevelPlus = LastLevelPlus * (1 + (LastLevelPlus / (LastLevelPlus * LastLevelPlus)));
+      LastLevelPlus = LastLevelPlus * ResultRumusBase;
       
       ObjectCreate("+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlus, (int) MarketInfo(Symbol(), MODE_DIGITS)));
       ObjectSet("+" + IntegerToString(i), OBJPROP_COLOR, Aqua);
@@ -107,18 +125,7 @@ int start() {
       
       //-----------------------------------------------------------------------------------------------------------------
       
-      if(ShowMiddleLine) {
-         
-         LastMiddleLine = (LastLevelMinus + LastLevelMinus / (1 + (LastLevelMinus / (LastLevelMinus * LastLevelMinus)))) / 2;
-         
-         ObjectCreate("MiddleLine-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastMiddleLine, (int) MarketInfo(Symbol(), MODE_DIGITS)));
-         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("33, 33, 33"));
-         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
-         ObjectSet("MiddleLine-" + IntegerToString(i), OBJPROP_BACK, true);
-         
-      }
-      
-      LastLevelMinus = LastLevelMinus / (1 + (LastLevelMinus / (LastLevelMinus * LastLevelMinus)));
+      LastLevelMinus = LastLevelMinus / ResultRumusBase;
       
       ObjectCreate("-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), LastLevelMinus);
       ObjectSet("-" + IntegerToString(i), OBJPROP_COLOR, Aqua);
@@ -131,16 +138,16 @@ int start() {
       
       if(ShowDeviasi) {
       
-         LastLevelMinusDeviasiUpper = LastLevelMinus * ResultDeviasiBase;
+         LastLevelPlusDeviasiUpper = LastLevelMinus * ResultDeviasiBase;
          
-         ObjectCreate("-d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelMinusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectCreate("-d+" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiUpper, (int) MarketInfo(Symbol(), MODE_DIGITS)));
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
          
-         LastLevelMinusDeviasiLower = LastLevelMinus / ResultDeviasiBase;
+         LastLevelPlusDeviasiLower = LastLevelMinus / ResultDeviasiBase;
          
-         ObjectCreate("-d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelMinusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
+         ObjectCreate("-d-" + IntegerToString(i), OBJ_HLINE, 0, CurTime(), NormalizeDouble(LastLevelPlusDeviasiLower, (int) MarketInfo(Symbol(), MODE_DIGITS)));
          ObjectSet("-d-" + IntegerToString(i), OBJPROP_COLOR, StringToColor("66, 66, 66"));
          ObjectSet("-d-" + IntegerToString(i), OBJPROP_STYLE, STYLE_DASHDOT);
          ObjectSet("-d+" + IntegerToString(i), OBJPROP_BACK, true);
