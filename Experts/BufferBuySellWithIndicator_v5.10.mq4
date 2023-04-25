@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
-//|                      BufferBuySellMartingaleNoIndicator_v5.9.mq4 |
+//|                     BufferBuySellMartingaleNoIndicator_v5.10.mq4 |
 //|                        Copyright 2022, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2022, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
-#property version   "5.9"
+#property version   "5.10"
 
 enum BuySellChoose {
    BuySell,
@@ -28,41 +28,41 @@ enum MagicNumberPartList {
 };
 
 extern MagicNumberPartList MagicNumberPart = One;
-extern double EquityMinStopEA = 10.00;
-extern double EquityMaxStopEA = 11000.00;
-extern double MaxDailyDrawDown = 1000;
-extern int StartHour = 5;
+extern double EquityMinStopEA = 9600.00;
+extern double EquityMaxStopEA = 10808.00;
+extern double MaxDailyDrawDown = 400;
+extern int StartHour = 8;
 extern int EndHour = 22;
 extern double StartingLots = 0.01;
-extern double LotsMultiplier = 1.2;
-extern double PipStepDevideADR = 9;
-extern double PipStepMultiplier = 1;
-extern int RealOrderLayerStart = 9;
+extern double LotsMultiplier = 1.1;
+extern double PipStepDevideADR = 10;
+extern double PipStepMultiplier = 1.1;
+extern int RealOrderLayerStart = 1;
 extern double RealOrderLotStart = 0.01;
-extern double TakeProfitDevideADR = 9;
+extern double TakeProfitDevideADR = 10;
 extern double TakeProfitPlus = 5;
-extern double SlipPage = 5.0;
+extern double SlipPage = 5;
 extern int MaxTrades = 33;
 extern double StopHighPrice = 0;
 extern double StopLowPrice = 0;
 extern int SetZeroAfterSomeTP = 1;
-extern int BEPHunterOnLayer = 9;
+extern int BEPHunterOnLayer = 3;
 extern double BEPHunterProfit = 3;
 
 int TicketOrderSend, TicketOrderSelect, TicketOrderModify, TicketOrderClose, TicketOrderDelete, TotalOrderBuy, TotalOrderSell, LastTicket, LastTicketTemp, NumOfTradesSell, NumOfTradesBuy, MagicNumberBuy, MagicNumberSell, cnt;
 double PriceTargetBuy, PriceTargetSell, AveragePriceBuy, AveragePriceSell, LastBuyPrice, LastSellPrice, iLotsBuy, iLotsSell, MaxLotsBuy, MaxLotsSell, ADRs, PipStep, TakeProfit, FirstTPOrderBuy, FirstTPOrderSell, StartEquityBuySell, Count, LastPipStepMultiplierBuy, LastPipStepMultiplierSell, PNL, PNLMax, PNLMin, PNLBuy, PNLBuyMax, PNLBuyMin, PNLSell, PNLSellMax, PNLSellMin, EquityMin, EquityMax;
-bool NewOrdersPlacedBuy = false, NewOrdersPlacedSell = false, FirstOrderBuy = false, FirstOrderSell = false;
+bool NewOrdersPlacedBuy = FALSE, NewOrdersPlacedSell = FALSE, FirstOrderBuy = FALSE, FirstOrderSell = FALSE;
 
 double BufferBuyPrice[], BufferBuyLots[], BufferLastBuyPrice, BufferBuyTP, BufferLastPipStepMultiplierBuy, BufferiLotsBuy, BufferAveragePriceBuy;
 int BufferBuyCounter, BufferTotalOrderBuy, SetZeroAfterSomeTPBuy;
-bool BufferNewOrderBuy = false;
+bool BufferNewOrderBuy = FALSE;
 
 double BufferSellPrice[], BufferSellLots[], BufferLastSellPrice, BufferSellTP, BufferLastPipStepMultiplierSell, BufferiLotsSell, BufferAveragePriceSell;
 int BufferSellCounter, BufferTotalOrderSell, SetZeroAfterSomeTPSell;
-bool BufferNewOrderSell = false;
+bool BufferNewOrderSell = FALSE;
 
 double RealPriceMaxBuy, RealPriceMinSell, iLotsBuyReal, iLotsSellReal;
-bool RealStartBuy = false, RealStartSell = false;
+bool RealStartBuy = FALSE, RealStartSell = FALSE;
 
 static datetime LastTradeBarTime;
 
@@ -77,6 +77,10 @@ int deinit() {
 }
 
 int start() {
+
+   if(Hour() > EndHour) {
+      //RemoveAllOrders();
+   }
 
    if (LastTradeBarTime == Time[0]) {
 
@@ -151,6 +155,7 @@ int start() {
       if (BuyOrSell == BuySell || BuyOrSell == BuyOnly) {
 
          //------ Only for BUY -------------------------------------------------------------------------------------------
+         if(GetSignal() == 1) {
          MagicNumberBuy = GetMagicNumber("BUY");
 
          TakeProfit = NormalizeDouble((GetADRs(PERIOD_D1, 20, 1) / TakeProfitDevideADR) + TakeProfitPlus, 0);
@@ -158,7 +163,7 @@ int start() {
          ArrayResize(BufferBuyPrice, MaxTrades);
          ArrayResize(BufferBuyLots, MaxTrades);
 
-         if (RealStartBuy == false) {
+         if (RealStartBuy == FALSE) {
 
             if (BufferTotalOrderBuy < 1) {
                BufferBuyCounter = 0;
@@ -196,7 +201,7 @@ int start() {
                   BufferBuyPrice[BufferBuyCounter] = Ask;
                   BufferTotalOrderBuy = BufferTotalOrderBuy + 1;
                   BufferLastPipStepMultiplierBuy = NormalizeDouble((BufferLastPipStepMultiplierBuy * PipStepMultiplier), 2);
-                  BufferNewOrderBuy = true;
+                  BufferNewOrderBuy = TRUE;
 
                   ObjectCreate("BufferBuy_" + BufferBuyCounter, OBJ_HLINE, 0, CurTime(), BufferBuyPrice[BufferBuyCounter]);
                   ObjectSet("BufferBuy_" + BufferBuyCounter, OBJPROP_COLOR, Blue);
@@ -220,15 +225,15 @@ int start() {
                BufferAveragePriceBuy = NormalizeDouble(BufferAveragePriceBuy / Count, Digits);
 
                if (BufferTotalOrderBuy >= RealOrderLayerStart && BufferiLotsBuy >= RealOrderLotStart) {
-                  RealStartBuy = true;
+                  RealStartBuy = TRUE;
                   RealPriceMaxBuy = BufferAveragePriceBuy;
                }
 
             }
 
-            if (BufferNewOrderBuy == true) {
+            if (BufferNewOrderBuy == TRUE) {
                BufferBuyTP = NormalizeDouble(BufferAveragePriceBuy, Digits);
-               BufferNewOrderBuy = false;
+               BufferNewOrderBuy = FALSE;
 
                ObjectDelete("BufferBuyTP");
 
@@ -256,7 +261,7 @@ int start() {
 
          }
 
-         if (RealStartBuy == true) {
+         if (RealStartBuy == TRUE) {
 
             ObjectDelete("BufferBuyTP");
             for (BufferBuyCounter = 0; BufferBuyCounter < MaxTrades; BufferBuyCounter++) {
@@ -296,8 +301,8 @@ int start() {
                         if (TicketOrderSend < 0) {
                            Print("Error: ", GetLastError());
                         }
-                        NewOrdersPlacedBuy = true;
-                        FirstOrderBuy = true;
+                        NewOrdersPlacedBuy = TRUE;
+                        FirstOrderBuy = TRUE;
                         TotalOrderBuy = 1;
                         LastPipStepMultiplierBuy = 0;
                      }
@@ -319,7 +324,7 @@ int start() {
                      if (TicketOrderSend < 0) {
                         Print("Error: ", GetLastError());
                      }
-                     NewOrdersPlacedBuy = true;
+                     NewOrdersPlacedBuy = TRUE;
                      LastPipStepMultiplierBuy = NormalizeDouble((LastPipStepMultiplierBuy * PipStepMultiplier), 2);
                   }
                }
@@ -342,13 +347,13 @@ int start() {
                   AveragePriceBuy = NormalizeDouble(AveragePriceBuy / Count, Digits);
                }
 
-               if (NewOrdersPlacedBuy == true) {
+               if (NewOrdersPlacedBuy == TRUE) {
                   if (TotalOrderBuy > 1) {
                      for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
                         TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
                         if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberBuy) continue;
                         if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberBuy && OrderType() == OP_BUY) {
-                           if (FirstOrderBuy == true) {
+                           if (FirstOrderBuy == TRUE) {
                               PriceTargetBuy = NormalizeDouble(AveragePriceBuy + (TakeProfit * Point), Digits);
                            } else {
                               PriceTargetBuy = NormalizeDouble(AveragePriceBuy, Digits);
@@ -356,7 +361,7 @@ int start() {
                         }
                         TicketOrderModify = OrderModify(OrderTicket(), AveragePriceBuy, 0, PriceTargetBuy, 0, Yellow);
                      }
-                     NewOrdersPlacedBuy = false;
+                     NewOrdersPlacedBuy = FALSE;
                   }
                }
 
@@ -365,7 +370,7 @@ int start() {
             if (Bid > RealPriceMaxBuy) {
                ObjectDelete("RealPriceMaxBuy");
                ObjectDelete("BufferBuyTP");
-               RealStartBuy = false;
+               RealStartBuy = FALSE;
                BufferTotalOrderBuy = 0;
                CloseOrderBuy(MagicNumberBuy);
             }
@@ -373,12 +378,13 @@ int start() {
             if (SetZeroAfterSomeTPBuy > SetZeroAfterSomeTP) {
                ObjectDelete("RealPriceMaxBuy");
                ObjectDelete("BufferBuyTP");
-               RealStartBuy = false;
+               RealStartBuy = FALSE;
                BufferTotalOrderBuy = 0;
                CloseOrderBuy(MagicNumberBuy);
                SetZeroAfterSomeTPBuy = 0;
             }
 
+         }
          }
          //----------------------------------------------------------------------------------------------------------------
 
@@ -387,6 +393,7 @@ int start() {
       if (BuyOrSell == BuySell || BuyOrSell == SellOnly) {
 
          //------ Only for SELL -------------------------------------------------------------------------------------------
+         if(GetSignal() == -1) {
          MagicNumberSell = GetMagicNumber("SELL");
 
          TakeProfit = NormalizeDouble((GetADRs(PERIOD_D1, 20, 1) / TakeProfitDevideADR) + TakeProfitPlus, 0);
@@ -394,7 +401,7 @@ int start() {
          ArrayResize(BufferSellPrice, MaxTrades);
          ArrayResize(BufferSellLots, MaxTrades);
 
-         if (RealStartSell == false) {
+         if (RealStartSell == FALSE) {
 
             if (BufferTotalOrderSell < 1) {
                BufferSellCounter = 0;
@@ -430,7 +437,7 @@ int start() {
                   BufferSellPrice[BufferSellCounter] = Bid;
                   BufferTotalOrderSell = BufferTotalOrderSell + 1; //Print("BufferTotalOrderSell --> " + BufferTotalOrderSell + " | " + BufferSellPrice[BufferSellCounter]);
                   BufferLastPipStepMultiplierSell = NormalizeDouble((BufferLastPipStepMultiplierSell * PipStepMultiplier), 2);
-                  BufferNewOrderSell = true;
+                  BufferNewOrderSell = TRUE;
 
                   ObjectCreate("BufferSell_" + BufferSellCounter, OBJ_HLINE, 0, CurTime(), BufferSellPrice[BufferSellCounter]);
                   ObjectSet("BufferSell_" + BufferSellCounter, OBJPROP_COLOR, Red);
@@ -453,15 +460,15 @@ int start() {
                BufferAveragePriceSell = NormalizeDouble(BufferAveragePriceSell / Count, Digits);
 
                if (BufferTotalOrderSell >= RealOrderLayerStart && BufferiLotsSell >= RealOrderLotStart) {
-                  RealStartSell = true;
+                  RealStartSell = TRUE;
                   RealPriceMinSell = BufferAveragePriceSell;
                }
 
             }
 
-            if (BufferNewOrderSell == true) {
+            if (BufferNewOrderSell == TRUE) {
                BufferSellTP = NormalizeDouble(BufferAveragePriceSell, Digits);
-               BufferNewOrderSell = false;
+               BufferNewOrderSell = FALSE;
 
                ObjectDelete("BufferSellTP");
 
@@ -489,7 +496,7 @@ int start() {
 
          }
 
-         if (RealStartSell == true) {
+         if (RealStartSell == TRUE) {
 
             ObjectDelete("BufferSellTP");
             for (BufferSellCounter = 0; BufferSellCounter < MaxTrades; BufferSellCounter++) {
@@ -530,8 +537,8 @@ int start() {
                         if (TicketOrderSend < 0) {
                            Print("Error: ", GetLastError());
                         }
-                        NewOrdersPlacedSell = true;
-                        FirstOrderSell = true;
+                        NewOrdersPlacedSell = TRUE;
+                        FirstOrderSell = TRUE;
                         TotalOrderSell = 1;
                         LastPipStepMultiplierSell = 0;
                      }
@@ -554,7 +561,7 @@ int start() {
                      if (TicketOrderSend < 0) {
                         Print("Error: ", GetLastError());
                      }
-                     NewOrdersPlacedSell = true;
+                     NewOrdersPlacedSell = TRUE;
                      LastPipStepMultiplierSell = NormalizeDouble((LastPipStepMultiplierSell * PipStepMultiplier), 2);
                   }
                }
@@ -577,13 +584,13 @@ int start() {
                   AveragePriceSell = NormalizeDouble(AveragePriceSell / Count, Digits);
                }
 
-               if (NewOrdersPlacedSell == true) {
+               if (NewOrdersPlacedSell == TRUE) {
                   if (TotalOrderSell > 1) {
                      for (cnt = OrdersTotal() - 1; cnt >= 0; cnt--) {
                         TicketOrderSelect = OrderSelect(cnt, SELECT_BY_POS, MODE_TRADES);
                         if (OrderSymbol() != Symbol() || OrderMagicNumber() != MagicNumberSell) continue;
                         if (OrderSymbol() == Symbol() && OrderMagicNumber() == MagicNumberSell && OrderType() == OP_SELL) {
-                           if (FirstOrderSell == true) {
+                           if (FirstOrderSell == TRUE) {
                               PriceTargetSell = NormalizeDouble(AveragePriceSell - (TakeProfit * Point), Digits);
                            } else {
                               PriceTargetSell = NormalizeDouble(AveragePriceSell, Digits);
@@ -591,7 +598,7 @@ int start() {
                         }
                         TicketOrderModify = OrderModify(OrderTicket(), AveragePriceSell, 0, PriceTargetSell, 0, Yellow);
                      }
-                     NewOrdersPlacedSell = false;
+                     NewOrdersPlacedSell = FALSE;
                   }
                }
 
@@ -600,7 +607,7 @@ int start() {
             if (Ask < RealPriceMinSell) {
                ObjectDelete("RealPriceMinSell");
                ObjectDelete("BufferSellTP");
-               RealStartSell = false;
+               RealStartSell = FALSE;
                BufferTotalOrderSell = 0;
                CloseOrderSell(MagicNumberSell);
             }
@@ -608,12 +615,13 @@ int start() {
             if (SetZeroAfterSomeTPSell > SetZeroAfterSomeTP) {
                ObjectDelete("RealPriceMinSell");
                ObjectDelete("BufferSellTP");
-               RealStartSell = false;
+               RealStartSell = FALSE;
                BufferTotalOrderSell = 0;
                CloseOrderSell(MagicNumberSell);
                SetZeroAfterSomeTPSell = 0;
             }
 
+         }
          }
          //----------------------------------------------------------------------------------------------------------------
 
@@ -921,4 +929,19 @@ int GetMagicNumber(string TheOrderType = "BUYSELL") {
 
    return MagicNumberResult;
 
+}
+
+int GetSignal() {
+
+   int SignalResult = 0;
+   if(iCustom(Symbol(), PERIOD_CURRENT, "FTC", 3, 0) != EMPTY_VALUE) {
+      SignalResult = 1;
+   }
+   
+   if(iCustom(Symbol(), PERIOD_CURRENT, "FTC", 4, 0) != EMPTY_VALUE) {
+      SignalResult = -1;
+   }
+   
+   return SignalResult;
+   
 }

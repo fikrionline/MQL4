@@ -8,8 +8,8 @@
 #property version "1.00"
 #property strict
 //---- input parameters
-extern double TakeProfitPrice = 0;
 extern double StopLossPrice = 0;
+extern double TakeProfitPrice = 0;
 int Faktor, Digt, cnt, SelectOrder, ModifyOrder;
 double TPp, SLp;
 //+------------------------------------------------------------------+
