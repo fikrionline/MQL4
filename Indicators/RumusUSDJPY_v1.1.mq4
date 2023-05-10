@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 129.638;
+input double StartPrice = 151.940;
 input bool ShowDeviasi = false;
 input double RumusDeviasi = 1.00175623;
 input bool ShowMiddleLine = false;

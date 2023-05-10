@@ -10,7 +10,7 @@
 #property indicator_color3 DodgerBlue
 #property indicator_color4 DodgerBlue
 
-extern int BackLimit = 999;
+extern int BackLimit = 240;
 
 extern string pus1 = "/////////////////////////////////////////////////";
 extern bool zone_show_weak = true;
@@ -29,12 +29,12 @@ extern bool zone_solid = true;
 extern int zone_linewidth = 1;
 extern int zone_style = 0;
 extern bool zone_show_info = true;
-extern int zone_label_shift = 4;
+extern int zone_label_shift = 3;
 extern bool zone_merge = true;
 extern bool zone_extend = true;
 
 extern string pus4 = "/////////////////////////////////////////////////";
-extern bool zone_show_alerts = true;
+extern bool zone_show_alerts = false;
 extern bool zone_alert_popups = true;
 extern bool zone_alert_notification = true;
 extern bool zone_alert_sounds = true;

@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 1680.85;
+input double StartPrice = 2070.34;
 
 enum Rumus {
 TheBaseSNRA = 1, //1.00351748471

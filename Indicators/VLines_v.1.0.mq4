@@ -16,8 +16,8 @@ extern int Hour_Num2 = 10;
 extern int Minute_Num2 = 00;
 extern color Line_Color2 = clrDarkGoldenrod;
 extern bool ShowHour3 = true;
-extern int Hour_Num3 = 15;
-extern int Minute_Num3 = 0;
+extern int Hour_Num3 = 14;
+extern int Minute_Num3 = 55;
 extern color Line_Color3 = clrFireBrick;
 extern int Line_Style = 2; // 1=SOLID, 2=DASH, 3=DOT, 4=DASHDOT, 5=DASHDOTDOT
 
