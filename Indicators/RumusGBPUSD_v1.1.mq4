@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-input double StartPrice = 1.18023;
+input double StartPrice = 1.03337;
 
 enum Rumus {
 TheBaseSNRA = 1, //1.00175623
@@ -17,7 +17,7 @@ TheBaseSNRB = 2, //1.00701748471
 TheBaseSNRC = 3, //1.01141748471
 TheBaseSNRD = 4, //1.00901748471
 };
-input Rumus RumusBase = 2;
+input Rumus RumusBase = 3;
 
 input bool ShowDeviasi = false;
 enum Deviasi {

@@ -27,6 +27,12 @@ extern int CandleBase = 1;
 extern bool ShowPrice = true;
 extern color FiboColor = Blue;
 
+enum EnumFiboBasic {
+   HighLow,
+   OpenClose
+};
+extern EnumFiboBasic FiboBasic = HighLow;
+
 enum FiboUpDown {
    Up,
    Down
@@ -168,8 +174,13 @@ int Calculate_Fibo() {
 
    ObjectDelete(gs_Fibo);
 
-   gd_High = iHigh(NULL, xi_Period, gi_BarOffset);
-   gd_Low = iLow(NULL, xi_Period, gi_BarOffset);
+   if(FiboBasic == HighLow) {
+      gd_High = iHigh(NULL, xi_Period, gi_BarOffset);
+      gd_Low = iLow(NULL, xi_Period, gi_BarOffset);
+   } else if(FiboBasic == OpenClose) {
+      gd_High = iOpen(NULL, xi_Period, gi_BarOffset);
+      gd_Low = iClose(NULL, xi_Period, gi_BarOffset);
+   }
 
    ObjectCreate(gs_Fibo, OBJ_FIBO, 0, iTime(NULL, xi_Period, gi_BarOffset), gd_High, iTime(NULL, xi_Period, gi_BarOffset), gd_Low);
    ObjectSet(gs_Fibo, OBJPROP_BACK, true);
